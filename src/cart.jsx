@@ -1,4 +1,4 @@
-// src/cart.jsx (повна, правильна версія)
+// src/cart.jsx
 import { createContext, useContext, useMemo, useState } from "react";
 
 const CartCtx = createContext(null);
@@ -72,24 +72,61 @@ function CartModal() {
     isOpen, close, showCheckout, setShowCheckout
   } = useCart();
 
+  const [submitting, setSubmitting] = useState(false);
+
   if (!isOpen) return null;
 
-  const fmt = (n) => `${n} грн`;
-  const fix = (p) => (!p ? "" : p.startsWith("/img/") ? p : p.replace(/^public\//, "/"));
-
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
-    if (!cart.length) return;
-    alert("Тут буде перехід на MonoPay (інвойс).");
-    clear();
-    close();
+    if (!cart.length || submitting) return;
+
+    // зібрати дані з форми:
+    const fd = new FormData(e.currentTarget);
+    const customer = {
+      firstName: (fd.get("firstName") || "").trim(),
+      lastName:  (fd.get("lastName")  || "").trim(),
+      phone:     (fd.get("phone")     || "").trim(),
+      np:        (fd.get("np")        || "").trim(), // місто + відділення
+    };
+
+    // підготувати корзину (мінімальний склад)
+    const safeCart = cart.map(it => ({
+      id: it.id,
+      title: it.title,
+      price: it.price,
+      qty: it.qty,
+      img: it.img || "",
+    }));
+
+    try {
+      setSubmitting(true);
+      const resp = await fetch("/api/create-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart: safeCart, customer }),
+      });
+      const data = await resp.json();
+
+      if (!resp.ok || !data.checkoutUrl) {
+        console.error("MonoPay error:", data);
+        alert("Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram.");
+        setSubmitting(false);
+        return;
+      }
+
+      // редирект на сторінку оплати MonoPay
+      window.location.href = data.checkoutUrl;
+    } catch (err) {
+      console.error(err);
+      alert("Помилка мережі. Будь ласка, спробуйте ще раз.");
+      setSubmitting(false);
+    }
   }
 
   return (
     <div className="modalOverlay" onClick={close}>
       <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className="modalHead">
-          {/* ✅ міняємо заголовок залежно від режиму */}
           <h3>{showCheckout ? "Оформлення" : "Кошик"}</h3>
           <button className="iconBtn" onClick={close} aria-label="Закрити">×</button>
         </div>
@@ -108,7 +145,7 @@ function CartModal() {
                   <li className="cartRow" key={it.id}>
                     <img className="thumb" src={fix(it.img)} alt={it.title} />
 
-                    {/* Ліворуч — назва (одним рядком, з обрізанням, щоб усе рівно) */}
+                    {/* Ліворуч — назва */}
                     <div className="cTitle">{it.title}</div>
 
                     {/* Посередині — кількість */}
@@ -156,27 +193,27 @@ function CartModal() {
               <div className="summaryFoot">Всього: <b>{fmt(total)}</b></div>
             </div>
 
-            {/* Форма оформлення з нормальними відступами */}
+            {/* Форма оформлення */}
             <form className="formInModal" onSubmit={submit}>
               <div className="grid2">
                 <div>
-                  <label>Ім’я</label>
-                  <input required placeholder="Ім’я отримувача" />
+                  <label htmlFor="firstName">Ім’я</label>
+                  <input id="firstName" name="firstName" required placeholder="Ім’я отримувача" />
                 </div>
                 <div>
-                  <label>Прізвище</label>
-                  <input required placeholder="Прізвище" />
+                  <label htmlFor="lastName">Прізвище</label>
+                  <input id="lastName" name="lastName" required placeholder="Прізвище" />
                 </div>
               </div>
 
               <div>
-                <label>Телефон</label>
-                <input required placeholder="+380XXXXXXXXX" />
+                <label htmlFor="phone">Телефон</label>
+                <input id="phone" name="phone" required placeholder="+380XXXXXXXXX" />
               </div>
 
               <div>
-                <label>Місто / Відділення Нової Пошти</label>
-                <input required placeholder="Київ, відділення №..." />
+                <label htmlFor="np">Місто / Відділення Нової Пошти</label>
+                <input id="np" name="np" required placeholder="Київ, відділення №..." />
               </div>
 
               <div className="modalFoot">
@@ -185,7 +222,9 @@ function CartModal() {
                   <button type="button" className="btn ghost" onClick={() => setShowCheckout(false)}>
                     Назад до кошика
                   </button>
-                  <button type="submit" className="btn primary">Підтвердити та оплатити</button>
+                  <button type="submit" className="btn primary" disabled={submitting}>
+                    {submitting ? "Переходимо до оплати..." : "Підтвердити та оплатити"}
+                  </button>
                 </div>
               </div>
             </form>
