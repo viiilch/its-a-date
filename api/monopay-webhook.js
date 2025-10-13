@@ -1,6 +1,6 @@
 // api/monopay-webhook.js (ESM-версія)
 // Обробка вебхука MonoPay → створення ПРОДАЖУ в Poster (transactions.create)
-export const config = { runtime: "nodejs18.x" };
+export const config = { runtime: "nodejs" };
 import { createSale, mapLinesByName, POSTER_SPOT_ID } from "./lib/poster.js";
 
 export default async function handler(req, res) {
