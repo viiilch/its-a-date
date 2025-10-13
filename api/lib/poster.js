@@ -125,3 +125,25 @@ export async function createSale({ reference, spotId, customer, lines, total }) 
 
   return { via: "transactions.create", response: resp };
 }
+// ==== ДОДАТИ в api/lib/poster.js ====
+
+export async function createIncomingOrder({ spotId, customer, lines }) {
+  // Poster очікує масив products з product_id та count
+  const products = lines.map(l => ({
+    product_id: String(l.product_id),
+    count: l.qty, // кількість
+  }));
+
+  const payload = {
+    spot_id: String(spotId),
+    phone: customer.phone || "",           // опційно
+    first_name: customer.firstName || "",  // опційно
+    last_name: customer.lastName || "",    // опційно
+    comment: customer.np || "",            // NP адреса/коментар
+    products,
+  };
+
+  // POST-запит
+  const resp = await posterCall("incomingOrders.createIncomingOrder", payload, true);
+  return resp?.response || resp;
+}
