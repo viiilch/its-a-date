@@ -1,66 +1,127 @@
-// api/lib/poster.js
-// ❌ НЕ імпортуємо "node-fetch" — в Edge є глобальний fetch
+// api/lib/poster.js  (ESM)
 
-const BASE = process.env.POSTER_BASE || "https://joinposter.com/api";
+const BASE  = process.env.POSTER_BASE  || "https://joinposter.com/api";
 const TOKEN = process.env.POSTER_TOKEN || "";
-const SPOT_ID = process.env.POSTER_SPOT_ID || "1";
+export const POSTER_SPOT_ID = process.env.POSTER_SPOT_ID || "1";
 
-// універсальний виклик Poster (працює і в Edge, і локально)
-async function callPoster(method, params = {}, httpMethod = "GET") {
+function form(params = {}) {
+  const b = new URLSearchParams();
+  b.set("token", TOKEN);
+  for (const [k, v] of Object.entries(params)) b.set(k, String(v));
+  return b;
+}
+
+export async function posterCall(method, params = {}, preferPost = true) {
   if (!TOKEN) throw new Error("POSTER_TOKEN is not set");
+  const url = `${BASE}/${method}`;
+  const headers = { "Content-Type": "application/x-www-form-urlencoded" };
 
-  const url = new URL(`${BASE}/${method}`);
-  url.searchParams.set("token", TOKEN);
-
-  // У Poster майже все можна передавати через query
-  for (const [k, v] of Object.entries(params)) {
-    url.searchParams.set(k, typeof v === "object" ? JSON.stringify(v) : String(v));
+  // 1) POST
+  if (preferPost) {
+    const r = await fetch(url, { method: "POST", headers, body: form(params) });
+    const t = await r.text();
+    // Poster інколи віддає 200 навіть з HTML, тому перевіряємо
+    if (r.ok && t.trim().startsWith("{")) return JSON.parse(t);
   }
-
-  const res = await fetch(url.toString(), { method: httpMethod });
-  const text = await res.text();
-
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${text}`);
-
-  let data;
-  try { data = JSON.parse(text); }
-  catch { throw new Error(text); }
-
-  if (data?.error) {
-    throw new Error(`Poster API error: code=${data.error.code} msg=${data.error.message}`);
-  }
-  return data;
+  // 2) GET fallback
+  const u = new URL(url);
+  u.search = form(params).toString();
+  const r2 = await fetch(u);
+  const t2 = await r2.text();
+  if (!r2.ok) throw new Error(`Poster HTTP ${r2.status}: ${t2}`);
+  return JSON.parse(t2);
 }
 
-// Меню (map за назвою)
+/* ===== Довідник товарів (щоб зіставити назву → product_id) ===== */
 export async function getMenuProducts() {
-  const data = await callPoster("menu.getProducts", {}, "GET");
-  const items = data?.response || [];
-  const byName = new Map();
-  for (const it of items) {
-    byName.set((it.product_name || "").trim().toLowerCase(), it);
-  }
-  return { list: items, byName, spotId: SPOT_ID };
+  const data = await posterCall("menu.getProducts", {}, false);
+  return data?.response || [];
 }
 
-// Поки що формуємо «чернетку» замовлення без відправки в Poster
-export async function createPosterOrderDraft({ customer, lines, total }) {
+/* ===== Мапінг позицій кошика за назвою товару ===== */
+export async function mapLinesByName(cart = []) {
+  const products = await getMenuProducts();
+  const byName = new Map(
+    products.map(p => [String(p.product_name).trim().toLowerCase(), p])
+  );
+
+  const lines = [];
+  const notFound = [];
+
+  for (const it of cart) {
+    const key = String(it.title || it.name || "").trim().toLowerCase();
+    const p = byName.get(key);
+    if (!p) {
+      notFound.push({ title: it.title, qty: it.qty, price: it.price });
+      continue;
+    }
+    lines.push({
+      product_id: String(p.product_id),
+      title: p.product_name,
+      qty: Number(it.qty || 1),
+      price: Number(it.price || 0),
+    });
+  }
+  return { lines, notFound };
+}
+
+/* ===== Підготовка «чорнетки» продажу (для логів) ===== */
+export async function createIncomingOrderDraft({ spotId, customer, lines, total }) {
   return {
-    spot_id: SPOT_ID,
+    spot_id: String(spotId),
     client: {
-      name: `${customer.firstName ?? ""} ${customer.lastName ?? ""}`.trim(),
-      phone: customer.phone ?? "",
-      comment: customer.np ?? "", // місто/відділення НП
+      name: `${customer.firstName} ${customer.lastName}`.trim(),
+      phone: customer.phone,
+      comment: customer.np || "",
     },
     items: lines.map(l => ({
-      product_id: l.product_id,
+      product_id: String(l.product_id),
       count: l.qty,
-      price: l.price,  // у грн (коли Poster відповість — за потреби помножимо на 100)
+      price: l.price,
       title: l.title,
     })),
     total,
   };
+}
 
-  // Коли підтримка Poster дасть точний метод:
-  // return await callPoster("transactions.create", { ...payload }, "POST");
+/* ===== Створення ПРОДАЖУ в Poster =====
+   Використовуємо метод transactions.create (продаж на точці/касі).
+   Якщо твому акаунту цей метод недоступний, у відповіді буде error.code=30 (Unknown API method).
+   Тоді напиши в підтримку Poster, щоб включили доступ, або тимчасово можна падати на incomingOrders.create.
+*/
+export async function createSale({ reference, spotId, customer, lines, total }) {
+  // Мінімальні обов’язкові поля: spot_id, products[]
+  const products = lines.map(l => ({
+    product_id: String(l.product_id),
+    count: Number(l.qty),
+    price: Number(l.price),   // у гривнях, без копійок
+  }));
+
+  const params = {
+    spot_id: String(spotId),
+    products: JSON.stringify(products),
+    comment: `Online: ${reference} — ${customer.firstName} ${customer.lastName}; ${customer.phone}; ${customer.np || ""}`,
+  };
+
+  console.info("POSTER CALL → transactions.create", params);
+
+  const resp = await posterCall("transactions.create", params, true);
+
+  if (resp?.error) {
+    // Якщо метод недоступний (code 30) — пробуємо створити вхідне замовлення як fallback
+    if (String(resp.error.code) === "30") {
+      console.warn("transactions.create недоступний, Fallback → incomingOrders.create");
+      const draft = await createIncomingOrderDraft({ spotId, customer, lines, total });
+      const inResp = await posterCall(
+        "incomingOrders.create",
+        { incoming_order: JSON.stringify(draft) },
+        true
+      );
+      if (inResp?.error) throw new Error(`Poster incomingOrders.create error: ${JSON.stringify(inResp.error)}`);
+      return { via: "incomingOrders.create", response: inResp };
+    }
+    throw new Error(`Poster transactions.create error: ${JSON.stringify(resp.error)}`);
+  }
+
+  return { via: "transactions.create", response: resp };
 }
