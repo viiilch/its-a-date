@@ -33,30 +33,67 @@ export async function getMenuProducts() {
   return data?.response || [];
 }
 
-// Мапимо позиції кошика (за title) до product_id з Poster
+// Нормалізуємо назву: у нижній регістр, прибираємо все, крім букв/цифр, стискаємо пробіли
+function normName(s = "") {
+  return String(s)
+    .toLowerCase()
+    .replace(/&/g, "and")           // замінимо & → and
+    .replace(/[’'`]/g, "")          // прибрати апострофи
+    .replace(/[^a-z0-9а-яіїєґ\s]+/gi, " ") // інше сміття → пробіл
+    .replace(/\s+/g, " ")           // стиснути пробіли
+    .trim();
+}
+
 export async function mapLinesByName(cart = []) {
   const menu = await getMenuProducts();
-  const byName = new Map(
-    menu.map(p => [String(p.product_name).trim().toLowerCase(), p])
-  );
+
+  // Побудуємо кілька індексів для надійності:
+  const byExact = new Map();   // точна нормалізована назва → продукт
+  const list = [];             // масив {norm, prod} для contains/startsWith
+
+  for (const p of menu) {
+    const name = String(p.product_name || "");
+    const norm = normName(name);
+    if (norm) {
+      if (!byExact.has(norm)) byExact.set(norm, p);
+      list.push({ norm, prod: p });
+    }
+  }
 
   const lines = [];
   const notFound = [];
 
   for (const it of cart) {
-    const key = String(it.title || "").trim().toLowerCase();
-    const p = byName.get(key);
-    if (!p) { notFound.push({ title: it.title, qty: it.qty }); continue; }
+    const title = String(it.title || "");
+    const want = normName(title);
+    if (!want) { notFound.push({ title: it.title, qty: it.qty }); continue; }
+
+    // 1) повний збіг
+    let found = byExact.get(want);
+
+    // 2) якщо ні — пошук за “містить”
+    if (!found) {
+      found = list.find(x => x.norm === want || x.norm.includes(want) || want.includes(x.norm))?.prod;
+    }
+
+    if (!found) {
+      notFound.push({ title: it.title, qty: it.qty });
+      continue;
+    }
 
     lines.push({
-      product_id: String(p.product_id),
+      product_id: String(found.product_id),
       title: it.title,
       qty: Number(it.qty || 1),
-      price: Number(it.price || 0)
+      price: Number(it.price || 0),
     });
   }
+
   return { lines, notFound };
 }
+
+  return { lines, notFound };
+
 
 // Створення онлайн-замовлення (incomingOrders.createIncomingOrder)
 export async function createIncomingOrder({ spotId, customer, lines }) {
