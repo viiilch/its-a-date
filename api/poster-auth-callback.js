@@ -1,65 +1,41 @@
-// api/poster-auth-callback.js  (ESM, Node runtime)
-export const config = { runtime: "nodejs" };
-
-function json(res, code, data) {
-  res.status(code).setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(data));
-}
-
+// Callback після згоди у Poster: обмінюємо code -> access_token
 export default async function handler(req, res) {
   try {
-    // забираємо code та account з query
-    const url = new URL(req.url, "http://x");
-    const code = url.searchParams.get("code");
-    const account = url.searchParams.get("account");
+    const code = req.query?.code;
+    const account = req.query?.account || process.env.POSTER_ACCOUNT;
+    const APP_ID = process.env.POSTER_APP_ID;
+    const APP_SECRET = process.env.POSTER_APP_SECRET;
+    const REDIRECT = process.env.POSTER_REDIRECT;
 
     if (!code || !account) {
-      return json(res, 400, { ok: false, error: "Missing code or account" });
+      return res.status(400).json({ ok: false, error: "Missing code or account in query" });
+    }
+    if (!APP_ID || !APP_SECRET || !REDIRECT) {
+      return res.status(500).json({ ok: false, error: "Missing Poster app env vars" });
     }
 
-    const appId     = process.env.POSTER_APP_ID || "";
-    const appSecret = process.env.POSTER_APP_SECRET || "";
-    const redirect  = process.env.POSTER_REDIRECT || "";
-
-    if (!appId || !appSecret || !redirect) {
-      return json(res, 500, { ok: false, error: "Missing POSTER_APP_ID / POSTER_APP_SECRET / POSTER_REDIRECT env" });
-    }
-
-    // готуємо POST form-data (x-www-form-urlencoded)
-    const body = new URLSearchParams();
-    body.set("application_id",     String(appId));
-    body.set("application_secret", String(appSecret));
-    body.set("grant_type",         "authorization_code");
-    body.set("redirect_uri",       String(redirect));
-    body.set("code",               String(code));
-
-    const tokenUrl = `https://${account}.joinposter.com/api/v2/auth/access_token`;
-    const r = await fetch(tokenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body
+    const url = `https://${account}.joinposter.com/api/v2/auth/access_token`;
+    const body = new URLSearchParams({
+      application_id: String(APP_ID),
+      application_secret: String(APP_SECRET),
+      grant_type: "authorization_code",
+      redirect_uri: String(REDIRECT),
+      code: String(code),
     });
 
+    const r = await fetch(url, { method: "POST", body });
     const text = await r.text();
+    if (!r.ok) {
+      return res.status(500).json({ ok: false, error: `HTTP ${r.status}: ${text}` });
+    }
+
     let data;
     try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
-    if (!r.ok) {
-      return json(res, 200, { ok: false, error: `Poster HTTP ${r.status}`, detail: data });
-    }
-    if (data?.error) {
-      return json(res, 200, { ok: false, error: data.error });
-    }
-
-    // успішно отримали access_token
-    const access = data?.access_token || "";
-    if (!access) {
-      return json(res, 200, { ok: false, error: "No access_token in response", detail: data });
-    }
-
-    // ПОВЕРТАЄМО ЙОГО, щоб ти могла вставити у Vercel як POSTER_TOKEN
-    return json(res, 200, { ok: true, access_token: access, info: { account, user: data?.user || null } });
-  } catch (err) {
-    return json(res, 500, { ok: false, error: "Server error", detail: String(err?.message || err) });
+    // У відповідь прийде access_token типу "861052:xxxxxxxx..."
+    // Збережи його вручну у Vercel → Settings → Environment Variables як POSTER_TOKEN (Sensitive, Prod & Preview), потім Redeploy.
+    return res.status(200).json({ ok: true, got: { access_token: data?.access_token || null, account }, note: "Скопіюй access_token у Vercel env як POSTER_TOKEN та зроби Redeploy" });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
   }
 }
