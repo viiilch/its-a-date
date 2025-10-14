@@ -1,10 +1,13 @@
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+export const config = { runtime: "nodejs" };
 
-export default function handler(req, res) {
-  res.status(200).json({
-    hasToken: !!process.env.MONOPAY_TOKEN,
-    MONOPAY_BASE: process.env.MONOPAY_BASE,
-    PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL
+export default async function handler(req, res) {
+  return res.status(200).json({
+    ok: true,
+    poster: {
+      base: process.env.POSTER_BASE,
+      hasToken: !!process.env.POSTER_TOKEN,
+      token: process.env.POSTER_TOKEN ? "✅ Exists (hidden)" : "❌ Missing",
+      spot: process.env.POSTER_SPOT_ID,
+    },
   });
 }
