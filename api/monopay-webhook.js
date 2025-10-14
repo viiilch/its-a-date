@@ -1,4 +1,5 @@
-// Вебхук MonoPay -> створення online-замовлення в Poster (incomingOrders.createIncomingOrder)
+// Вебхук MonoPay -> створення online-замовлення в Poster
+export const config = { runtime: "nodejs" };
 import { createIncomingOrder, mapLinesByName, POSTER_SPOT_ID } from "./lib/poster.js";
 
 export default async function handler(req, res) {
@@ -44,7 +45,8 @@ export default async function handler(req, res) {
       const incoming = await createIncomingOrder({
         reference,
         spotId: String(POSTER_SPOT_ID || "1"),
-        customer, lines,
+        customer,
+        lines,
       });
       return res.status(200).json({ ok: true, incoming, notFound });
     } catch (e) {

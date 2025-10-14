@@ -1,16 +1,8 @@
-export default async function handler(req, res) {
-  const appId = process.env.POSTER_APP_ID;
-  const redirect = process.env.POSTER_REDIRECT;
-  const account = (req.query.account || process.env.POSTER_ACCOUNT || "").trim();
-  if (!appId || !redirect) return res.status(500).json({ ok:false, error:"Missing env" });
+// Крок 1: віддаємо code+account назад клієнту (для дебагу), або редіректимо
+export const config = { runtime: "nodejs" };
 
-  if (!account) {
-    // якщо явно не передали ?account=its-a-date — редіректим на універсальний /api/auth
-    return res.redirect(
-      `https://joinposter.com/api/auth?application_id=${appId}&redirect_uri=${encodeURIComponent(redirect)}&response_type=code`
-    );
-  }
-  return res.redirect(
-    `https://${account}.joinposter.com/api/auth?application_id=${appId}&redirect_uri=${encodeURIComponent(redirect)}&response_type=code`
-  );
+export default async function handler(req, res) {
+  const code = req.query?.code || req.query?.CODE || req.body?.code;
+  const account = req.query?.account || req.body?.account;
+  return res.status(200).json({ ok: true, received: { code, account } });
 }

@@ -1,4 +1,4 @@
-// api/lib/poster.js  (ESM)
+// ESM-модуль з чистими експортами — без top-level return
 const BASE  = process.env.POSTER_BASE  || "https://joinposter.com/api";
 const TOKEN = process.env.POSTER_TOKEN || "";
 export const POSTER_SPOT_ID = process.env.POSTER_SPOT_ID || "1";
@@ -33,85 +33,40 @@ export async function getMenuProducts() {
   return data?.response || [];
 }
 
-// Нормалізуємо назву: у нижній регістр, прибираємо все, крім букв/цифр, стискаємо пробіли
-function normName(s = "") {
-  return String(s)
-    .toLowerCase()
-    .replace(/&/g, "and")           // замінимо & → and
-    .replace(/[’'`]/g, "")          // прибрати апострофи
-    .replace(/[^a-z0-9а-яіїєґ\s]+/gi, " ") // інше сміття → пробіл
-    .replace(/\s+/g, " ")           // стиснути пробіли
-    .trim();
-}
-
 export async function mapLinesByName(cart = []) {
   const menu = await getMenuProducts();
-
-  // Побудуємо кілька індексів для надійності:
-  const byExact = new Map();   // точна нормалізована назва → продукт
-  const list = [];             // масив {norm, prod} для contains/startsWith
-
-  for (const p of menu) {
-    const name = String(p.product_name || "");
-    const norm = normName(name);
-    if (norm) {
-      if (!byExact.has(norm)) byExact.set(norm, p);
-      list.push({ norm, prod: p });
-    }
-  }
+  const byName = new Map(menu.map(p => [String(p.product_name).trim().toLowerCase(), p]));
 
   const lines = [];
   const notFound = [];
-
   for (const it of cart) {
-    const title = String(it.title || "");
-    const want = normName(title);
-    if (!want) { notFound.push({ title: it.title, qty: it.qty }); continue; }
-
-    // 1) повний збіг
-    let found = byExact.get(want);
-
-    // 2) якщо ні — пошук за “містить”
-    if (!found) {
-      found = list.find(x => x.norm === want || x.norm.includes(want) || want.includes(x.norm))?.prod;
-    }
-
-    if (!found) {
-      notFound.push({ title: it.title, qty: it.qty });
-      continue;
-    }
-
+    const key = String(it.title || "").trim().toLowerCase();
+    const p = byName.get(key);
+    if (!p) { notFound.push({ title: it.title, qty: it.qty }); continue; }
     lines.push({
-      product_id: String(found.product_id),
+      product_id: String(p.product_id),
       title: it.title,
       qty: Number(it.qty || 1),
       price: Number(it.price || 0),
     });
   }
-
   return { lines, notFound };
 }
 
-  return { lines, notFound };
-
-
-// Створення онлайн-замовлення (incomingOrders.createIncomingOrder)
+// Створення incoming order (онлайн-замовлення)
 export async function createIncomingOrder({ spotId, customer, lines }) {
-  const products = lines.map(l => ({
-    product_id: String(l.product_id),
-    count: l.qty
-  }));
-
+  const products = lines.map(l => ({ product_id: String(l.product_id), count: l.qty }));
   const payload = {
     spot_id: String(spotId),
     phone: customer.phone || "",
     first_name: customer.firstName || "",
     last_name: customer.lastName || "",
     comment: customer.np || "",
-    products
+    products,
   };
-
   const resp = await posterCall("incomingOrders.createIncomingOrder", payload, true);
-  if (resp?.error) throw new Error(`Poster incomingOrders.createIncomingOrder error: ${JSON.stringify(resp.error)}`);
+  if (resp?.error) {
+    throw new Error(`Poster incomingOrders.createIncomingOrder error: ${JSON.stringify(resp.error)}`);
+  }
   return resp?.response || resp;
 }
