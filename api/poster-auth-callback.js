@@ -1,41 +1,30 @@
-// Callback після згоди у Poster: обмінюємо code -> access_token
 export default async function handler(req, res) {
   try {
-    const code = req.query?.code;
-    const account = req.query?.account || process.env.POSTER_ACCOUNT;
-    const APP_ID = process.env.POSTER_APP_ID;
-    const APP_SECRET = process.env.POSTER_APP_SECRET;
-    const REDIRECT = process.env.POSTER_REDIRECT;
+    const { code, account } = req.query;
+    const appId = process.env.POSTER_APP_ID;
+    const appSecret = process.env.POSTER_APP_SECRET;
+    const redirect = process.env.POSTER_REDIRECT;
 
-    if (!code || !account) {
-      return res.status(400).json({ ok: false, error: "Missing code or account in query" });
-    }
-    if (!APP_ID || !APP_SECRET || !REDIRECT) {
-      return res.status(500).json({ ok: false, error: "Missing Poster app env vars" });
-    }
+    if (!code || !account) return res.status(400).json({ ok:false, error:"Missing code/account" });
 
     const url = `https://${account}.joinposter.com/api/v2/auth/access_token`;
     const body = new URLSearchParams({
-      application_id: String(APP_ID),
-      application_secret: String(APP_SECRET),
+      application_id: String(appId),
+      application_secret: String(appSecret),
       grant_type: "authorization_code",
-      redirect_uri: String(REDIRECT),
+      redirect_uri: String(redirect),
       code: String(code),
     });
 
-    const r = await fetch(url, { method: "POST", body });
-    const text = await r.text();
-    if (!r.ok) {
-      return res.status(500).json({ ok: false, error: `HTTP ${r.status}: ${text}` });
-    }
+    const r = await fetch(url, { method:"POST", body });
+    const t = await r.text();
+    if (!r.ok) return res.status(200).json({ ok:false, step:"access_token", http:r.status, body:t });
 
-    let data;
-    try { data = JSON.parse(text); } catch { data = { raw: text }; }
-
-    // У відповідь прийде access_token типу "861052:xxxxxxxx..."
-    // Збережи його вручну у Vercel → Settings → Environment Variables як POSTER_TOKEN (Sensitive, Prod & Preview), потім Redeploy.
-    return res.status(200).json({ ok: true, got: { access_token: data?.access_token || null, account }, note: "Скопіюй access_token у Vercel env як POSTER_TOKEN та зроби Redeploy" });
+    const data = JSON.parse(t);
+    // ⚠️ збережи токен у Vercel вручну (через Settings → Env Vars) як POSTER_TOKEN
+    // тут просто показуємо що отримали:
+    return res.status(200).json({ ok:true, got: { access_token: data.access_token, account: data.account_number }});
   } catch (e) {
-    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+    return res.status(500).json({ ok:false, error:String(e?.message||e) });
   }
 }
