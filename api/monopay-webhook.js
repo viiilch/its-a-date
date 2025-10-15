@@ -1,6 +1,6 @@
 // Вебхук MonoPay -> створення online-замовлення в Poster
 export const config = { runtime: "nodejs" };
-import { createIncomingOrder, mapLinesByName, POSTER_SPOT_ID } from "./lib/poster.js";
+import { createSale, mapLinesByName, POSTER_SPOT_ID } from "./lib/poster.js";
 
 export default async function handler(req, res) {
   try {
@@ -41,18 +41,15 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, note: "Nothing mapped; skipping Poster.", notFound });
     }
 
-    try {
-      const incoming = await createIncomingOrder({
+      try {
+      const sale = await createSale({
         reference,
         spotId: String(POSTER_SPOT_ID || "1"),
         customer,
         lines,
+        total: lines.reduce((s, l) => s + (l.price * l.qty), 0),
       });
-      return res.status(200).json({ ok: true, incoming, notFound });
+      return res.status(200).json({ ok: true, sale, notFound });
     } catch (e) {
       return res.status(200).json({ ok: false, error: String(e?.message || e), notFound });
     }
-  } catch (err) {
-    return res.status(500).json({ ok: false, error: "Server error", detail: String(err?.message || err) });
-  }
-}
