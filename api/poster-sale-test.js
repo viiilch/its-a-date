@@ -4,12 +4,16 @@ import { createSale, mapLinesByName, POSTER_SPOT_ID } from "./lib/poster.js";
 
 export default async function handler(req, res) {
   try {
-    // Тестовий кошик — 1 шт "Milk Chocolate Dates" по 300 грн
+    // 1 шт Milk Chocolate Dates по 300 грн
     const cart = [{ title: "Milk Chocolate Dates", qty: 1, price: 300 }];
-    const { lines, notFound } = await mapLinesByName(cart);
 
+    const { lines, notFound } = await mapLinesByName(cart);
     if (!lines.length) {
-      return res.status(200).json({ ok: false, note: "Немає відповідників у Poster (перевір назви)", notFound });
+      return res.status(200).json({
+        ok: false,
+        note: "Немає відповідників у Poster (перевір назви)",
+        notFound
+      });
     }
 
     const sale = await createSale({
