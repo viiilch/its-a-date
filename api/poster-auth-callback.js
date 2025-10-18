@@ -1,5 +1,10 @@
 // Крок 3: обмінюємо code на access_token (через Poster v2)
 export const config = { runtime: "nodejs" };
+export default async function handler(req, res) {
+  const { account, code } = req.query || {};
+  // Точно так само — віддай назад
+  return res.status(200).json({ ok: true, received: { code, account } });
+}
 
 export default async function handler(req, res) {
   try {

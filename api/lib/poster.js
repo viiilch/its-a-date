@@ -70,3 +70,37 @@ export async function createIncomingOrder({ spotId, customer, lines }) {
   }
   return resp?.response || resp;
 }
+// --- ДОДАТИ НИЖЧЕ У ФАЙЛ api/lib/poster.js ---
+
+/**
+ * Створити чек у Poster (автопродаж) через transactions.create
+ * Приймає: spotId, customer {firstName,lastName,phone,np}, lines [{product_id, qty, price}], total
+ * Платіж виставляємо як безготівковий (карта) — payment=1, payed_sum=total
+ */
+export async function createSale({ spotId, customer, lines, total }) {
+  const products = lines.map(l => ({
+    product_id: String(l.product_id),
+    count: Number(l.qty) || 1,
+    price: Number(l.price) || 0,
+    title: l.title || ""
+  }));
+
+  const payload = {
+    spot_id: String(spotId),
+    products,
+    first_name: customer.firstName || "",
+    last_name:  customer.lastName  || "",
+    phone:      customer.phone     || "",
+    comment:    customer.np ? `НП: ${customer.np}` : "",
+    // Оплата карткою (безготівка). Poster у простому випадку приймає:
+    // payment = 1 (card) і payed_sum = сума чеку.
+    payment: 1,
+    payed_sum: Number(total) || products.reduce((s,p)=>s + (p.price * p.count), 0),
+  };
+
+  const resp = await posterCall("transactions.create", payload, true);
+  if (resp?.error) {
+    throw new Error(`Poster transactions.create error: ${JSON.stringify(resp.error)}`);
+  }
+  return resp?.response || resp;
+}
