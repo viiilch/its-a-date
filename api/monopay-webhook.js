@@ -1,7 +1,6 @@
 // Вебхук MonoPay -> створення online-замовлення в Poster
 export const config = { runtime: "nodejs" };
 import { createSale, mapLinesByName, POSTER_SPOT_ID } from "./lib/poster.js";
-import { createIncomingOrder, mapLinesByName, POSTER_SPOT_ID } from "./lib/poster.js";
 
 export default async function handler(req, res) {
   try {
