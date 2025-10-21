@@ -1,84 +1,99 @@
 // api/lib/poster.js  (ESM, Node 18+)
 
-// ====== ENV ======
-const BASE  = process.env.POSTER_BASE  || "https://joinposter.com/api";
-const TOKEN = process.env.POSTER_TOKEN || "";                   // має бути у Vercel Env
-export const POSTER_SPOT_ID = process.env.POSTER_SPOT_ID || "1";// "1" за замовчуванням
+/**
+ * ✅ ПІДТРИМКА ДВОХ РІЗНИХ ТОКЕНІВ:
+ * - POSTER_TOKEN          → параметр "token" (старий API, працює для menu.* тощо)
+ * - POSTER_ACCESS_TOKEN   → параметр "access_token" (OAuth2, обов'язковий для incomingOrders.*, transactions.*, access.*)
+ *
+ * ЩО ПОТРІБНО В ENV (Vercel → Project → Settings → Environment Variables):
+ * - POSTER_BASE           = https://joinposter.com/api        (або лишити порожнім)
+ * - POSTER_TOKEN          = 069868:xxxxxxxxxxxxxxxxxxxxxxxx   (опціонально; працює для menu.*)
+ * - POSTER_ACCESS_TOKEN   = 069868:yyyyyyyyyyyyyyyyyyyyyyyy   (ОБОВ'ЯЗКОВО для incomingOrders.*, transactions.*, access.*)
+ * - POSTER_SPOT_ID        = 1
+ */
 
-// ====== helpers ======
-function safeLog(obj) {
-  // не логимо токени
-  const clone = JSON.parse(JSON.stringify(obj || {}));
-  if (clone.token) clone.token = "HIDDEN";
-  if (clone.access_token) clone.access_token = "HIDDEN";
-  return clone;
+export const POSTER_BASE         = process.env.POSTER_BASE || "https://joinposter.com/api";
+export const POSTER_TOKEN        = process.env.POSTER_TOKEN || "";              // token=
+export const POSTER_ACCESS_TOKEN = process.env.POSTER_ACCESS_TOKEN || "";       // access_token=
+export const POSTER_SPOT_ID      = process.env.POSTER_SPOT_ID || "1";
+
+/** Які методи вимагають access_token */
+const REQUIRE_ACCESS = [
+  "incomingOrders.",   // створення онлайн-замовлень та ін.
+  "transactions.",     // створення продажів/чеків
+  "access.",           // каси/зміни тощо
+];
+
+/** Визначити, чи метод потребує access_token */
+function needsAccessToken(method) {
+  return REQUIRE_ACCESS.some(prefix => method.startsWith(prefix));
 }
 
-/**
- * Формує urlencoded body. ВАЖЛИВО: додаємо ОБИДВА параметри:
- * - token         — працює з menu/* та іншим
- * - access_token  — потрібен для access/*, transactions/* тощо
- */
-function form(params = {}) {
+/** Зібрати form-тіло з правильним ключем токена */
+function makeForm(method, params = {}) {
   const body = new URLSearchParams();
-  if (TOKEN) {
-    body.set("token", TOKEN);
-    body.set("access_token", TOKEN);
+
+  // Вибір токена
+  if (needsAccessToken(method)) {
+    if (!POSTER_ACCESS_TOKEN) {
+      throw new Error(
+        `Метод "${method}" потребує OAuth2 токен. Додай POSTER_ACCESS_TOKEN у Vercel env (отриманий через poster-auth-callback).`
+      );
+    }
+    body.set("access_token", POSTER_ACCESS_TOKEN);
+  } else {
+    // menu.* та інші можна через старий token=, або теж через access_token, якщо він є
+    if (POSTER_TOKEN) {
+      body.set("token", POSTER_TOKEN);
+    } else if (POSTER_ACCESS_TOKEN) {
+      body.set("access_token", POSTER_ACCESS_TOKEN);
+    } else {
+      throw new Error(
+        `Немає жодного токена. Додай POSTER_TOKEN або POSTER_ACCESS_TOKEN у Vercel env.`
+      );
+    }
   }
+
+  // Інші параметри
   for (const [k, v] of Object.entries(params)) {
-    // NULL/undefined не шлемо
-    if (v !== undefined && v !== null) body.set(k, String(v));
+    if (v === undefined || v === null) continue;
+    body.set(k, String(v));
   }
   return body;
 }
 
-/**
- * Базовий виклик Poster API
- * @param {string} method - наприклад "menu.getProducts"
- * @param {object} params - параметри запиту
- * @param {boolean} preferPost - спочатку POST, інакше GET
- */
+/** Базовий виклик Poster API з POST, потім fallback GET */
 export async function posterCall(method, params = {}, preferPost = true) {
-  if (!TOKEN) throw new Error("POSTER_TOKEN is not set");
-  const url = `${BASE}/${method}`;
+  const url = `${POSTER_BASE}/${method}`;
   const headers = { "Content-Type": "application/x-www-form-urlencoded" };
 
-  // 1) POST
+  // POST
   if (preferPost) {
-    const r = await fetch(url, { method: "POST", headers, body: form(params) });
+    const body = makeForm(method, params);
+    const r = await fetch(url, { method: "POST", headers, body });
     const t = await r.text();
-    // Poster інколи відповідає рядком; парсимо лише JSON
-    if (r.ok && t.trim().startsWith("{")) {
-      const parsed = JSON.parse(t);
-      if (parsed?.error) throw new Error(`${method} error: ${JSON.stringify(parsed.error)}`);
-      return parsed;
-    }
-    // якщо не JSON — падати не будемо, спробуємо GET
+    if (!r.ok) throw new Error(`Poster HTTP ${r.status}: ${t}`);
+    try { return JSON.parse(t); } catch { /* нижче fallback GET */ }
   }
 
-  // 2) GET fallback
-  const u = new URL(url);
-  u.search = form(params).toString();
-  const r2 = await fetch(u.toString());
+  // GET (fallback)
+  const qs = makeForm(method, params).toString();
+  const u  = `${url}?${qs}`;
+  const r2 = await fetch(u);
   const t2 = await r2.text();
   if (!r2.ok) throw new Error(`Poster HTTP ${r2.status}: ${t2}`);
-  const parsed2 = JSON.parse(t2);
-  if (parsed2?.error) throw new Error(`${method} error: ${JSON.stringify(parsed2.error)}`);
-  return parsed2;
+  return JSON.parse(t2);
 }
 
-// ====== API wrappers ======
-
-/** Завантажити меню (товари) */
+/** 1) Отримати продукти меню (для мапінгу назв → product_id) */
 export async function getMenuProducts() {
   const data = await posterCall("menu.getProducts", {}, false);
+  // Відповідь успішна має поле response
+  if (data?.error) throw new Error(`menu.getProducts error: ${JSON.stringify(data.error)}`);
   return data?.response || [];
 }
 
-/**
- * Мапимо позиції кошика (за title) до product_id з Poster
- * cart елемент: { title, qty, price }
- */
+/** 2) Мапінг позицій кошика (за назвою title) до product_id із Poster */
 export async function mapLinesByName(cart = []) {
   const menu = await getMenuProducts();
   const byName = new Map(
@@ -102,71 +117,79 @@ export async function mapLinesByName(cart = []) {
       price: Number(it.price || 0),
     });
   }
+
   return { lines, notFound };
 }
 
-function buildClientFromCustomer(customer = {}) {
-  const first = (customer.firstName || "").trim();
-  const last  = (customer.lastName  || "").trim();
-  return {
-    name: [first, last].filter(Boolean).join(" ").trim() || first || last || "",
-    phone: (customer.phone || "").trim(),
-    comment: (customer.np || "").trim(),
-  };
-}
-
-/**
- * Створення ONLINE-замовлення (incomingOrders.createIncomingOrder)
- * Мінімальний payload, як у документації Poster
- */
-export async function createIncomingOrder({ spotId, customer, lines }) {
-  const products = lines.map(l => ({
-    product_id: String(l.product_id),
-    count: l.qty
-  }));
-
-  const payload = {
-    spot_id: String(spotId),
-    phone: customer?.phone || "",
-    first_name: customer?.firstName || "",
-    last_name: customer?.lastName || "",
-    comment: customer?.np || "",
-    products
-  };
-
-  const resp = await posterCall("incomingOrders.createIncomingOrder", payload, true);
-  return resp?.response || resp;
-}
-
-/**
- * (Варіант B) Створення ПРОДАЖУ (чека) — transactions.create
- * ⚠️ ПРАГМАТИЧНО: схема мінімальна; за потреби додаси register_id, payment_type тощо.
- * Якщо касова зміна закрита або бракує прав — Poster поверне помилку.
- */
-export async function createSale({ spotId, customer, lines, total }) {
-  // Poster часто очікує products як масив з product_id та count (і інколи price)
+/** 3) Створити online-замовлення (incomingOrders.createIncomingOrder) */
+export async function createIncomingOrder({ spotId, customer, lines, total }) {
+  // products[count] — десяткове число дозволено, але ми даємо ціле
   const products = lines.map(l => ({
     product_id: String(l.product_id),
     count: l.qty,
-    // price: l.price, // розкоментуй, якщо у вашій конфігурації потрібна ціна
+    // price: у копійках — МИ НЕ ПЕРЕДАЄМО, щоб бралась ціна з меню в закладі
   }));
 
-  const client = buildClientFromCustomer(customer);
-
   const payload = {
-    spot_id: String(spotId),
+    spot_id: String(spotId || POSTER_SPOT_ID),
+    // Дані клієнта: згідно з докою, якщо немає client_id — ОБОВ'ЯЗКОВО phone
+    phone: (customer?.phone || "").trim(),
+    first_name: (customer?.firstName || "").trim(),
+    last_name: (customer?.lastName || "").trim(),
+    comment: (customer?.np || "").trim(),
+    // Тип (1 — у закладі, 2 — на виніс, 3 — доставка); залишимо 2 (takeaway)
+    service_mode: 2,
     products,
-    // Мінімальна оплата без деталізації каналів:
-    payed: Number(total || lines.reduce((s, l) => s + (l.price || 0) * l.qty, 0)),
-    // Клієнт/коментарі — опціонально, але корисно:
-    client_name: client.name || undefined,
-    client_phone: client.phone || undefined,
-    comment: client.comment || undefined,
   };
 
-  // Логи без секретів
-  console.info("transactions.create →", safeLog({ payload }));
+  const resp = await posterCall("incomingOrders.createIncomingOrder", payload, true);
+  if (resp?.error) {
+    throw new Error(`incomingOrders.createIncomingOrder error: ${JSON.stringify(resp.error)}`);
+  }
+  return resp?.response || resp;
+}
+
+/** 4) Створити ПРОДАЖ/чек (transactions.create)
+ *    ⚠️ Працює ТІЛЬКИ з access_token і відкритою зміною на касі.
+ *    Мінімальний payload: spot_id, products[count, product_id, price?]
+ *    Ціни в копійках (якщо передаєш price).
+ */
+export async function createSale({ spotId, customer, lines, total }) {
+  // Poster чекає ціни в копійках (UAH → *100)
+  const products = lines.map(l => ({
+    product_id: String(l.product_id),
+    count: l.qty,
+    price: Math.round(Number(l.price || 0) * 100), // копійки
+  }));
+
+  const payload = {
+    spot_id: String(spotId || POSTER_SPOT_ID),
+    products,
+    // опціонально інформація про оплату (раз MonoPay уже списав)
+    payment: {
+      type: 1,                 // 1 — була попередня оплата
+      sum: Math.round(Number(total || 0) * 100), // у копійках
+      currency: "UAH",
+    },
+    // клієнт як коментар до чека
+    comment: [
+      (customer?.firstName || ""), (customer?.lastName || "")
+    ].join(" ").trim() + (customer?.np ? ` | ${customer.np}` : ""),
+  };
 
   const resp = await posterCall("transactions.create", payload, true);
+  if (resp?.error) {
+    throw new Error(`transactions.create error: ${JSON.stringify(resp.error)}`);
+  }
   return resp?.response || resp;
+}
+
+/** 5) Діагностика — корисно для /api/poster-test */
+export function posterDiag() {
+  return {
+    base: POSTER_BASE,
+    hasOldToken: Boolean(POSTER_TOKEN),
+    hasAccessToken: Boolean(POSTER_ACCESS_TOKEN),
+    spot: String(POSTER_SPOT_ID || "1"),
+  };
 }
