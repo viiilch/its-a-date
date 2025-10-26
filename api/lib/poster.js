@@ -1,70 +1,55 @@
-// api/lib/poster.js  (ESM, універсальний для token/access_token + піддомен акаунта)
-
-// 1) БАЗА: використовуємо саме піддомен акаунта (обовʼязково для OAuth кейсів)
-const ACCOUNT = process.env.POSTER_ACCOUNT || "";         // its-a-date
-const BASE =
-  process.env.POSTER_BASE ||
-  (ACCOUNT ? `https://${ACCOUNT}.joinposter.com/api` : "https://joinposter.com/api");
-
-// 2) Токени: OAuth (access_token) і, за потреби, персональний (token)
-const ACCESS = process.env.POSTER_ACCESS_TOKEN || "";     // 069868:**************
-const TOKEN  = process.env.POSTER_TOKEN || "";            // можна не ставити
+// api/lib/poster.js  (ESM) — універсальний клієнт Poster
+const BASE  = process.env.POSTER_BASE  || "https://joinposter.com/api";
+const TOKEN = process.env.POSTER_ACCESS_TOKEN || process.env.POSTER_TOKEN || "";
 export const POSTER_SPOT_ID = process.env.POSTER_SPOT_ID || "1";
 
-// Службове: зібрати x-www-form-urlencoded, покласти ОБИДВА ключі
-function form(params = {}) {
-  const u = new URLSearchParams();
-  // ВАЖЛИВО: кладемо і access_token, і token — Poster прийме будь-який валідний
-  if (ACCESS) {
-    u.set("access_token", ACCESS);
-    u.set("token", ACCESS);
-  } else if (TOKEN) {
-    u.set("token", TOKEN);
+function makeForm(params = {}) {
+  const body = new URLSearchParams();
+  // ⚠️ Кладемо токен в ОБИДВА ключі, щоб задовольнити всі методи Poster
+  body.set("token", TOKEN);
+  body.set("access_token", TOKEN);
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null) body.set(k, String(v));
   }
-  for (const [k, v] of Object.entries(params)) u.set(k, String(v));
-  return u;
+  return body;
 }
 
-// Єдиний виклик Poster (спочатку POST, якщо не JSON — фолбек на GET)
-export async function posterCall(method, params = {}, preferPost = true) {
-  // Мінімальна перевірка
-  if (!ACCESS && !TOKEN) {
-    throw new Error("No Poster token configured (POSTER_ACCESS_TOKEN or POSTER_TOKEN)");
-  }
+// універсальний виклик
+export async function posterCall(method, params = {}, forcePost = true) {
+  if (!TOKEN) throw new Error("POSTER_ACCESS_TOKEN/POSTER_TOKEN is not set");
+
   const url = `${BASE}/${method}`;
   const headers = { "Content-Type": "application/x-www-form-urlencoded" };
 
-  // POST
-  if (preferPost) {
-    const r = await fetch(url, { method: "POST", headers, body: form(params) });
+  // БАГАТО методів вимагають саме POST + form-data
+  if (forcePost) {
+    const r = await fetch(url, { method: "POST", headers, body: makeForm(params) });
     const t = await r.text();
-    // якщо прийшов JSON — повертаємо
-    if (r.ok && t.trim().startsWith("{")) return JSON.parse(t);
-    // інакше — пробуємо GET
+    // іноді приходить \n або пробіли — чистимо
+    const clean = t.trim();
+    if (!r.ok) throw new Error(`Poster HTTP ${r.status}: ${clean}`);
+    try { return JSON.parse(clean); } catch { throw new Error(`Poster JSON parse error: ${clean}`); }
   }
 
-  // GET (фолбек)
+  // fallback GET (рідко потрібно)
   const u = new URL(url);
-  u.search = form(params).toString();
+  u.search = makeForm(params).toString();
   const r2 = await fetch(u);
-  const t2 = await r2.text();
+  const t2 = (await r2.text()).trim();
   if (!r2.ok) throw new Error(`Poster HTTP ${r2.status}: ${t2}`);
   return JSON.parse(t2);
 }
 
-// Отримати меню (для мапінгу назв)
+/** Довідник меню (GET можна, але стабільніше через POST=false) */
 export async function getMenuProducts() {
   const data = await posterCall("menu.getProducts", {}, false);
   return data?.response || [];
 }
 
-// Мапимо позиції кошика (за title) -> product_id в Poster
+/** Меппінг назв з кошика -> product_id у Poster */
 export async function mapLinesByName(cart = []) {
   const menu = await getMenuProducts();
-  const byName = new Map(
-    menu.map(p => [String(p.product_name).trim().toLowerCase(), p])
-  );
-
+  const byName = new Map(menu.map(p => [String(p.product_name).trim().toLowerCase(), p]));
   const lines = [];
   const notFound = [];
 
@@ -72,37 +57,45 @@ export async function mapLinesByName(cart = []) {
     const key = String(it.title || "").trim().toLowerCase();
     const p = byName.get(key);
     if (!p) { notFound.push({ title: it.title, qty: it.qty }); continue; }
-
     lines.push({
       product_id: String(p.product_id),
       title: it.title,
       qty: Number(it.qty || 1),
-      price: Number(it.price || 0)
+      price: Number(it.price || 0),
     });
   }
   return { lines, notFound };
 }
 
-// Створити ONLINE-замовлення (incomingOrders.createIncomingOrder)
-export async function createIncomingOrder({ spotId, customer, lines, total }) {
-  const products = lines.map(l => ({
-    product_id: String(l.product_id),
-    count: l.qty,
-    // price можна не передавати — Poster візьме ціну з меню/закладу
-  }));
+/** Створення онлайн-замовлення (incomingOrders.createIncomingOrder) — строго POST */
+export async function createIncomingOrder({ spotId, customer, lines, payment } = {}) {
+  const products = lines.map(l => ({ product_id: String(l.product_id), count: l.qty }));
 
   const payload = {
     spot_id: String(spotId),
-    phone: customer.phone || "",
-    first_name: customer.firstName || "",
-    last_name: customer.lastName || "",
-    comment: customer.np || "",
-    products
+    phone: customer?.phone || "",
+    first_name: customer?.firstName || "",
+    last_name: customer?.lastName || "",
+    comment: customer?.np || "",
+    // необов’язково, але Poster краще сприймає products як form-array
+    // makeForm() сам зробить x-www-form-urlencoded, але для масивів Poster приймає такий формат:
+    // products[0][product_id], products[0][count], ...
   };
 
-  const resp = await posterCall("incomingOrders.createIncomingOrder", payload, true);
-  if (resp?.error) {
-    throw new Error(`incomingOrders.createIncomingOrder error: ${JSON.stringify(resp.error)}`);
+  // Розкладаємо products у payload як form-keys
+  products.forEach((p, i) => {
+    payload[`products[${i}][product_id]`] = p.product_id;
+    payload[`products[${i}][count]`] = p.count;
+  });
+
+  // Якщо була попередня оплата — можна додати
+  if (payment && payment.sum) {
+    payload["payment[type]"] = 1;
+    payload["payment[sum]"]  = payment.sum;     // у копійках
+    payload["payment[currency]"] = payment.currency || "UAH";
   }
+
+  const resp = await posterCall("incomingOrders.createIncomingOrder", payload, true);
+  if (resp?.error) throw new Error(`incomingOrders.createIncomingOrder error: ${JSON.stringify(resp.error)}`);
   return resp?.response || resp;
 }
