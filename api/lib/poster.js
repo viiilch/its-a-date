@@ -1,22 +1,19 @@
-// api/lib/poster.js  (ESM, універсальна підтримка token + access_token)
+// api/lib/poster.js  (ESM) — універсальна підтримка API token + OAuth access_token
 
-/ ЗАМІНИ ЦЕ у api/lib/poster.js на початку файлу
+const ACCOUNT = process.env.POSTER_ACCOUNT || "its-a-date";
+// OAuth-токен (через OAuth callback). Бери з env: POSTER_ACCESS_TOKEN або POSTER_OAUTH_TOKEN
+const ACCESS  = process.env.POSTER_ACCESS_TOKEN || process.env.POSTER_OAUTH_TOKEN || "";
+// Старий API-токен (не OAuth). Не обов’язковий, але може знадобитись для частини методів.
+const TOKEN   = process.env.POSTER_TOKEN || "";
+export const POSTER_SPOT_ID = process.env.POSTER_SPOT_ID || "1";
+
+// Базовий URL: якщо є OAuth-токен і логін акаунта, ходимо на сабдомен
 const RAW_BASE = process.env.POSTER_BASE || "https://joinposter.com/api";
-const ACCESS   = process.env.POSTER_ACCESS_TOKEN || process.env.POSTER_OAUTH_TOKEN || "";
-const ACCOUNT  = process.env.POSTER_ACCOUNT || "its-a-date";
-
-// Якщо є OAuth токен — використовуємо сабдомен акаунта
 const BASE = (ACCESS && ACCOUNT)
   ? `https://${ACCOUNT}.joinposter.com/api`
   : RAW_BASE;
 
-// ✅ Старий API-токен (для menu.getProducts та ін.)
-const TOKEN = process.env.POSTER_TOKEN || "";
-// ✅ OAuth-токен (через Poster OAuth: /api/poster-auth-start -> /api/poster-auth-callback)
-const ACCESS = process.env.POSTER_ACCESS_TOKEN || process.env.POSTER_OAUTH_TOKEN || "";
-export const POSTER_SPOT_ID = process.env.POSTER_SPOT_ID || "1";
-
-// Які методи вимагають саме access_token
+// Які методи точно потребують саме access_token (OAuth)
 function needsAccessToken(method) {
   return (
     method.startsWith("incomingOrders.") ||
@@ -31,20 +28,22 @@ function needsAccessToken(method) {
   );
 }
 
+// Формуємо body/query для запиту
 function formParams(params = {}, method = "") {
   const body = new URLSearchParams();
 
-  // За можливості підставляємо ОБИДВА поля — це безпечно.
-  if (TOKEN)  body.set("token", TOKEN);
+  // Якщо є OAuth — обов’язково додаємо access_token
   if (ACCESS) body.set("access_token", ACCESS);
+  // За наявності — можна також додати звичайний token (не завадить)
+  if (TOKEN)  body.set("token", TOKEN);
 
-  // Але додатково робимо валідацію: для методів, яким потрібен OAuth, мусить бути ACCESS.
+  // Валідація: метод вимагає OAuth, але його немає
   if (needsAccessToken(method) && !ACCESS) {
     throw new Error("Poster OAuth access token is missing (POSTER_ACCESS_TOKEN). Re-run OAuth.");
   }
-  // Для методів, які покладаються на старий токен, перевіримо наявність хоча б чогось:
-  if (!needsAccessToken(method) && !TOKEN && !ACCESS) {
-    throw new Error("Poster token is missing. Set POSTER_TOKEN or POSTER_ACCESS_TOKEN.");
+  // Якщо метод не вимагає OAuth — має бути хоча б один із токенів
+  if (!needsAccessToken(method) && !ACCESS && !TOKEN) {
+    throw new Error("Poster token is missing. Set POSTER_ACCESS_TOKEN (OAuth) or POSTER_TOKEN.");
   }
 
   for (const [k, v] of Object.entries(params)) {
@@ -53,19 +52,18 @@ function formParams(params = {}, method = "") {
   return body;
 }
 
+// Базовий виклик API
 export async function posterCall(method, params = {}, preferPost = true) {
   const url = `${BASE}/${method}`;
   const headers = { "Content-Type": "application/x-www-form-urlencoded" };
 
-  // Спробуємо POST з коректними параметрами
   if (preferPost) {
     const r = await fetch(url, { method: "POST", headers, body: formParams(params, method) });
     const t = await r.text();
     if (!r.ok) throw new Error(`Poster HTTP ${r.status}: ${t}`);
-    try { return JSON.parse(t); } catch { /* fallthrough to GET below */ }
+    try { return JSON.parse(t); } catch { /* fallthrough to GET */ }
   }
 
-  // Фолбек на GET з такими ж параметрами
   const u = new URL(url);
   u.search = formParams(params, method).toString();
   const r2 = await fetch(u);
@@ -74,7 +72,7 @@ export async function posterCall(method, params = {}, preferPost = true) {
   return JSON.parse(t2);
 }
 
-/** Допоміжні */
+/** Зручні хелпери */
 export async function getMenuProducts() {
   const data = await posterCall("menu.getProducts", {}, false);
   return data?.response || [];
@@ -84,6 +82,7 @@ export async function getMenuProducts() {
 export async function mapLinesByName(cart = []) {
   const menu = await getMenuProducts();
   const byName = new Map(menu.map(p => [String(p.product_name).trim().toLowerCase(), p]));
+
   const lines = [];
   const notFound = [];
 
@@ -91,6 +90,7 @@ export async function mapLinesByName(cart = []) {
     const key = String(it.title || "").trim().toLowerCase();
     const p = byName.get(key);
     if (!p) { notFound.push({ title: it.title, qty: it.qty }); continue; }
+
     lines.push({
       product_id: String(p.product_id),
       title: it.title,
@@ -101,14 +101,14 @@ export async function mapLinesByName(cart = []) {
   return { lines, notFound };
 }
 
-// Створення online-замовлення (incomingOrders.createIncomingOrder) — потребує OAuth (access_token)
+// Створення online-замовлення (потребує OAuth access_token)
 export async function createIncomingOrder({ spotId, customer = {}, lines = [], total }) {
   const products = lines.map(l => ({ product_id: String(l.product_id), count: l.qty }));
   const payload = {
     spot_id: String(spotId),
-    phone: customer.phone || "",
+    phone:     customer.phone || "",
     first_name: customer.firstName || "",
-    last_name:  customer.lastName || "",
+    last_name:  customer.lastName  || "",
     comment:    customer.np || "",
     products,
   };
@@ -117,23 +117,20 @@ export async function createIncomingOrder({ spotId, customer = {}, lines = [], t
   return resp?.response || resp;
 }
 
-// Створення продажу (чека) — transactions.create — також потребує OAuth (access_token)
+// Створення продажу (чека) — потребує OAuth access_token
 export async function createSale({ reference, spotId, customer = {}, lines = [], total = 0 }) {
-  // Poster приймає товари в іншому форматі:
   const products = lines.map(l => ({
     product_id: String(l.product_id),
     count: l.qty,
-    price: Math.round(Number(l.price || 0) * 100), // копійки
+    price: Math.round(Number(l.price || 0) * 100), // у копійках
   }));
-
   const payload = {
     spot_id: String(spotId),
-    phone: customer.phone || "",
+    phone:   customer.phone || "",
     comment: (reference || "").toString(),
     products,
     payment: { type: 1, sum: Math.round(Number(total || 0) * 100), currency: "UAH" },
   };
-
   const resp = await posterCall("transactions.create", payload, true);
   if (resp?.error) throw new Error(`transactions.create error: ${JSON.stringify(resp.error)}`);
   return resp?.response || resp;
