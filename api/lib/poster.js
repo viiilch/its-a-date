@@ -1,6 +1,15 @@
 // api/lib/poster.js  (ESM, універсальна підтримка token + access_token)
 
-const BASE  = process.env.POSTER_BASE  || "https://joinposter.com/api";
+/ ЗАМІНИ ЦЕ у api/lib/poster.js на початку файлу
+const RAW_BASE = process.env.POSTER_BASE || "https://joinposter.com/api";
+const ACCESS   = process.env.POSTER_ACCESS_TOKEN || process.env.POSTER_OAUTH_TOKEN || "";
+const ACCOUNT  = process.env.POSTER_ACCOUNT || "its-a-date";
+
+// Якщо є OAuth токен — використовуємо сабдомен акаунта
+const BASE = (ACCESS && ACCOUNT)
+  ? `https://${ACCOUNT}.joinposter.com/api`
+  : RAW_BASE;
+
 // ✅ Старий API-токен (для menu.getProducts та ін.)
 const TOKEN = process.env.POSTER_TOKEN || "";
 // ✅ OAuth-токен (через Poster OAuth: /api/poster-auth-start -> /api/poster-auth-callback)
