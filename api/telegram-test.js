@@ -1,60 +1,44 @@
 // api/telegram-test.js
-export const config = { runtime: "nodejs" };
-
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID   = process.env.TELEGRAM_CHAT_ID;
-
 export default async function handler(req, res) {
   try {
-    // Простий ping, щоб бачити, що функція жива
-    if (req.method === "GET" && req.query?.ping === "1") {
-      return res.status(200).json({
-        ok: true,
-        note: "telegram-test alive",
-      });
-    }
+    // читаємо твої змінні середовища
+    const token = process.env.TG_BOT_TOKEN;
+    const chatId = process.env.TG_CHAT_ID;
 
-    if (!BOT_TOKEN || !CHAT_ID) {
+    if (!token || !chatId) {
       return res.status(200).json({
         ok: false,
-        error: "Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in env",
+        error: "Missing TG_BOT_TOKEN or TG_CHAT_ID in env",
+        hasToken: !!token,
+        hasChatId: !!chatId,
       });
     }
 
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    const text = "Test message from kyivdinnerclub.com.ua /api/telegram-test";
 
-    const payload = {
-      chat_id: CHAT_ID,
-      text: "Тестове повідомлення від its-a-date 🚀",
-      parse_mode: "HTML",
-    };
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
     const tgResp = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+      }),
     });
 
-    const tgText = await tgResp.text();
-    let tgJson = null;
-    try {
-      tgJson = JSON.parse(tgText);
-    } catch {
-      // якщо це не JSON – просто лишимо текст
-    }
+    const data = await tgResp.json();
 
     return res.status(200).json({
       ok: true,
-      sentTo: CHAT_ID,
-      telegramOk: tgResp.ok,
-      telegramStatus: tgResp.status,
-      telegramRaw: tgJson || tgText,
+      sent: true,
+      telegramOk: data.ok,
+      telegramResponse: data,
     });
-  } catch (err) {
-    console.error("TELEGRAM TEST ERROR:", err);
+  } catch (e) {
     return res.status(500).json({
       ok: false,
-      error: String(err?.message || err),
+      error: String(e?.message || e),
     });
   }
 }
