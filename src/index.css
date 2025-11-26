@@ -519,131 +519,66 @@ header .subBrand,
   align-items: center !important;
   justify-content: center !important;
 }
-/* === BIG / TO GO — великий текст, без рамок/таблеток === */
+/* === BIG / TO GO — як назва фініків (Hagrid), без кнопок === */
 
 .formatRow {
   display: flex;
-  gap: 28px;                 /* розділяє BIG та TO GO */
-  margin-top: 10px;          /* від опису */
-  margin-bottom: 6px;        /* перед ціною */
+  gap: 32px;                  /* гарний відступ між BIG і TO GO */
+  margin-top: 10px;
+  margin-bottom: 8px;
 }
 
 .fmtChoice {
   cursor: pointer;
   border: none;
   background: transparent;
-  padding: 2px 0;
+  padding: 0;
 
-  font-family: "Hagrid", "SF Pro Display", sans-serif;
-  font-size: 16px;           /* по розміру як ціна */
-  font-weight: 800;          /* жирно, як ціна */
+  /* ТАК САМО, ЯК НАЗВА ФІНІКІВ */
+  font-family: "Hagrid", "SF Pro Display", sans-serif !important;
+  font-size: 18px;            /* майже як .cardTitle */
+  font-weight: 800 !important;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: #9ca3af;            /* спокійний сірий, коли не активний */
 
+  color: #9ca3af;             /* спокійний сірий у спокої */
   position: relative;
   transition:
     color 0.15s ease,
-    font-size 0.15s ease,
-    transform 0.15s ease;
+    transform 0.15s ease,
+    text-shadow 0.15s ease;
 }
 
-/* тонка лінія під текстом — тільки для активного */
-.fmtChoice::after {
+/* активний формат — темний, трішки виділений */
+.fmtChoice--active {
+  color: #111;
+  transform: translateY(-1px);
+  text-shadow: 0 0 0.5px rgba(0, 0, 0, 0.5);
+}
+
+/* тонка лінія під активним */
+.fmtChoice--active::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -2px;
+  bottom: -4px;
   width: 100%;
   height: 2px;
-  background: transparent;
-  opacity: 0;
-  transform: scaleX(0.6);
-  transition:
-    background 0.15s ease,
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-
-/* обраний формат — трішки більший і темніший */
-.fmtChoice--active {
-  color: #111;
-  font-size: 17px;           /* трохи більший за неактивний */
-  transform: translateY(-1px);
-}
-
-.fmtChoice--active::after {
   background: #111;
-  opacity: 1;
-  transform: scaleX(1);
 }
 
-/* ховер — легкий акцент, але без рамок і фону */
+/* ховер — легкий, без рамок і фону */
 .fmtChoice:hover {
   color: #4b5563;
 }
 
-/* мобілка — трохи менший кегль, але все ще читабельно */
-@media (max-width: 640px) {
-  .formatRow {
-    gap: 20px;
-  }
-
-  .fmtChoice {
-    font-size: 14px;
-  }
-
-  .fmtChoice--active {
-    font-size: 15px;
-  }
-}
-/* === PREMIUM FORMAT BIG / TO GO — як назви фініків (Hagrid) === */
-
-.formatRow {
-  display: flex;
-  gap: 26px;
-  margin-top: 10px;
-  margin-bottom: 4px;
-}
-
-.fmtChoice {
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  padding: 0;
-
-  font-family: "Hagrid", "SF Pro Display", sans-serif !important;
-  font-weight: 800 !important;      /* як cardTitle */
-  font-size: 18px !important;       /* як назва, але трохи менше */
-  letter-spacing: .02em;
-  text-transform: uppercase;
-
-  color: #b4b4b4;                   /* спокійний сірий */
-  transition: 
-      color .18s ease,
-      transform .18s ease,
-      font-size .18s ease;
-}
-
-.fmtChoice--active {
-  color: #111 !important;
-  font-size: 20px !important;       /* активний — на розмір більший */
-  transform: translateY(-1px);
-}
-
-.fmtChoice:hover {
-  color: #757575;
-}
-
 /* мобільна адаптація */
 @media (max-width: 640px) {
-  .fmtChoice {
-    font-size: 15px !important;
-  }
-  .fmtChoice--active {
-    font-size: 17px !important;
-  }
   .formatRow {
     gap: 20px;
+  }
+
+  .fmtChoice {
+    font-size: 16px;
   }
 }
