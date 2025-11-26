@@ -580,3 +580,20 @@ header .subBrand,
   border-radius: 12px !important;
   font-weight: 800 !important;
 }
+/* === OVERRIDE: Кнопка "Купити" — ширша, нижча, як qty === */
+.buyBtn {
+  height: 32px !important;           /* така ж висота як +/- */
+  padding: 0 26px !important;        /* ширша */
+  border-radius: 10px !important;
+  border: 1px solid #111 !important;
+  background: #111 !important;
+  color: #fff !important;
+
+  font-size: 16px !important;        /* такий самий розмір як у ціни */
+  font-weight: 900 !important;       /* товстий шрифт, як ціна */
+  letter-spacing: 0.02em !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
