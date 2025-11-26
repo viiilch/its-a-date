@@ -1,44 +1,60 @@
-// api/telegram-test.js  (ESM, Node on Vercel)
+// api/telegram-test.js
 export const config = { runtime: "nodejs" };
+
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID   = process.env.TELEGRAM_CHAT_ID;
 
 export default async function handler(req, res) {
   try {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    // Простий ping, щоб бачити, що функція жива
+    if (req.method === "GET" && req.query?.ping === "1") {
+      return res.status(200).json({
+        ok: true,
+        note: "telegram-test alive",
+      });
+    }
 
-    if (!token || !chatId) {
-      return res.status(500).json({
+    if (!BOT_TOKEN || !CHAT_ID) {
+      return res.status(200).json({
         ok: false,
         error: "Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in env",
       });
     }
 
-    const text = "Тестове повідомлення від its-a-date 🚀";
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
-    const tgResp = await fetch(
-      `https://api.telegram.org/bot${token}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text,
-          parse_mode: "HTML",
-        }),
-      }
-    );
+    const payload = {
+      chat_id: CHAT_ID,
+      text: "Тестове повідомлення від its-a-date 🚀",
+      parse_mode: "HTML",
+    };
 
-    const tgJson = await tgResp.json();
+    const tgResp = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const tgText = await tgResp.text();
+    let tgJson = null;
+    try {
+      tgJson = JSON.parse(tgText);
+    } catch {
+      // якщо це не JSON – просто лишимо текст
+    }
 
     return res.status(200).json({
       ok: true,
-      sentTo: chatId,
-      telegramOk: tgJson.ok,
-      telegramRaw: tgJson,
+      sentTo: CHAT_ID,
+      telegramOk: tgResp.ok,
+      telegramStatus: tgResp.status,
+      telegramRaw: tgJson || tgText,
     });
-  } catch (e) {
-    return res
-      .status(500)
-      .json({ ok: false, error: String(e?.message || e) });
+  } catch (err) {
+    console.error("TELEGRAM TEST ERROR:", err);
+    return res.status(500).json({
+      ok: false,
+      error: String(err?.message || err),
+    });
   }
 }
