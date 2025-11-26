@@ -499,7 +499,7 @@ header .subBrand,
 
 .formatRow {
   display: flex;
-  gap: 25px;             /* відділяє кнопки одна від одної */
+  gap: 40px;             /* відділяє кнопки одна від одної */
 }
 
 .fmtBtn {
