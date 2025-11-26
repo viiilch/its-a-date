@@ -499,25 +499,26 @@ function Catalog({ products, onBuy }) {
 
             {/* Перемикач формату */}
             <div className="formatRow">
-              <button
-                type="button"
-                className={
-                  selectedFormat === "big" ? "fmtBtn fmtBtn--active" : "fmtBtn"
-                }
-                onClick={() => setFormat(p.id, "big")}
-              >
-                BIG
-              </button>
-              <button
-                type="button"
-                className={
-                  selectedFormat === "togo" ? "fmtBtn fmtBtn--active" : "fmtBtn"
-                }
-                onClick={() => setFormat(p.id, "togo")}
-              >
-                TO GO
-              </button>
-            </div>
+  <button
+    type="button"
+    className={
+      selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"
+    }
+    onClick={() => setFormat(p.id, "big")}
+  >
+    BIG
+  </button>
+
+  <button
+    type="button"
+    className={
+      selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"
+    }
+    onClick={() => setFormat(p.id, "togo")}
+  >
+    TO GO
+  </button>
+</div>
 
             <div className="cardFooter">
               <div className="price">{fmt(price)}</div>

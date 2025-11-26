@@ -15,16 +15,17 @@ export default function Catalog() {
 
 function Card({ p }) {
   const { addItem, open } = useCart();
+
   const [qty, setQty] = useState(1);
   const [format, setFormat] = useState("big"); // "big" | "to-go"
 
   const isToGo = format === "to-go";
 
-  // ціна: беремо toGoPrice, якщо є, інакше — стандартну
+  // Якщо є окрема ціна для TO GO — беремо її, інакше лишається стандартна
   const unitPrice =
     isToGo && typeof p.toGoPrice === "number" ? p.toGoPrice : p.price;
 
-  // як буде виглядати в кошику / емейлі / телезі
+  // Назва і id в кошику — різні для BIG / TO GO
   const cartTitle = isToGo ? `${p.title} TO GO` : `${p.title} BIG`;
   const cartId = isToGo ? `${p.id}-to-go` : `${p.id}-big`;
 
@@ -37,7 +38,7 @@ function Card({ p }) {
       <h3 className="cardTitle">{p.title}</h3>
       {p.desc && <p className="cardDesc">{p.desc}</p>}
 
-      {/* BIG / TO GO — як текст, без рамок */}
+      {/* BIG / TO GO — текстовий перемикач у стилі заголовка */}
       <div className="formatRow">
         <button
           type="button"
@@ -59,7 +60,7 @@ function Card({ p }) {
         </button>
       </div>
 
-      {/* низ картки: ціна | qty | Купити */}
+      {/* Низ картки: ціна | кількість | Купити */}
       <div className="cardFooter">
         <div className="price">{unitPrice} грн</div>
 

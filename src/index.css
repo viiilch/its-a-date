@@ -1,553 +1,162 @@
-/* ===== ШРИФТИ (якщо покладеш у public/fonts) — не обов’язково, але можна ===== */
-/* приклад:
-@font-face{
-  font-family:"Hagrid";
-  src:url("/fonts/Hagrid-Heavy-trial.otf") format("opentype");
-  font-weight:900; font-style:normal; font-display:swap;
+/* ===== БАЗОВІ ЗМІННІ ===== */
+:root {
+  --text:#111;
+  --muted:#6b7280;
+  --bg:#fff;
+  --card:#fff;
+  --border:#e5e7eb;
 }
-@font-face{
-  font-family:"SFPro";
-  src:url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
-  font-weight:400; font-style:normal; font-display:swap;
-}
-*/
 
-:root{ --text:#111; --muted:#6b7280; --bg:#fff; --card:#fff; --border:#e5e7eb; }
-*{ box-sizing:border-box }
-html,body,#root{ height:100% }
+* { box-sizing:border-box; }
+html,body,#root { height:100%; }
+
 body{
-  margin:0; color:var(--text); background:var(--bg);
-  font-family: -apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",Roboto,Arial,sans-serif;
-  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  margin:0;
+  color:var(--text);
+  background:var(--bg);
+  font-family:"SF Pro Display",-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ===== ХЕДЕР ===== */
-.siteHeader{ position:relative; padding:28px 16px 0 }
-.siteHeader__inner{ max-width:1120px; margin:0 auto; display:flex; justify-content:center }
-.brandWrap{ text-align:center }
-.brand{
-  font-size:64px; letter-spacing:.5px; margin:0; font-weight:900;
-  /* font-family:"Hagrid", -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, Arial, sans-serif; */
+.siteHeader{ position:relative; padding:28px 16px 0; }
+.siteHeader__inner{
+  max-width:1120px;
+  margin:0 auto;
+  display:flex;
+  justify-content:center;
 }
-.subBrand{ margin-top:6px; color:#444; font-size:16px; }
+.brandWrap{ text-align:center; }
+
+.brand{
+  font-size:64px;
+  letter-spacing:.3px;
+  margin:0;
+  font-weight:900;
+}
+
+.subBrand{
+  margin-top:6px;
+  color:#444;
+  font-size:16px;
+}
 
 /* фіксовані іконки праворуч */
 .igFixed,.cartFixed{
-  position: fixed; right: 24px; top: 24px;
-  width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
-  background: transparent; border:0; padding:0; cursor:pointer;
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border:0;
+  padding:0;
+  cursor:pointer;
 }
 .igFixed{ right: 72px; }
+
 .cartBadge{
-  position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; border-radius:9px;
-  background:#111; color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; padding:0 4px;
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  min-width:18px;
+  height:18px;
+  border-radius:9px;
+  background:#111;
+  color:#fff;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 4px;
 }
 
 /* ===== КОНТЕНТ ===== */
-.container{ max-width:1120px; padding:32px 16px 40px; margin: 0 auto; }
-.grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:24px; }
-@media (max-width:900px){ .grid{ grid-template-columns: repeat(2, 1fr); } }
-@media (max-width:640px){ .grid{ grid-template-columns: 1fr; } }
+.container{
+  max-width:1120px;
+  padding:32px 16px 40px;
+  margin: 0 auto;
+}
+.grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:24px;
+}
+@media (max-width:900px){
+  .grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width:640px){
+  .grid{ grid-template-columns: 1fr; }
+}
 
-/* ===== КАРТКА ===== */
+/* ===== КАРТКА ТОВАРУ ===== */
 .card{
-  background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px;
-  display:flex; flex-direction:column; gap:12px;
-}
-.imgWrap{ width:100%; aspect-ratio: 1 / 1; border-radius:12px; background:#fafafa; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.imgWrap img{ width:100%; height:100%; object-fit:contain; }
-
-.cardTitle{ font-size:20px; font-weight:900; margin:0; /* font-family:"Hagrid",... */ }
-.cardDesc{ margin:0; color:var(--muted); font-size:14px; line-height:1.4; }
-
-.cardFooter{
-  display:grid; grid-template-columns: min-content 1fr auto; align-items:center; gap:14px;
-}
-.price{ font-weight:900; }
-.qtyGroup{ display:inline-flex; align-items:center; gap:10px; }
-.qtyBtn{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:30px; height:30px; border-radius:8px; border:1px solid #ddd; background:#fff;
-  font-size:18px; line-height:1; font-weight:700; padding:0; cursor:pointer;
-}
-.qtyVal{ display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:30px; font-weight:700; }
-.buyBtn{
-  height:40px; padding:0 14px; border-radius:10px; border:1px solid #111; background:#111; color:#fff; cursor:pointer;
-  font-weight:700;
-}
-.buyBtn:hover{ opacity:.9 }
-
-/* ===== МОДАЛКА ===== */
-.modalOverlay{ position:fixed; inset:0; background:rgba(0,0,0,.18); display:flex; align-items:center; justify-content:center; z-index:3000; }
-.modal{
-  width:720px; max-width:92vw; max-height:88vh; overflow:auto; background:#fff; border-radius:16px; border:1px solid var(--border);
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
   padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
-.modalHead{
-  display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:#fff; z-index:1; padding-bottom:8px;
+.imgWrap{
+  width:100%;
+  aspect-ratio: 1 / 1;
+  border-radius:12px;
+  background:#fafafa;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
 }
-.modalHead h3{ margin:0; font-size:26px; }
-.iconBtn{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:30px; height:30px; border:1px solid #e5e5e5; border-radius:8px; background:#fff; font-size:18px; line-height:1; cursor:pointer;
-}
-
-.cartEmpty{ text-align:center; padding:24px 12px; }
-.cartList{ list-style:none; margin:0; padding:8px 0; max-height:50vh; overflow:auto; }
-
-.cartRow, .summaryRow{
-  display:grid; grid-template-columns: 80px 1fr 160px minmax(86px,auto) 36px; align-items:center; gap:12px;
-  padding:12px; margin:10px 0; border-radius:14px; border:1px solid var(--border); background:#fff;
-  position:relative; overflow:hidden;
-}
-.thumb{ width:80px; height:80px; border-radius:10px; object-fit:contain; background:#fafafa; }
-.cTitle{ font-weight:800; }
-.qtyRow{ display:inline-flex; align-items:center; justify-content:center; gap:12px; min-width:120px; }
-.qty{ display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:30px; font-weight:700; }
-.cPrice{ text-align:right; white-space:nowrap; font-weight:800; padding:0 4px 0 6px; }
-.rowX{ justify-self:end; }
-
-.modalFoot{
-  display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:12px; border-top:1px solid var(--border);
-}
-.sum{ font-size:18px; }
-.actions{ display:flex; gap:10px; }
-.btn{
-  height:44px; padding:0 16px; border-radius:10px; border:1px solid #111; background:#111; color:#fff; cursor:pointer; font-weight:800;
-}
-.btn.ghost{ background:#fff; color:#111; border:1px solid #ddd; }
-.btn.primary{ background:#111; color:#fff; border:1px solid #111; }
-
-/* ===== ОФОРМЛЕННЯ ===== */
-.summaryInModal{ padding:8px 0 0; }
-.summaryFoot{ padding:6px 2px 0; font-size:16px; }
-.formInModal{ display:grid; gap:14px; padding-top:12px; }
-.grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-label{ display:block; margin-bottom:6px; font-weight:800; font-size:14px; }
-input{
-  width:100%; height:44px; border:1px solid #ddd; border-radius:10px; padding:0 12px; font-size:16px;
+.imgWrap img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
 }
 
-/* ===== ФУТЕР ===== */
-.footer{ max-width:1120px; margin:32px auto 24px; padding:0 16px; text-align:center; color:#888; font-size:14px; display:flex; flex-direction:column; gap:10px; }
-.payRow{ display:inline-flex; align-items:center; justify-content:center; gap:18px; flex-wrap:wrap; }
-.payIcon{ height:28px; width:auto; display:inline-block; image-rendering:auto; }
-.copy{ margin-top:8px; }
-
-/* ===== МОБІЛЬНА ШАПКА (щоб іконки не накладались) ===== */
-@media (max-width:640px){
-  .siteHeader{ padding-top:68px; }
-  .brand{ font-size:40px }
-  .igFixed,.cartFixed{
-    top:12px; z-index:1000; width:44px; height:44px; padding:8px; border-radius:12px;
-    background: rgba(255,255,255,.92); box-shadow:0 2px 8px rgba(0,0,0,.08); backdrop-filter: saturate(180%) blur(8px);
-  }
-  .cartFixed{ right:12px }
-  .igFixed{ right:60px }
-  .modal{ width:96vw; max-height:92vh; margin:0 auto; }
-  .cartRow, .summaryRow{
-    grid-template-columns: 56px 1fr 120px minmax(72px,auto) 30px;
-    padding:10px;
-  }
-  .thumb{ width:56px; height:56px }
-  .cTitle{ font-size:14px; line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .modalFoot{ flex-direction:column; align-items:stretch; gap:12px; }
-  .modalFoot .sum{ text-align:right; font-size:16px }
-  .modalFoot .actions{ display:flex; gap:10px }
-  .modalFoot .actions .btn{ flex:1 }
-  .formInModal{ padding:14px; gap:14px }
-  .grid2{ grid-template-columns:1fr }
-}
-
-/* ===== Коли модалка відкрита — ховаємо IG/кошик, щоб не перекривали ===== */
-body.modal-open .igFixed,
-body.modal-open .cartFixed{
-  opacity:0; pointer-events:none; transition: opacity .12s ease;
-}
-/* ======== FIRM FONTS (LOCAL) — ПРІОРИТЕТНИЙ ОВЕРРАЙД ======== */
-@font-face{
-  font-family:"Hagrid";
-  src:url("/fonts/Hagrid-Heavy-trial.otf") format("opentype");
-  font-weight:900; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"Hagrid";
-  src:url("/fonts/Hagrid-Extrabold-trial.otf") format("opentype");
-  font-weight:800; font-style:normal; font-display:swap;
-}
-
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
-  font-weight:400; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
-  font-weight:500; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
-  font-weight:700; font-style:normal; font-display:swap;
-}
-
-/* БАЗОВИЙ ШРИФТ САЙТУ */
-body{
-  font-family:"SF Pro Display",-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Arial,sans-serif !important;
-}
-
-/* ФІРМОВІ ЗОНИ */
-.brand{                       /* IT’S A DATE! */
-  font-family:"Hagrid","SF Pro Display",sans-serif !important;
-  font-weight:900 !important;
-  letter-spacing:.3px;
-}
-.subBrand{                    /* by Kyiv Dinner Club */
-  font-family:"SF Pro Display",-apple-system,Inter,Arial,sans-serif !important;
-  font-weight:500 !important;
-  letter-spacing:.2px;
-}
-
-/* НАЗВИ ПРОДУКТІВ — Hagrid */
 .cardTitle{
-  font-family:"Hagrid","SF Pro Display",sans-serif !important;
-  font-weight:800 !important;
+  font-size:20px;
+  font-weight:900;
+  margin:0;
 }
 
-/* ДОДАТКОВИЙ ВІДСТУП МІЖ ХЕДЕРОМ І КАТАЛОГОМ (щоб “не злипалось”) */
-.container{ margin-top: 10px; }
-@media (max-width:640px){
-  .container{ margin-top: 14px; }
+.cardDesc{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.4;
 }
 
-/* ======== КАРТКА ТОВАРУ — РІВНЕ ВИРІВНЮВАННЯ ======== */
-.cardFooter{
-  display:grid !important;
-  grid-template-columns: min-content 1fr auto !important; /* ціна | qty (центр) | Купити */
-  align-items:center !important;
-  gap:16px !important;
-}
-
-/* Ціна – ліворуч, по базовій лінії */
-.price{
-  font-weight:900 !important;
-  align-self:center !important;
-}
-
-/* + / К-сть / − — СТРОГО ПО ЦЕНТРУ */
-.qtyGroup{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:12px !important;
-  min-width:120px !important;
-  justify-self:center !important;
-}
-.qtyBtn{
-  display:inline-flex !important; align-items:center !important; justify-content:center !important;
-  width:30px !important; height:30px !important; border-radius:8px !important;
-  border:1px solid #ddd !important; background:#fff !important;
-  font-size:18px !important; line-height:1 !important; font-weight:700 !important; padding:0 !important;
-}
-.qtyVal{
-  display:inline-flex !important; align-items:center !important; justify-content:center !important;
-  min-width:24px !important; height:30px !important; font-weight:700 !important;
-}
-
-/* Кнопка “Купити” — праворуч */
-.buyBtn{
-  justify-self:end !important;
-  height:40px !important; padding:0 14px !important; border-radius:10px !important;
-  border:1px solid #111 !important; background:#111 !important; color:#fff !important; font-weight:700 !important;
-}
-
-/* МОБІЛЬНЕ ДРІБНЕ ПІДГОНЯННЯ */
-@media (max-width:640px){
-  .qtyGroup{ min-width:112px !important; gap:10px !important; }
-  .brand{ font-size:40px !important; }
-}
-/* ====== ФІРМОВІ ШРИФТИ ТА ВИРІВНЮВАННЯ (оверрайд) ====== */
-/* (вважаю, що файли вже лежать в public/fonts, як раніше) */
-
-@font-face{
-  font-family:"Hagrid";
-  src:url("/fonts/Hagrid-Heavy-trial.otf") format("opentype");
-  font-weight:900; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"Hagrid";
-  src:url("/fonts/Hagrid-Extrabold-trial.otf") format("opentype");
-  font-weight:800; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
-  font-weight:400; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
-  font-weight:500; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
-  font-weight:700; font-style:normal; font-display:swap;
-}
-
-/* База сайту — SF Pro */
-body{
-  font-family:"SF Pro Display",-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Arial,sans-serif !important;
-}
-
-/* IT’S A DATE! — Hagrid */
-.brand{
-  font-family:"Hagrid","SF Pro Display",sans-serif !important;
-  font-weight:900 !important;
-  letter-spacing:.2px;
-}
-
-/* by Kyiv Dinner Club — окремий шрифт (SF Pro Medium) */
-.subBrand{
-  font-family:"SF Pro Display",-apple-system,Inter,Arial,sans-serif !important;
-  font-weight:500 !important;              /* саме інший кегль/вага */
-  letter-spacing:.15px;
-}
-
-/* Назви продуктів — Hagrid */
-.cardTitle{
-  font-family:"Hagrid","SF Pro Display",sans-serif !important;
-  font-weight:800 !important;
-}
-
-/* ====== ГОЛОВНА КАРТКА: ціна + “грн” в один рядок, нічого не переноситься ====== */
-.price{
-  white-space:nowrap !important;           /* “300 грн” не ламається на 2 рядки */
-  font-weight:900 !important;
-  align-self:center !important;
-}
-
-/* центримо саме блок кількості між ціною і кнопкою */
-.cardFooter{
-  display:grid !important;
-  grid-template-columns:min-content 1fr auto !important; /* [ціна] [qty центр] [Купити] */
-  align-items:center !important;
-  gap:16px !important;
-}
-.qtyGroup{
-  justify-self:center !important;
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:12px !important;
-  min-width:120px !important;
-}
-.qtyBtn{
-  display:inline-flex !important; align-items:center !important; justify-content:center !important;
-  width:30px !important; height:30px !important; border-radius:8px !important;
-  border:1px solid #ddd !important; background:#fff !important;
-  font-size:18px !important; line-height:1 !important; font-weight:700 !important; padding:0 !important;
-}
-.qtyVal{
-  display:inline-flex !important; align-items:center !important; justify-content:center !important;
-  min-width:24px !important; height:30px !important; font-weight:700 !important;
-}
-.buyBtn{ justify-self:end !important; }
-
-/* ====== ЗАГОЛОВКИ МОДАЛОК “Кошик” / “Оформлення” — теж Hagrid ====== */
-.modalHead h3{
-  font-family:"Hagrid","SF Pro Display",sans-serif !important;
-  font-weight:900 !important;
-  letter-spacing:.2px;
-}
-
-/* Трохи повітря під хедером, щоб не злипалось з каталогом */
-.container{ margin-top:10px !important; }
-@media (max-width:640px){
-  .brand{ font-size:40px !important; }
-  .container{ margin-top:14px !important; }
-}
-/* === Kyiv Dinner Club: рукописний тонкий шрифт === */
-@font-face {
-  font-family: "Great Vibes";
-  src: url("https://fonts.gstatic.com/s/greatvibes/v16/RWmMoKWR9v4ksMfaWd_JN-XC.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-body .subBrand {
-  font-family: "Great Vibes", "SF Pro Display", cursive !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.3px !important;
-  font-size: 24px !important;
-  margin-top: 2px !important;
-  display: inline-block !important;
-}
-/* === Kyiv Dinner Club: супер-рукописний тонкий шрифт === */
-@font-face {
-  font-family: "Dancing Script";
-  src: url("https://fonts.gstatic.com/s/dancingscript/v25/If2RXTr6YS-zF4S-kcSWSVi_szLzTzI.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-body .subBrand {
-  font-family: "Dancing Script", "SF Pro Display", cursive !important;
-  font-weight: 400 !important;
-  font-size: 26px !important;
-  letter-spacing: 0.2px !important;
-  margin-top: 4px !important;
-  display: inline-block !important;
-  opacity: 0.9;
-}
-/* === Kyiv Dinner Club — надтонкий рукописний шрифт Shadows Into Light === */
-@font-face {
-  font-family: "Shadows Into Light";
-  src: url("/fonts/ShadowsIntoLight-Regular.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-/* Примусово застосовуємо цей шрифт лише до підпису Kyiv Dinner Club */
-body .subBrand,
-header .subBrand,
-.brandWrap .subBrand {
-  font-family: "Shadows Into Light", "SF Pro Display", cursive !important;
-  font-weight: 400 !important;
-  font-size: 26px !important;
-  letter-spacing: 0.3px !important;
-  margin-top: 4px !important;
-  display: inline-block !important;
-  opacity: 0.95 !important;
-}
-/* ==== MOBILE CART FIX: все в рамці, нічого не виїжджає ==== */
-@media (max-width: 640px){
-  /* сам рядок компактніший і без переповнення */
-  .cartRow{
-    box-sizing: border-box !important;
-    padding: 8px 8px !important;
-    margin: 8px 0 !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    gap: 8px !important;
-    /* фото | назва | qty | сума | ×  */
-    grid-template-columns: 52px 1fr 104px 70px 28px !important;
-  }
-
-  /* фото */
-  .thumb{ 
-    width:52px !important; 
-    height:52px !important; 
-    border-radius:8px !important; 
-  }
-
-  /* назва — без переносів назовні */
-  .cTitle{
-    font-size: 13px !important;
-    line-height: 1.2 !important;
-    overflow: hidden !important;
-    white-space: nowrap !important;
-    text-overflow: ellipsis !important;
-  }
-
-  /* кількість по центру, блок трохи вужчий */
-  .qtyRow{
-    min-width: 104px !important;
-    gap: 10px !important;
-    justify-self: center !important;
-  }
-
-  .qtyBtn{
-    width: 26px !important; 
-    height: 26px !important;
-    border-radius: 7px !important;
-    font-size: 16px !important;
-  }
-
-  .qty, .qtyVal{ 
-    min-width: 20px !important; 
-    height: 26px !important; 
-  }
-
-  /* сума — фіксована ширина, без переносу */
-  .cPrice{
-    min-width: 70px !important;
-    text-align: right !important;
-    white-space: nowrap !important;
-    font-size: 14px !important;
-    padding: 0 2px !important;
-  }
-
-  /* ХРЕСТИК — менший, строго в межах колонки */
-  .rowX, .iconBtn{
-    width: 26px !important; 
-    height: 26px !important;
-    border-radius: 7px !important;
-    font-size: 16px !important; 
-    line-height: 1 !important;
-    justify-self: end !important; 
-    align-self: center !important;
-    margin: 0 !important;
-  }
-}
-/* === OVERRIDE: кнопка "Купити" — трошки ширша й масивніша === */
-
-.buyBtn {
-  height: 42px !important;        /* трохи вища за формат-кнопки */
-  padding: 0 22px !important;     /* ширша */
-  border-radius: 12px !important;
-  font-weight: 800 !important;
-}
-/* === OVERRIDE: Кнопка "Купити" — ширша, нижча, як qty === */
-.buyBtn {
-  height: 32px !important;           /* така ж висота як +/- */
-  padding: 0 26px !important;        /* ширша */
-  border-radius: 10px !important;
-  border: 1px solid #111 !important;
-  background: #111 !important;
-  color: #fff !important;
-
-  font-size: 16px !important;        /* такий самий розмір як у ціни */
-  font-weight: 900 !important;       /* товстий шрифт, як ціна */
-  letter-spacing: 0.02em !important;
-
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
 /* ===== BIG / TO GO — як текст-опції ===== */
-
-.formatRow {
-  display: flex;
-  gap: 24px;                 /* відстань між BIG і TO GO */
-  margin-top: 10px;          /* від опису */
-  margin-bottom: 4px;        /* перед ціною */
-  align-items: baseline;
+.formatRow{
+  display:flex;
+  gap:24px;
+  margin-top:10px;
+  margin-bottom:4px;
+  align-items:baseline;
 }
 
-/* БАЗОВИЙ стиль для обох слів */
-.fmtChoice {
-  appearance: none !important;
-  -webkit-appearance: none !important;
+/* базовий стиль (як назва фініків, але дрібніше) */
+.fmtChoice{
+  appearance:none;
+  -webkit-appearance:none;
+  border:none;
+  background:transparent;
+  padding:0;
+  cursor:pointer;
 
-  border: none;
-  background: transparent;
-  padding: 0;
+  font-family:"Hagrid","SF Pro Display",sans-serif;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
 
-  cursor: pointer;
-
-  /* ТАКИЙ САМИЙ ШРИФТ, як назва фініків */
-  font-family: "Hagrid","SF Pro Display",sans-serif !important;
-  font-weight: 800 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-
-  font-size: 15px;               /* неактивна — трохи менша */
-  color: var(--muted);           /* сіра, як опис */
+  font-size:15px;
+  color:var(--muted); /* сіра, як опис */
 
   transition:
     color 0.15s ease,
@@ -556,30 +165,412 @@ header .subBrand,
     opacity 0.15s ease;
 }
 
-/* АКТИВНИЙ формат — більший і чорний */
-.fmtChoice--active {
-  color: #111 !important;        /* чорний, як заголовок */
-  font-size: 17px !important;    /* трішки більший */
-  transform: translateY(-1px);   /* легесенький підйом */
+/* обрана опція — чорна й трохи більша */
+.fmtChoice.fmtChoice--active{
+  color:#111;
+  font-size:17px;
+  transform:translateY(-1px);
 }
 
-/* Легкий hover для неактивного */
-.fmtChoice:hover {
-  color: #4b5563;
-  opacity: 0.9;
+/* hover */
+.fmtChoice:hover{
+  color:#4b5563;
+  opacity:0.9;
 }
 
-/* Мобільне підлаштування */
-@media (max-width: 640px) {
-  .formatRow {
-    gap: 18px;
+/* ===== НИЗ КАРТКИ: ціна / qty / Купити ===== */
+.cardFooter{
+  display:grid;
+  grid-template-columns:min-content 1fr auto;
+  align-items:center;
+  gap:16px;
+}
+
+.price{
+  white-space:nowrap;
+  font-weight:900;
+  align-self:center;
+}
+
+.qtyGroup{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  min-width:120px;
+  justify-self:center;
+}
+
+.qtyBtn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  background:#fff;
+  font-size:18px;
+  line-height:1;
+  font-weight:700;
+  padding:0;
+  cursor:pointer;
+}
+
+.qtyVal{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:24px;
+  height:30px;
+  font-weight:700;
+}
+
+/* КУПИТИ — низька й ширша */
+.buyBtn{
+  justify-self:end;
+  height:32px;
+  padding:0 26px;
+  border-radius:10px;
+  border:1px solid #111;
+  background:#111;
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:0.02em;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.buyBtn:hover{ opacity:.9; }
+
+/* ===== МОДАЛКА ===== */
+.modalOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.18);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:3000;
+}
+.modal{
+  width:720px;
+  max-width:92vw;
+  max-height:88vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:16px;
+  border:1px solid var(--border);
+  padding:16px;
+}
+.modalHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  background:#fff;
+  z-index:1;
+  padding-bottom:8px;
+}
+.modalHead h3{
+  margin:0;
+  font-size:26px;
+}
+
+.iconBtn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border:1px solid #e5e5e5;
+  border-radius:8px;
+  background:#fff;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+}
+
+/* КОРЗИНА В МОДАЛЦІ */
+.cartEmpty{
+  text-align:center;
+  padding:24px 12px;
+}
+.cartList{
+  list-style:none;
+  margin:0;
+  padding:8px 0;
+  max-height:50vh;
+  overflow:auto;
+}
+
+.cartRow,
+.summaryRow{
+  display:grid;
+  grid-template-columns:80px 1fr 160px minmax(86px,auto) 36px;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  margin:10px 0;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+.thumb{
+  width:80px;
+  height:80px;
+  border-radius:10px;
+  object-fit:contain;
+  background:#fafafa;
+}
+
+.cTitle{ font-weight:800; }
+
+.qtyRow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  min-width:120px;
+}
+
+.qty{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:24px;
+  height:30px;
+  font-weight:700;
+}
+
+.cPrice{
+  text-align:right;
+  white-space:nowrap;
+  font-weight:800;
+  padding:0 4px 0 6px;
+}
+
+.rowX{ justify-self:end; }
+
+.modalFoot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+.sum{ font-size:18px; }
+.actions{ display:flex; gap:10px; }
+
+.btn{
+  height:44px;
+  padding:0 16px;
+  border-radius:10px;
+  border:1px solid #111;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+  font-weight:800;
+}
+.btn.ghost{
+  background:#fff;
+  color:#111;
+  border:1px solid #ddd;
+}
+.btn.primary{
+  background:#111;
+  color:#fff;
+  border:1px solid #111;
+}
+
+/* ===== ОФОРМЛЕННЯ ===== */
+.summaryInModal{ padding:8px 0 0; }
+.summaryFoot{ padding:6px 2px 0; font-size:16px; }
+
+.formInModal{
+  display:grid;
+  gap:14px;
+  padding-top:12px;
+}
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:800;
+  font-size:14px;
+}
+input{
+  width:100%;
+  height:44px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:0 12px;
+  font-size:16px;
+}
+
+/* ===== ФУТЕР ===== */
+.footer{
+  max-width:1120px;
+  margin:32px auto 24px;
+  padding:0 16px;
+  text-align:center;
+  color:#888;
+  font-size:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.payRow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.payIcon{
+  height:28px;
+  width:auto;
+  display:inline-block;
+  image-rendering:auto;
+}
+.copy{ margin-top:8px; }
+
+/* ===== МОБІЛЬНА ШАПКА ===== */
+@media (max-width:640px){
+  .siteHeader{ padding-top:68px; }
+  .brand{ font-size:40px; }
+  .igFixed,.cartFixed{
+    top:12px;
+    z-index:1000;
+    width:44px;
+    height:44px;
+    padding:8px;
+    border-radius:12px;
+    background:rgba(255,255,255,.92);
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    backdrop-filter:saturate(180%) blur(8px);
+  }
+  .cartFixed{ right:12px; }
+  .igFixed{ right:60px; }
+
+  .modal{
+    width:96vw;
+    max-height:92vh;
+    margin:0 auto;
   }
 
-  .fmtChoice {
-    font-size: 13px;
+  .cartRow,
+  .summaryRow{
+    grid-template-columns:56px 1fr 120px minmax(72px,auto) 30px;
+    padding:10px;
+  }
+  .thumb{
+    width:56px;
+    height:56px;
   }
 
-  .fmtChoice--active {
-    font-size: 15px !important;
+  .cTitle{
+    font-size:14px;
+    line-height:1.25;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
+
+  .modalFoot{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+  .modalFoot .sum{
+    text-align:right;
+    font-size:16px;
+  }
+  .modalFoot .actions .btn{ flex:1; }
+
+  .formInModal{
+    padding:14px;
+    gap:14px;
+  }
+  .grid2{ grid-template-columns:1fr; }
+
+  .formatRow{ gap:18px; }
+  .fmtChoice{ font-size:13px; }
+  .fmtChoice.fmtChoice--active{ font-size:15px; }
+}
+
+/* ===== Коли модалка відкрита — ховаємо IG/кошик ===== */
+body.modal-open .igFixed,
+body.modal-open .cartFixed{
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .12s ease;
+}
+
+/* ===== ЛОКАЛЬНІ ШРИФТИ ===== */
+@font-face{
+  font-family:"Hagrid";
+  src:url("/fonts/Hagrid-Heavy-trial.otf") format("opentype");
+  font-weight:900;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"Hagrid";
+  src:url("/fonts/Hagrid-Extrabold-trial.otf") format("opentype");
+  font-weight:800;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
+  font-weight:500;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* застосовуємо Hagrid на бренд і назви */
+.brand{
+  font-family:"Hagrid","SF Pro Display",sans-serif;
+  font-weight:900;
+}
+.cardTitle{
+  font-family:"Hagrid","SF Pro Display",sans-serif;
+  font-weight:800;
+}
+.modalHead h3{
+  font-family:"Hagrid","SF Pro Display",sans-serif;
+  font-weight:900;
+}
+
+/* трохи відступу між хедером і каталогом */
+.container{ margin-top:10px; }
+@media (max-width:640px){
+  .container{ margin-top:14px; }
 }

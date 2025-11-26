@@ -8,8 +8,16 @@ export function CartProvider({ children }) {
   const [isOpen, setOpen] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
-  const open  = () => setOpen(true);
-  const close = () => { setOpen(false); setShowCheckout(false); };
+  const open = () => {
+    setOpen(true);
+    document.body.classList.add("modal-open");
+  };
+
+  const close = () => {
+    setOpen(false);
+    setShowCheckout(false);
+    document.body.classList.remove("modal-open");
+  };
 
   function addItem(product, qty = 1) {
     setCart((prev) => {
@@ -23,7 +31,7 @@ export function CartProvider({ children }) {
       }
       return [...prev, { ...product, qty }];
     });
-    setOpen(true);
+    open();
   }
 
   function changeQty(id, delta) {
@@ -37,18 +45,37 @@ export function CartProvider({ children }) {
         .filter((it) => it.qty > 0)
     );
   }
-  const removeItem = (id) => setCart((prev) => prev.filter((it) => it.id !== id));
+
+  const removeItem = (id) =>
+    setCart((prev) => prev.filter((it) => it.id !== id));
+
   const clear = () => setCart([]);
 
-  const total = useMemo(() => cart.reduce((s, it) => s + it.price * it.qty, 0), [cart]);
-  const count = useMemo(() => cart.reduce((s, it) => s + it.qty, 0), [cart]);
+  const total = useMemo(
+    () => cart.reduce((s, it) => s + it.price * it.qty, 0),
+    [cart]
+  );
+
+  const count = useMemo(
+    () => cart.reduce((s, it) => s + it.qty, 0),
+    [cart]
+  );
 
   return (
     <CartCtx.Provider
       value={{
-        cart, addItem, changeQty, removeItem, clear,
-        total, count, isOpen, open, close,
-        showCheckout, setShowCheckout
+        cart,
+        addItem,
+        changeQty,
+        removeItem,
+        clear,
+        total,
+        count,
+        isOpen,
+        open,
+        close,
+        showCheckout,
+        setShowCheckout,
       }}
     >
       {children}
@@ -64,12 +91,20 @@ export function useCart() {
 }
 
 const fmt = (n) => `${n} грн`;
-const fix = (p) => (!p ? "" : p.startsWith("/img/") ? p : p.replace(/^public\//, "/"));
+const fix = (p) =>
+  !p ? "" : p.startsWith("/img/") ? p : p.replace(/^public\//, "/");
 
 function CartModal() {
   const {
-    cart, total, changeQty, removeItem, clear,
-    isOpen, close, showCheckout, setShowCheckout
+    cart,
+    total,
+    changeQty,
+    removeItem,
+    clear,
+    isOpen,
+    close,
+    showCheckout,
+    setShowCheckout,
   } = useCart();
 
   const [submitting, setSubmitting] = useState(false);
@@ -80,17 +115,15 @@ function CartModal() {
     e.preventDefault();
     if (!cart.length || submitting) return;
 
-    // зібрати дані з форми:
     const fd = new FormData(e.currentTarget);
     const customer = {
       firstName: (fd.get("firstName") || "").trim(),
-      lastName:  (fd.get("lastName")  || "").trim(),
-      phone:     (fd.get("phone")     || "").trim(),
-      np:        (fd.get("np")        || "").trim(), // місто + відділення
+      lastName: (fd.get("lastName") || "").trim(),
+      phone: (fd.get("phone") || "").trim(),
+      np: (fd.get("np") || "").trim(),
     };
 
-    // підготувати корзину (мінімальний склад)
-    const safeCart = cart.map(it => ({
+    const safeCart = cart.map((it) => ({
       id: it.id,
       title: it.title,
       price: it.price,
@@ -105,16 +138,18 @@ function CartModal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart: safeCart, customer }),
       });
+
       const data = await resp.json();
 
       if (!resp.ok || !data.checkoutUrl) {
         console.error("MonoPay error:", data);
-        alert("Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram.");
+        alert(
+          "Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram."
+        );
         setSubmitting(false);
         return;
       }
 
-      // редирект на сторінку оплати MonoPay
       window.location.href = data.checkoutUrl;
     } catch (err) {
       console.error(err);
@@ -125,18 +160,27 @@ function CartModal() {
 
   return (
     <div className="modalOverlay" onClick={close}>
-      <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modalHead">
           <h3>{showCheckout ? "Оформлення" : "Кошик"}</h3>
-          <button className="iconBtn" onClick={close} aria-label="Закрити">×</button>
+          <button className="iconBtn" onClick={close} aria-label="Закрити">
+            ×
+          </button>
         </div>
 
         {!showCheckout ? (
-          /* ---------- РЕЖИМ КОШИКА ---------- */
+          // ---------- РЕЖИМ КОШИКА ----------
           cart.length === 0 ? (
             <div className="cartEmpty">
               <p>Порожньо. Додайте щось смачне 🙂</p>
-              <button className="btnGhost" onClick={close}>Повернутись до каталогу</button>
+              <button className="btn ghost" onClick={close}>
+                Повернутись до каталогу
+              </button>
             </div>
           ) : (
             <>
@@ -145,85 +189,148 @@ function CartModal() {
                   <li className="cartRow" key={it.id}>
                     <img className="thumb" src={fix(it.img)} alt={it.title} />
 
-                    {/* Ліворуч — назва */}
                     <div className="cTitle">{it.title}</div>
 
-                    {/* Посередині — кількість */}
                     <div className="qtyRow">
-                      <button className="qtyBtn" onClick={() => changeQty(it.id, -1)}>-</button>
+                      <button
+                        className="qtyBtn"
+                        onClick={() => changeQty(it.id, -1)}
+                      >
+                        -
+                      </button>
                       <span className="qty">{it.qty}</span>
-                      <button className="qtyBtn" onClick={() => changeQty(it.id, +1)}>+</button>
+                      <button
+                        className="qtyBtn"
+                        onClick={() => changeQty(it.id, +1)}
+                      >
+                        +
+                      </button>
                     </div>
 
-                    {/* Праворуч — сума по позиції */}
                     <div className="cPrice">{fmt(it.price * it.qty)}</div>
 
-                    {/* Видалити */}
-                    <button className="iconBtn rowX" onClick={() => removeItem(it.id)} aria-label="Видалити">×</button>
+                    <button
+                      className="iconBtn rowX"
+                      onClick={() => removeItem(it.id)}
+                      aria-label="Видалити"
+                    >
+                      ×
+                    </button>
                   </li>
                 ))}
               </ul>
 
               <div className="modalFoot">
-                <div className="sum">Всього: <b>{fmt(total)}</b></div>
+                <div className="sum">
+                  Всього: <b>{fmt(total)}</b>
+                </div>
                 <div className="actions">
-                  <button className="btn ghost" onClick={close}>Продовжити покупки</button>
-                  <button className="btn primary" onClick={() => setShowCheckout(true)}>Оформити</button>
+                  <button className="btn ghost" onClick={close}>
+                    Продовжити покупки
+                  </button>
+                  <button
+                    className="btn primary"
+                    onClick={() => setShowCheckout(true)}
+                  >
+                    Оформити
+                  </button>
                 </div>
               </div>
             </>
           )
         ) : (
-          /* ---------- РЕЖИМ ОФОРМЛЕННЯ ---------- */
+          // ---------- РЕЖИМ ОФОРМЛЕННЯ ----------
           <>
-            {/* Список позицій так само в одну лінію */}
             <div className="summaryInModal">
               {cart.map((it) => (
                 <div className="summaryRow" key={it.id}>
                   <img className="thumb" src={fix(it.img)} alt={it.title} />
                   <div className="cTitle">{it.title}</div>
                   <div className="qtyRow">
-                    <button className="qtyBtn" onClick={() => changeQty(it.id, -1)}>-</button>
+                    <button
+                      className="qtyBtn"
+                      onClick={() => changeQty(it.id, -1)}
+                    >
+                      -
+                    </button>
                     <span className="qty">{it.qty}</span>
-                    <button className="qtyBtn" onClick={() => changeQty(it.id, +1)}>+</button>
+                    <button
+                      className="qtyBtn"
+                      onClick={() => changeQty(it.id, +1)}
+                    >
+                      +
+                    </button>
                   </div>
                   <div className="cPrice">{fmt(it.price * it.qty)}</div>
                 </div>
               ))}
-              <div className="summaryFoot">Всього: <b>{fmt(total)}</b></div>
+              <div className="summaryFoot">
+                Всього: <b>{fmt(total)}</b>
+              </div>
             </div>
 
-            {/* Форма оформлення */}
             <form className="formInModal" onSubmit={submit}>
               <div className="grid2">
                 <div>
                   <label htmlFor="firstName">Ім’я</label>
-                  <input id="firstName" name="firstName" required placeholder="Ім’я отримувача" />
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    required
+                    placeholder="Ім’я отримувача"
+                  />
                 </div>
                 <div>
                   <label htmlFor="lastName">Прізвище</label>
-                  <input id="lastName" name="lastName" required placeholder="Прізвище" />
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    required
+                    placeholder="Прізвище"
+                  />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="phone">Телефон</label>
-                <input id="phone" name="phone" required placeholder="+380XXXXXXXXX" />
+                <input
+                  id="phone"
+                  name="phone"
+                  required
+                  placeholder="+380XXXXXXXXX"
+                />
               </div>
 
               <div>
                 <label htmlFor="np">Місто / Відділення Нової Пошти</label>
-                <input id="np" name="np" required placeholder="Київ, відділення №..." />
+                <input
+                  id="np"
+                  name="np"
+                  required
+                  placeholder="Київ, відділення №..."
+                />
               </div>
 
               <div className="modalFoot">
-                <div className="sum">Всього: <b>{fmt(total)}</b></div>
+                <div className="sum">
+                  Всього: <b>{fmt(total)}</b>
+                </div>
                 <div className="actions">
-                  <button type="button" className="btn ghost" onClick={() => setShowCheckout(false)}>
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    onClick={() => setShowCheckout(false)}
+                  >
                     Назад до кошика
                   </button>
-                  <button type="submit" className="btn primary" disabled={submitting}>
-                    {submitting ? "Переходимо до оплати..." : "Підтвердити та оплатити"}
+                  <button
+                    type="submit"
+                    className="btn primary"
+                    disabled={submitting}
+                  >
+                    {submitting
+                      ? "Переходимо до оплати..."
+                      : "Підтвердити та оплатити"}
                   </button>
                 </div>
               </div>
