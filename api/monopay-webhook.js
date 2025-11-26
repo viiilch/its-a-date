@@ -2,7 +2,7 @@
 export const config = { runtime: "nodejs" };
 
 import nodemailer from "nodemailer";
-import { sendOrderToTelegram } from "./lib/telegram.js";
+import { sendTelegramMessage } from "./lib/telegram.js";
 
 const ORDER_EMAIL_TO =
   process.env.ORDER_EMAIL_TO || "itsadate.orderss@gmail.com";
@@ -61,6 +61,35 @@ function parseMonoBody(body = {}) {
   return { status, reference, customer, cart, total, raw: body };
 }
 
+// --- Формуємо текст для Telegram ---
+function buildTelegramText({ reference, customer, cart, total }) {
+  const lines = cart.map((item, idx) => {
+    const title = item.title || `Товар ${idx + 1}`;
+    const price = Number(item.price || 0);
+    const qty = Number(item.qty || 0);
+    const sum = price * qty;
+    return `• ${title} — ${qty} x ${price} = ${sum} UAH`;
+  });
+
+  return [
+    `🧾 *Нове замовлення з сайту It's a Date*`,
+    ``,
+    `ID: \`${reference}\``,
+    ``,
+    `👤 *Клієнт*`,
+    `Ім'я: ${customer.firstName || ""} ${customer.lastName || ""}`,
+    `Телефон: ${customer.phone || ""}`,
+    customer.np ? `Нова Пошта: ${customer.np}` : "",
+    ``,
+    `📦 *Товари*`,
+    ...(lines.length ? lines : ["(порожній кошик)"]),
+    ``,
+    `💰 *Сума*: *${total} UAH*`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 // --- Основний handler ---
 export default async function handler(req, res) {
   try {
@@ -96,7 +125,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // --- 1) Формуємо текст для листа ---
+    // --- 1) Текст для email ---
     const lineStrings = cart.map((item, idx) => {
       const title = item.title || `Товар ${idx + 1}`;
       const price = Number(item.price || 0);
@@ -126,34 +155,15 @@ export default async function handler(req, res) {
       .filter(Boolean)
       .join("\n");
 
-    // --- 2) Пакуємо дані для Telegram ---
-    const orderForTelegram = {
-      source: "MonoPay",
-      reference,
-      customer: {
-        name: `${customer.firstName || ""} ${customer.lastName || ""}`.trim(),
-        phone: customer.phone || "",
-        delivery: customer.np || "",
-      },
-      cart: cart.map((item) => ({
-        title: item.title || "Без назви",
-        qty: Number(item.qty || 0),
-        price: Number(item.price || 0),
-      })),
-      total,
-      payment: {
-        status: "paid",
-        method: "card",
-        provider: "MonoPay",
-      },
-    };
+    // --- 2) Текст для Telegram ---
+    const telegramText = buildTelegramText({ reference, customer, cart, total });
 
     let emailSent = false;
     let telegramSent = false;
     let emailError = null;
     let telegramError = null;
 
-    // --- Надсилаємо email (якщо налаштований) ---
+    // --- Надсилаємо email ---
     try {
       const transport = createTransport();
       const info = await transport.sendMail({
@@ -171,7 +181,7 @@ export default async function handler(req, res) {
 
     // --- Надсилаємо в Telegram ---
     try {
-      await sendOrderToTelegram(orderForTelegram);
+      await sendTelegramMessage(telegramText);
       telegramSent = true;
     } catch (e) {
       telegramError = String(e?.message || e);
