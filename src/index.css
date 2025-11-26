@@ -597,3 +597,53 @@ header .subBrand,
     font-size: 15px;
   }
 }
+/* === PREMIUM FORMAT BIG / TO GO — як назви фініків (Hagrid) === */
+
+.formatRow {
+  display: flex;
+  gap: 26px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.fmtChoice {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  font-family: "Hagrid", "SF Pro Display", sans-serif !important;
+  font-weight: 800 !important;      /* як cardTitle */
+  font-size: 18px !important;       /* як назва, але трохи менше */
+  letter-spacing: .02em;
+  text-transform: uppercase;
+
+  color: #b4b4b4;                   /* спокійний сірий */
+  transition: 
+      color .18s ease,
+      transform .18s ease,
+      font-size .18s ease;
+}
+
+.fmtChoice--active {
+  color: #111 !important;
+  font-size: 20px !important;       /* активний — на розмір більший */
+  transform: translateY(-1px);
+}
+
+.fmtChoice:hover {
+  color: #757575;
+}
+
+/* мобільна адаптація */
+@media (max-width: 640px) {
+  .fmtChoice {
+    font-size: 15px !important;
+  }
+  .fmtChoice--active {
+    font-size: 17px !important;
+  }
+  .formatRow {
+    gap: 20px;
+  }
+}
