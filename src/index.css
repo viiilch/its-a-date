@@ -480,4 +480,54 @@ header .subBrand,
     justify-self: end !important; align-self: center !important;
     margin: 0 !important;
   }
+  /* ===== Формат BIG / TO GO ===== */
+
+.formatBlock {
+  margin-top: 14px;      /* від опису */
+  margin-bottom: 10px;   /* від футера з ціною */
+  padding-top: 8px;
+  border-top: 1px solid #eee;  /* м’яке відділення від опису */
+}
+
+.formatLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+.formatRow {
+  display: flex;
+  gap: 10px;             /* відділяє кнопки одна від одної */
+}
+
+.fmtBtn {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 999px;
+  border: 1px solid #111;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.fmtBtn:hover {
+  box-shadow: 0 0 0 1px #111;
+  transform: translateY(-1px);
+}
+
+.fmtBtn--active {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+
 }
