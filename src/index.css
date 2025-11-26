@@ -519,50 +519,57 @@ header .subBrand,
   align-items: center !important;
   justify-content: center !important;
 }
-/* === BIG / TO GO як текст, не кнопки === */
+/* === BIG / TO GO — великий текст, без рамок/таблеток === */
 
 .formatRow {
   display: flex;
-  gap: 18px;
-  margin-top: 6px;
-  margin-bottom: 4px;
+  gap: 28px;                 /* розділяє BIG та TO GO */
+  margin-top: 10px;          /* від опису */
+  margin-bottom: 6px;        /* перед ціною */
 }
 
 .fmtChoice {
   cursor: pointer;
   border: none;
   background: transparent;
-  padding: 0;
+  padding: 2px 0;
 
-  font-size: 13px;
-  font-weight: 600;
+  font-family: "Hagrid", "SF Pro Display", sans-serif;
+  font-size: 16px;           /* по розміру як ціна */
+  font-weight: 800;          /* жирно, як ціна */
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: #b4b4b4;
+  color: #9ca3af;            /* спокійний сірий, коли не активний */
 
   position: relative;
-  padding-bottom: 2px;
-  transition: color 0.12s ease, font-size 0.12s ease, transform 0.12s ease;
+  transition:
+    color 0.15s ease,
+    font-size 0.15s ease,
+    transform 0.15s ease;
 }
 
-/* легка підкреслена активна */
+/* тонка лінія під текстом — тільки для активного */
 .fmtChoice::after {
   content: "";
   position: absolute;
   left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
   background: transparent;
   opacity: 0;
-  transform: scaleX(0.8);
-  transition: opacity 0.12s ease, transform 0.12s ease, background 0.12s ease;
+  transform: scaleX(0.6);
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
+/* обраний формат — трішки більший і темніший */
 .fmtChoice--active {
   color: #111;
-  font-size: 14px;       /* трохи більший текст, коли обраний */
-  transform: translateY(-0.5px);
+  font-size: 17px;           /* трохи більший за неактивний */
+  transform: translateY(-1px);
 }
 
 .fmtChoice--active::after {
@@ -571,12 +578,22 @@ header .subBrand,
   transform: scaleX(1);
 }
 
-/* мобілка — трохи дрібніше */
+/* ховер — легкий акцент, але без рамок і фону */
+.fmtChoice:hover {
+  color: #4b5563;
+}
+
+/* мобілка — трохи менший кегль, але все ще читабельно */
 @media (max-width: 640px) {
-  .fmtChoice {
-    font-size: 12px;
+  .formatRow {
+    gap: 20px;
   }
+
+  .fmtChoice {
+    font-size: 14px;
+  }
+
   .fmtChoice--active {
-    font-size: 13px;
+    font-size: 15px;
   }
 }
