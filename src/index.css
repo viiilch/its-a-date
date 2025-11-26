@@ -531,4 +531,69 @@ header .subBrand,
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 
 }
+/* ===== Формат BIG / TO GO — преміум стиль ===== */
+
+.formatBlock {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #ddd;      /* чітке відділення */
+}
+
+.formatLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #444;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.formatRow {
+  display: flex;
+  gap: 14px;                       /* кнопки далеко одна від одної */
+}
+
+.fmtBtn {
+  flex: 1;
+  padding: 14px 0;                 /* ВИСОКІ великі кнопки */
+  border-radius: 14px;             /* товсті округлі краї */
+  border: 2px solid #111;          /* жирніший контур */
+  background: #fff;
+  font-size: 16px;                 /* великий капс */
+  font-weight: 900;                /* ТОВСТИЙ шрифт, як у ціни */
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.fmtBtn:hover {
+  background: #f5f5f5;
+  transform: translateY(-1px);
+}
+
+.fmtBtn--active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Мобільна адаптація */
+@media (max-width: 640px) {
+  .formatRow {
+    gap: 12px;
+  }
+  .fmtBtn {
+    padding: 12px 0;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+}
 }
