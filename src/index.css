@@ -439,7 +439,11 @@ header .subBrand,
   }
 
   /* фото */
-  .thumb{ width:52px !important; height:52px !important; border-radius:8px !important; }
+  .thumb{ 
+    width:52px !important; 
+    height:52px !important; 
+    border-radius:8px !important; 
+  }
 
   /* назва — без переносів назовні */
   .cTitle{
@@ -456,12 +460,18 @@ header .subBrand,
     gap: 10px !important;
     justify-self: center !important;
   }
+
   .qtyBtn{
-    width: 26px !important; height: 26px !important;
+    width: 26px !important; 
+    height: 26px !important;
     border-radius: 7px !important;
     font-size: 16px !important;
   }
-  .qty, .qtyVal{ min-width: 20px !important; height: 26px !important; }
+
+  .qty, .qtyVal{ 
+    min-width: 20px !important; 
+    height: 26px !important; 
+  }
 
   /* сума — фіксована ширина, без переносу */
   .cPrice{
@@ -474,97 +484,57 @@ header .subBrand,
 
   /* ХРЕСТИК — менший, строго в межах колонки */
   .rowX, .iconBtn{
-    width: 26px !important; height: 26px !important;
+    width: 26px !important; 
+    height: 26px !important;
     border-radius: 7px !important;
-    font-size: 16px !important; line-height: 1 !important;
-    justify-self: end !important; align-self: center !important;
+    font-size: 16px !important; 
+    line-height: 1 !important;
+    justify-self: end !important; 
+    align-self: center !important;
     margin: 0 !important;
   }
-  /* ===== Формат BIG / TO GO ===== */
+}
+
+/* ===== Формат BIG / TO GO — дві великі капсові кнопки ===== */
 
 .formatBlock {
-  margin-top: 14px;      /* від опису */
-  margin-bottom: 10px;   /* від футера з ціною */
-  padding-top: 8px;
-  border-top: 1px solid #eee;  /* м’яке відділення від опису */
+  margin-top: 18px;          /* від опису */
+  margin-bottom: 14px;       /* до футера з ціною */
+  padding-top: 10px;
+  border-top: 1px solid #eee;
 }
 
 .formatLabel {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #777;
-  margin-bottom: 6px;
-}
-
-.formatRow {
-  display: flex;
-  gap: 40px;             /* відділяє кнопки одна від одної */
-}
-
-.fmtBtn {
-  flex: 1;
-  padding: 9px 0;
-  border-radius: 999px;
-  border: 1px solid #111;
-  background: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.05s ease;
-}
-
-.fmtBtn:hover {
-  box-shadow: 0 0 0 1px #111;
-  transform: translateY(-1px);
-}
-
-.fmtBtn--active {
-  background: #111;
-  color: #fff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-
-}
-/* ===== Формат BIG / TO GO — преміум стиль ===== */
-
-.formatBlock {
-  margin-top: 16px;
-  margin-bottom: 16px;
-  padding-top: 14px;
-  border-top: 1px solid #ddd;      /* чітке відділення */
-}
-
-.formatLabel {
-  font-size: 12px;
-  text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: #444;
-  margin-bottom: 10px;
+  color: #777;
+  margin-bottom: 8px;
   font-weight: 800;
 }
 
 .formatRow {
   display: flex;
-  gap: 14px;                       /* кнопки далеко одна від одної */
+  gap: 16px;                 /* розділення кнопок одна від одної */
 }
 
+/* Вигляд як у "Купити", але білі */
 .fmtBtn {
   flex: 1;
-  padding: 14px 0;                 /* ВИСОКІ великі кнопки */
-  border-radius: 14px;             /* товсті округлі краї */
-  border: 2px solid #111;          /* жирніший контур */
+  height: 40px;              /* як кнопка Купити */
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #111;
   background: #fff;
-  font-size: 16px;                 /* великий капс */
-  font-weight: 900;                /* ТОВСТИЙ шрифт, як у ціни */
+  color: #111;
+  font-size: 14px;
+  font-weight: 900;          /* жирно, як ціна */
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;    /* капс, як у преміум брендів */
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition:
     background 0.15s ease,
     color 0.15s ease,
@@ -573,27 +543,32 @@ header .subBrand,
 }
 
 .fmtBtn:hover {
-  background: #f5f5f5;
+  background: #f7f7f7;
   transform: translateY(-1px);
 }
 
+/* Активний формат — чорний, як Купити */
 .fmtBtn--active {
   background: #111;
   color: #fff;
   border-color: #111;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
-  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
 }
 
-/* Мобільна адаптація */
-@media (max-width: 640px) {
+/* Мобільна адаптація форматів */
+@media (max-width: 640px){
+  .formatBlock {
+    margin-top: 14px;
+    margin-bottom: 12px;
+  }
+
   .formatRow {
     gap: 12px;
   }
+
   .fmtBtn {
-    padding: 12px 0;
-    font-size: 15px;
-    border-radius: 12px;
+    height: 38px;
+    font-size: 13px;
+    border-radius: 10px;
   }
-}
 }
