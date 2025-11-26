@@ -6,14 +6,18 @@ import "./index.css";
 /* ===== НАЛАШТУВАННЯ ===== */
 const INSTAGRAM_URL = "https://www.instagram.com/kyivdinnerclub/";
 
-/* ===== ТОВАРИ (картинки мають лежати в public/img/) ===== */
+/* ===== ТОВАРИ (BIG + TO GO) ===== */
 const PRODUCTS = [
   {
     id: "dark",
     title: "Dark Chocolate Dates",
-    price: 300,
+    price: 300, // BIG за замовчуванням
     img: "/img/dark.png",
     desc: "Фініки без кісточки, темний шоколад, арахісова паста, мальдонська сіль.",
+    formats: {
+      big: { label: "BIG", price: 300 },
+      togo: { label: "TO GO", price: 110 },
+    },
   },
   {
     id: "milk",
@@ -21,6 +25,10 @@ const PRODUCTS = [
     price: 300,
     img: "/img/milk.png",
     desc: "Фініки без кісточки, молочний шоколад, арахісова паста, мальдонська сіль.",
+    formats: {
+      big: { label: "BIG", price: 300 },
+      togo: { label: "TO GO", price: 110 },
+    },
   },
   {
     id: "white-pistachio",
@@ -28,6 +36,10 @@ const PRODUCTS = [
     price: 375,
     img: "/img/white-pistachio.png",
     desc: "Фініки без кісточки, білий шоколад, фісташкова паста, вершки.",
+    formats: {
+      big: { label: "BIG", price: 375 },
+      togo: { label: "TO GO", price: 130 },
+    },
   },
   {
     id: "caramel",
@@ -35,14 +47,21 @@ const PRODUCTS = [
     price: 350,
     img: "/img/caramel.png",
     desc: "Карамельний шоколад, праліне з грецького горіха, волоський горіх.",
+    formats: {
+      big: { label: "BIG", price: 350 },
+      togo: { label: "TO GO", price: 120 },
+    },
   },
-  // 💚 Новий продукт — між Caramel і Mixed
   {
     id: "matcha-raspberry",
     title: "Matcha & Raspberry Dates",
     price: 375,
     img: "/img/matcha-raspberry.png",
     desc: "Фініки без кісточки, ганаш з малиновим пюре, білий шоколад з матча.",
+    formats: {
+      big: { label: "BIG", price: 375 },
+      togo: { label: "TO GO", price: 140 },
+    },
   },
   {
     id: "mixed",
@@ -50,6 +69,10 @@ const PRODUCTS = [
     price: 300,
     img: "/img/mixed.png",
     desc: "Мікс молочного й темного шоколаду, арахісова паста, мальдонська сіль.",
+    formats: {
+      big: { label: "BIG", price: 300 },
+      togo: { label: "TO GO", price: 110 },
+    },
   },
 ];
 
@@ -57,7 +80,7 @@ const fmt = (n) => `${n} грн`;
 
 /* ================= APP ================= */
 function App() {
-  const [cart, setCart] = useState([]);            // [{id,title,price,img,qty}]
+  const [cart, setCart] = useState([]);            // [{id,title,price,img,qty,variant,baseId}]
   const [cartOpen, setCartOpen] = useState(false);
   const [stage, setStage] = useState("cart");      // "cart" | "checkout"
   const [submitting, setSubmitting] = useState(false);
@@ -104,7 +127,6 @@ function App() {
     e.preventDefault();
     if (!cart.length || submitting) return;
 
-    // дані покупця з форми
     const fd = new FormData(e.currentTarget);
     const customer = {
       firstName: (fd.get("firstName") || "").trim(),
@@ -113,7 +135,7 @@ function App() {
       np: (fd.get("np") || "").trim(),
     };
 
-    // легка корзина
+    // легка корзина (title вже включає "TO GO" коли треба)
     const safeCart = cart.map((it) => ({
       id: it.id,
       title: it.title,
@@ -138,10 +160,7 @@ function App() {
         return;
       }
 
-      // редирект на сторінку оплати MonoPay
       window.location.href = data.checkoutUrl;
-      // опціонально можна чистити корзину після повернення зі сторінки /thanks
-      // clearCart();
     } catch (err) {
       console.error(err);
       alert("Помилка мережі. Будь ласка, спробуйте ще раз.");
@@ -434,35 +453,98 @@ const InstagramSvg = ({ size = 28 }) => (
 /* ================= КАТАЛОГ ================= */
 function Catalog({ products, onBuy }) {
   const [qtyMap, setQtyMap] = useState({});
+  const [formatMap, setFormatMap] = useState({}); // productId -> "big" | "togo"
+
   const setQty = (id, f) =>
     setQtyMap((m) => ({ ...m, [id]: Math.max(1, Math.min(99, f(m[id] || 1))) }));
 
+  const setFormat = (id, fmtId) =>
+    setFormatMap((m) => ({ ...m, [id]: fmtId }));
+
   return (
     <section className="grid">
-      {products.map((p) => (
-        <article className="card" key={p.id}>
-          <div className="imgWrap">
-            <img src={p.img} alt={p.title} />
-          </div>
-          <h3 className="cardTitle">{p.title}</h3>
-          {p.desc && <p className="cardDesc">{p.desc}</p>}
-          <div className="cardFooter">
-            <div className="price">{fmt(p.price)}</div>
-            <div className="qtyGroup">
-              <button className="qtyBtn" onClick={() => setQty(p.id, (n) => n - 1)} aria-label="Менше">
-                –
+      {products.map((p) => {
+        const selectedFormat = formatMap[p.id] || "big";
+        const price =
+          selectedFormat === "togo"
+            ? p.formats?.togo?.price ?? p.price
+            : p.formats?.big?.price ?? p.price;
+        const qty = qtyMap[p.id] || 1;
+
+        const handleBuy = () => {
+          const fmtId = selectedFormat;
+          const isToGo = fmtId === "togo";
+          const cartId = `${p.id}-${fmtId}`;
+          const title = isToGo ? `${p.title} TO GO` : p.title;
+
+          const payload = {
+            ...p,
+            id: cartId,
+            baseId: p.id,
+            variant: fmtId,
+            title,
+            price,
+          };
+
+          onBuy(payload, qty);
+        };
+
+        return (
+          <article className="card" key={p.id}>
+            <div className="imgWrap">
+              <img src={p.img} alt={p.title} />
+            </div>
+            <h3 className="cardTitle">{p.title}</h3>
+            {p.desc && <p className="cardDesc">{p.desc}</p>}
+
+            {/* Перемикач формату */}
+            <div className="formatRow">
+              <button
+                type="button"
+                className={
+                  selectedFormat === "big" ? "fmtBtn fmtBtn--active" : "fmtBtn"
+                }
+                onClick={() => setFormat(p.id, "big")}
+              >
+                BIG
               </button>
-              <span className="qtyVal">{qtyMap[p.id] || 1}</span>
-              <button className="qtyBtn" onClick={() => setQty(p.id, (n) => n + 1)} aria-label="Більше">
-                +
+              <button
+                type="button"
+                className={
+                  selectedFormat === "togo" ? "fmtBtn fmtBtn--active" : "fmtBtn"
+                }
+                onClick={() => setFormat(p.id, "togo")}
+              >
+                TO GO
               </button>
             </div>
-            <button className="buyBtn" onClick={() => onBuy(p, qtyMap[p.id] || 1)}>
-              Купити
-            </button>
-          </div>
-        </article>
-      ))}
+
+            <div className="cardFooter">
+              <div className="price">{fmt(price)}</div>
+              <div className="qtyGroup">
+                <button
+                  className="qtyBtn"
+                  onClick={() => setQty(p.id, (n) => n - 1)}
+                  aria-label="Менше"
+                >
+                  –
+                </button>
+                <span className="qtyVal">{qty}</span>
+                <button
+                  className="qtyBtn"
+                  onClick={() => setQty(p.id, (n) => n + 1)}
+                  aria-label="Більше"
+                >
+                  +
+                </button>
+              </div>
+              <button className="buyBtn" onClick={handleBuy}>
+                Купити
+              </button>
+            </div>
+          </article>
+        );
+      })}
     </section>
   );
 }
