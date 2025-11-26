@@ -2,6 +2,7 @@
 export const config = { runtime: "nodejs" };
 
 import nodemailer from "nodemailer";
+import { sendOrderToTelegram } from "./lib/telegram.js";
 
 const ORDER_EMAIL_TO =
   process.env.ORDER_EMAIL_TO || "itsadate.orderss@gmail.com";
@@ -22,7 +23,7 @@ function createTransport() {
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // TLS через STARTTLS
+    secure: false, // STARTTLS
     auth: {
       user: ORDER_EMAIL_TO,
       pass: ORDER_EMAIL_PASSWORD,
@@ -30,7 +31,7 @@ function createTransport() {
   });
 }
 
-// --- Допоміжна: красиво розібрати тіло MonoPay ---
+// --- Розібрати тіло MonoPay ---
 function parseMonoBody(body = {}) {
   const status = String(body?.status || "").toLowerCase();
 
@@ -57,26 +58,25 @@ function parseMonoBody(body = {}) {
     0
   );
 
-  return { status, reference, customer, cart, total };
+  return { status, reference, customer, cart, total, raw: body };
 }
 
 // --- Основний handler ---
 export default async function handler(req, res) {
   try {
-    // Простий health-чек через GET
+    // health-check
     if (req.method === "GET") {
       return res.status(200).json({ ok: true, ping: "monopay-webhook-alive" });
     }
 
     if (req.method !== "POST") {
-      return res
-        .status(405)
-        .json({ ok: false, error: "Method Not Allowed" });
+      return res.status(405).json({ ok: false, error: "Method Not Allowed" });
     }
 
     // читаємо raw тіло
     let raw = "";
     for await (const chunk of req) raw += chunk;
+
     let body = {};
     try {
       body = raw ? JSON.parse(raw) : {};
@@ -84,7 +84,8 @@ export default async function handler(req, res) {
       body = {};
     }
 
-    const { status, reference, customer, cart, total } = parseMonoBody(body);
+    const { status, reference, customer, cart, total, raw: rawBody } =
+      parseMonoBody(body);
 
     // Приймаємо тільки успішні платежі
     if (status !== "success") {
@@ -95,8 +96,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // Формуємо текст листа
-    const lines = cart.map((item, idx) => {
+    // --- 1) Формуємо текст для листа ---
+    const lineStrings = cart.map((item, idx) => {
       const title = item.title || `Товар ${idx + 1}`;
       const price = Number(item.price || 0);
       const qty = Number(item.qty || 0);
@@ -104,8 +105,8 @@ export default async function handler(req, res) {
       return `• ${title} — ${qty} x ${price} = ${sum} UAH`;
     });
 
-    const text = [
-      `Нове замовлення з сайту It's a Date`,
+    const emailText = [
+      `Нове замовлення з сайту It's a Date (MonoPay)`,
       ``,
       `Reference / Order ID: ${reference}`,
       ``,
@@ -115,34 +116,78 @@ export default async function handler(req, res) {
       customer.np ? `Нова Пошта: ${customer.np}` : "",
       ``,
       `Товари:`,
-      ...(lines.length ? lines : ["(порожній кошик)"]),
+      ...(lineStrings.length ? lineStrings : ["(порожній кошик)"]),
       ``,
       `Сума: ${total} UAH`,
       ``,
       `Сире тіло вебхука (JSON):`,
-      JSON.stringify(body, null, 2),
+      JSON.stringify(rawBody, null, 2),
     ]
       .filter(Boolean)
       .join("\n");
 
-    const transport = createTransport();
-
-    const mailOptions = {
-      from: ORDER_EMAIL_FROM,
-      to: ORDER_EMAIL_TO,
-      subject: `Нове замовлення: ${reference}`,
-      text,
+    // --- 2) Пакуємо дані для Telegram ---
+    const orderForTelegram = {
+      source: "MonoPay",
+      reference,
+      customer: {
+        name: `${customer.firstName || ""} ${customer.lastName || ""}`.trim(),
+        phone: customer.phone || "",
+        delivery: customer.np || "",
+      },
+      cart: cart.map((item) => ({
+        title: item.title || "Без назви",
+        qty: Number(item.qty || 0),
+        price: Number(item.price || 0),
+      })),
+      total,
+      payment: {
+        status: "paid",
+        method: "card",
+        provider: "MonoPay",
+      },
     };
 
-    const info = await transport.sendMail(mailOptions);
+    let emailSent = false;
+    let telegramSent = false;
+    let emailError = null;
+    let telegramError = null;
+
+    // --- Надсилаємо email (якщо налаштований) ---
+    try {
+      const transport = createTransport();
+      const info = await transport.sendMail({
+        from: ORDER_EMAIL_FROM,
+        to: ORDER_EMAIL_TO,
+        subject: `Нове замовлення (MonoPay): ${reference}`,
+        text: emailText,
+      });
+      emailSent = true;
+      console.log("Email sent, id:", info.messageId);
+    } catch (e) {
+      emailError = String(e?.message || e);
+      console.error("EMAIL ERROR:", emailError);
+    }
+
+    // --- Надсилаємо в Telegram ---
+    try {
+      await sendOrderToTelegram(orderForTelegram);
+      telegramSent = true;
+    } catch (e) {
+      telegramError = String(e?.message || e);
+      console.error("TELEGRAM ERROR:", telegramError);
+    }
 
     return res.status(200).json({
       ok: true,
-      emailSent: true,
-      messageId: info.messageId || null,
+      emailSent,
+      telegramSent,
+      emailError,
+      telegramError,
+      reference,
     });
   } catch (err) {
-    console.error("MONOPAY WEBHOOK ERROR:", err);
+    console.error("MONOPAY WEBHOOK FATAL ERROR:", err);
     return res.status(500).json({
       ok: false,
       error: String(err?.message || err),
