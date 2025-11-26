@@ -3,16 +3,6 @@ import { useState } from "react";
 import products from "../products.js";
 import { useCart } from "../cart.jsx";
 
-// Мапа цін для BIG / TO GO
-const FORMAT_PRICES = {
-  dark: { big: 300, togo: 110 },
-  milk: { big: 300, togo: 110 },
-  "white-pistachio": { big: 375, togo: 130 },
-  caramel: { big: 350, togo: 120 },
-  "matcha-raspberry": { big: 375, togo: 140 },
-  mixed: { big: 300, togo: 110 },
-};
-
 export default function Catalog() {
   return (
     <section className="grid">
@@ -26,27 +16,17 @@ export default function Catalog() {
 function Card({ p }) {
   const { addItem, open } = useCart();
   const [qty, setQty] = useState(1);
-  const [format, setFormat] = useState("big"); // "big" | "togo"
+  const [format, setFormat] = useState("big"); // "big" | "to-go"
 
-  const prices = FORMAT_PRICES[p.id] || { big: p.price, togo: p.price };
-  const displayPrice = format === "togo" ? prices.togo : prices.big;
+  const isToGo = format === "to-go";
 
-  function handleBuy() {
-    // окремі товари в кошику для BIG і TO GO
-    const chosenId = `${p.id}-${format}`;
-    const chosenTitle =
-      format === "togo" ? `${p.title} TO GO` : `${p.title} BIG`;
+  // ціна: беремо toGoPrice, якщо є, інакше — стандартну
+  const unitPrice =
+    isToGo && typeof p.toGoPrice === "number" ? p.toGoPrice : p.price;
 
-    const item = {
-      ...p,
-      id: chosenId,
-      title: chosenTitle,
-      price: displayPrice,
-    };
-
-    addItem(item, qty);
-    open();
-  }
+  // як буде виглядати в кошику / емейлі / телезі
+  const cartTitle = isToGo ? `${p.title} TO GO` : `${p.title} BIG`;
+  const cartId = isToGo ? `${p.id}-to-go` : `${p.id}-big`;
 
   return (
     <article className="card">
@@ -57,34 +37,31 @@ function Card({ p }) {
       <h3 className="cardTitle">{p.title}</h3>
       {p.desc && <p className="cardDesc">{p.desc}</p>}
 
-      {/* Блок формату BIG / TO GO */}
-      <div className="formatBlock">
-        <div className="formatLabel">ФОРМАТ</div>
-        <div className="formatRow">
-          <button
-            type="button"
-            className={
-              format === "big" ? "fmtBtn fmtBtn--active" : "fmtBtn"
-            }
-            onClick={() => setFormat("big")}
-          >
-            BIG
-          </button>
-          <button
-            type="button"
-            className={
-              format === "togo" ? "fmtBtn fmtBtn--active" : "fmtBtn"
-            }
-            onClick={() => setFormat("togo")}
-          >
-            TO GO
-          </button>
-        </div>
+      {/* BIG / TO GO — як текст, без рамок */}
+      <div className="formatRow">
+        <button
+          type="button"
+          className={
+            "fmtChoice" + (format === "big" ? " fmtChoice--active" : "")
+          }
+          onClick={() => setFormat("big")}
+        >
+          BIG
+        </button>
+        <button
+          type="button"
+          className={
+            "fmtChoice" + (format === "to-go" ? " fmtChoice--active" : "")
+          }
+          onClick={() => setFormat("to-go")}
+        >
+          TO GO
+        </button>
       </div>
 
-      {/* Футер: ціна / степпер / купити */}
+      {/* низ картки: ціна | qty | Купити */}
       <div className="cardFooter">
-        <div className="price">{displayPrice} грн</div>
+        <div className="price">{unitPrice} грн</div>
 
         <div className="qtyGroup">
           <button
@@ -104,7 +81,21 @@ function Card({ p }) {
           </button>
         </div>
 
-        <button className="buyBtn" onClick={handleBuy}>
+        <button
+          className="buyBtn"
+          onClick={() => {
+            addItem(
+              {
+                ...p,
+                id: cartId,
+                title: cartTitle,
+                price: unitPrice,
+              },
+              qty
+            );
+            open();
+          }}
+        >
           Купити
         </button>
       </div>

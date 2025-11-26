@@ -494,84 +494,6 @@ header .subBrand,
     margin: 0 !important;
   }
 }
-
-/* ===== Формат BIG / TO GO — дві великі капсові кнопки ===== */
-
-.formatBlock {
-  margin-top: 18px;          /* від опису */
-  margin-bottom: 14px;       /* до футера з ціною */
-  padding-top: 10px;
-  border-top: 1px solid #eee;
-}
-
-.formatLabel {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #777;
-  margin-bottom: 8px;
-  font-weight: 800;
-}
-
-.formatRow {
-  display: flex;
-  gap: 20px;                 /* розділення кнопок одна від одної */
-}
-
-/* Вигляд як у "Купити", але білі */
-.fmtBtn {
-  flex: 1;
-  height: 30px;              /* як кнопка Купити */
-  padding: 0 16px;
-  border-radius: 999px;
-  border: none;
-  background: #f3f3f3b1;
-  color: #111;
-  font-size: 14px;
-  font-weight: 700;          /* жирно, як ціна */
-  text-transform: uppercase;
-  letter-spacing: 0.12em;    /* капс, як у преміум брендів */
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.05s ease;
-}
-
-.fmtBtn:hover {
-  background: #f7f7f7;
-  transform: translateY(-1px);
-}
-
-/* Активний формат — чорний, як Купити */
-.fmtBtn--active {
-  background: #111;
-  color: #fff;
-  border-color:none;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
-}
-
-/* Мобільна адаптація форматів */
-@media (max-width: 640px){
-  .formatBlock {
-    margin-top: 14px;
-    margin-bottom: 12px;
-  }
-
-  .formatRow {
-    gap: 12px;
-  }
-
-  .fmtBtn {
-    height: 38px;
-    font-size: 13px;
-    border-radius: 10px;
-  }
-}
 /* === OVERRIDE: кнопка "Купити" — трошки ширша й масивніша === */
 
 .buyBtn {
@@ -596,4 +518,65 @@ header .subBrand,
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+/* === BIG / TO GO як текст, не кнопки === */
+
+.formatRow {
+  display: flex;
+  gap: 18px;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.fmtChoice {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #b4b4b4;
+
+  position: relative;
+  padding-bottom: 2px;
+  transition: color 0.12s ease, font-size 0.12s ease, transform 0.12s ease;
+}
+
+/* легка підкреслена активна */
+.fmtChoice::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: transparent;
+  opacity: 0;
+  transform: scaleX(0.8);
+  transition: opacity 0.12s ease, transform 0.12s ease, background 0.12s ease;
+}
+
+.fmtChoice--active {
+  color: #111;
+  font-size: 14px;       /* трохи більший текст, коли обраний */
+  transform: translateY(-0.5px);
+}
+
+.fmtChoice--active::after {
+  background: #111;
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* мобілка — трохи дрібніше */
+@media (max-width: 640px) {
+  .fmtChoice {
+    font-size: 12px;
+  }
+  .fmtChoice--active {
+    font-size: 13px;
+  }
 }
