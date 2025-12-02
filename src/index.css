@@ -574,3 +574,22 @@ body.modal-open .cartFixed{
 @media (max-width:640px){
   .container{ margin-top:14px; }
 }
+/* === OVERRIDE: Kyiv Dinner Club — Shadows Into Light === */
+@font-face {
+  font-family: "Shadows Into Light Custom";
+  src: url("/fonts/ShadowsIntoLight-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* Підпис by Kyiv Dinner Club */
+.subBrand {
+  font-family: "Shadows Into Light Custom", "SF Pro Display", cursive !important;
+  font-weight: 400 !important;
+  font-size: 26px !important;
+  letter-spacing: 0.3px !important;
+  margin-top: 4px !important;
+  display: inline-block !important;
+  opacity: 0.95 !important;
+}

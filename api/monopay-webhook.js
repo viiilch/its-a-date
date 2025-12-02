@@ -48,15 +48,15 @@ function parseMonoBody(body = {}) {
     np: (body?.salePaymentData?.customer?.np || "").trim(),
   };
 
-  const cart = Array.isArray(body?.salePaymentData?.cart)
-    ? body.salePaymentData.cart
-    : [];
+const cart = Array.isArray(body?.salePaymentData?.cart)
+  ? body.salePaymentData.cart
+  : [];
 
-  const total = cart.reduce(
-    (sum, item) =>
-      sum + Number(item.price || 0) * Number(item.qty || 0),
-    0
-  );
+const total = cart.reduce(
+  (sum, item) =>
+    sum + Number(item.sum || 0) * Number(item.qty || 0),
+  0
+);
 
   return { status, reference, customer, cart, total, raw: body };
 }
@@ -65,7 +65,7 @@ function parseMonoBody(body = {}) {
 function buildTelegramText({ reference, customer, cart, total }) {
   const lines = cart.map((item, idx) => {
     const title = item.title || `Товар ${idx + 1}`;
-    const price = Number(item.price || 0);
+    const price = Number(item.sum || 0);
     const qty = Number(item.qty || 0);
     const sum = price * qty;
     return `• ${title} — ${qty} x ${price} = ${sum} UAH`;
