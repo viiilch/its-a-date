@@ -12,7 +12,8 @@ const ORDER_EMAIL_FROM =
 
 const ORDER_EMAIL_PASSWORD =
   process.env.ORDER_EMAIL_PASSWORD ||
-  process.env.orderEmailPassword || "";
+  process.env.orderEmailPassword ||
+  "";
 
 // --- Створюємо транспорт для Gmail ---
 function createTransport() {
@@ -31,60 +32,127 @@ function createTransport() {
   });
 }
 
-// --- Розібрати тіло MonoPay ---
-function parseMonoBody(body = {}) {
-  const status = String(body?.status || "").toLowerCase();
+// --- Читаємо extra payload з query (?payload=...) ---
+function readExtraPayload(req) {
+  try {
+    const url = new URL(req.url, "http://localhost");
+    const b64 = url.searchParams.get("payload");
+    if (!b64) return null;
+
+    const json = Buffer.from(b64, "base64").toString("utf8");
+    const data = JSON.parse(json);
+
+    console.log("Decoded extra payload from query:", data);
+    return data;
+  } catch (e) {
+    console.error("Failed to decode extra payload from query:", e);
+    return null;
+  }
+}
+
+// --- Розібрати тіло MonoPay + наш payload ---
+function parseMonoBody(monoBody = {}, extra = {}) {
+  const status = String(monoBody?.status || "").toLowerCase();
 
   const reference =
-    body?.merchantPaymInfo?.reference ||
-    body?.salePaymentData?.orderId ||
-    body?.invoiceId ||
+    extra.orderId ||
+    monoBody?.merchantPaymInfo?.reference ||
+    monoBody?.salePaymentData?.orderId ||
+    monoBody?.invoiceId ||
     `ID-${Date.now()}`;
 
   const customer = {
-    firstName: (body?.salePaymentData?.customer?.firstName || "").trim(),
-    lastName: (body?.salePaymentData?.customer?.lastName || "").trim(),
-    phone: (body?.salePaymentData?.customer?.phone || "").trim(),
-    np: (body?.salePaymentData?.customer?.np || "").trim(),
+    firstName:
+      (extra?.customer?.firstName ||
+        monoBody?.salePaymentData?.customer?.firstName ||
+        "").trim(),
+    lastName:
+      (extra?.customer?.lastName ||
+        monoBody?.salePaymentData?.customer?.lastName ||
+        "").trim(),
+    phone:
+      (extra?.customer?.phone ||
+        monoBody?.salePaymentData?.customer?.phone ||
+        "").trim(),
+    np:
+      (extra?.customer?.np ||
+        monoBody?.salePaymentData?.customer?.np ||
+        "").trim(),
   };
 
-const cart = Array.isArray(body?.salePaymentData?.cart)
-  ? body.salePaymentData.cart
-  : [];
+  const cart =
+    (Array.isArray(extra?.cart) && extra.cart.length
+      ? extra.cart
+      : Array.isArray(monoBody?.salePaymentData?.cart)
+      ? monoBody.salePaymentData.cart
+      : []) || [];
 
-const total = cart.reduce(
-  (sum, item) =>
-    sum + Number(item.sum || 0) * Number(item.qty || 0),
-  0
-);
+  const monoAmount = Number(monoBody.amount || monoBody.finalAmount || 0); // копійки
 
-  return { status, reference, customer, cart, total, raw: body };
+  let total = 0;
+
+  if (
+    typeof extra?.totalUAH === "number" &&
+    !Number.isNaN(extra.totalUAH) &&
+    extra.totalUAH > 0
+  ) {
+    total = extra.totalUAH;
+  } else if (cart.length) {
+    total = cart.reduce((sum, item) => {
+      const price = Number(
+        item.price != null
+          ? item.price
+          : item.sum != null
+          ? item.sum
+          : 0
+      );
+      const qty = Number(item.qty || 0);
+      return sum + price * qty;
+    }, 0);
+  } else if (monoAmount > 0) {
+    total = Math.round(monoAmount / 100);
+  }
+
+  return {
+    status,
+    reference,
+    customer,
+    cart,
+    total,
+    raw: { monoBody, extra },
+  };
 }
 
 // --- Формуємо текст для Telegram ---
 function buildTelegramText({ reference, customer, cart, total }) {
   const lines = cart.map((item, idx) => {
     const title = item.title || `Товар ${idx + 1}`;
-    const price = Number(item.sum || 0);
+    const price = Number(
+      item.price != null
+        ? item.price
+        : item.sum != null
+        ? item.sum
+        : 0
+    );
     const qty = Number(item.qty || 0);
     const sum = price * qty;
     return `• ${title} — ${qty} x ${price} = ${sum} UAH`;
   });
 
   return [
-    `🧾 *Нове замовлення з сайту It's a Date*`,
+    `🧾 Нове замовлення з сайту It's a Date`,
     ``,
-    `ID: \`${reference}\``,
+    `ID: ${reference}`,
     ``,
-    `👤 *Клієнт*`,
+    `👤 Клієнт`,
     `Ім'я: ${customer.firstName || ""} ${customer.lastName || ""}`,
     `Телефон: ${customer.phone || ""}`,
     customer.np ? `Нова Пошта: ${customer.np}` : "",
     ``,
-    `📦 *Товари*`,
+    `📦 Товари`,
     ...(lines.length ? lines : ["(порожній кошик)"]),
     ``,
-    `💰 *Сума*: *${total} UAH*`,
+    `💰 Сума: ${total} UAH`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -95,7 +163,9 @@ export default async function handler(req, res) {
   try {
     // health-check
     if (req.method === "GET") {
-      return res.status(200).json({ ok: true, ping: "monopay-webhook-alive" });
+      return res
+        .status(200)
+        .json({ ok: true, ping: "monopay-webhook-alive" });
     }
 
     if (req.method !== "POST") {
@@ -106,15 +176,30 @@ export default async function handler(req, res) {
     let raw = "";
     for await (const chunk of req) raw += chunk;
 
-    let body = {};
+    let monoBody = {};
     try {
-      body = raw ? JSON.parse(raw) : {};
+      monoBody = raw ? JSON.parse(raw) : {};
     } catch {
-      body = {};
+      monoBody = {};
     }
 
-    const { status, reference, customer, cart, total, raw: rawBody } =
-      parseMonoBody(body);
+    const extra = readExtraPayload(req) || {};
+    const {
+      status,
+      reference,
+      customer,
+      cart,
+      total,
+      raw: rawBody,
+    } = parseMonoBody(monoBody, extra);
+
+    console.log("Parsed webhook data:", {
+      status,
+      reference,
+      customer,
+      cartLength: cart.length,
+      total,
+    });
 
     // Приймаємо тільки успішні платежі
     if (status !== "success") {
@@ -128,7 +213,13 @@ export default async function handler(req, res) {
     // --- 1) Текст для email ---
     const lineStrings = cart.map((item, idx) => {
       const title = item.title || `Товар ${idx + 1}`;
-      const price = Number(item.price || 0);
+      const price = Number(
+        item.price != null
+          ? item.price
+          : item.sum != null
+          ? item.sum
+          : 0
+      );
       const qty = Number(item.qty || 0);
       const sum = price * qty;
       return `• ${title} — ${qty} x ${price} = ${sum} UAH`;
@@ -156,7 +247,12 @@ export default async function handler(req, res) {
       .join("\n");
 
     // --- 2) Текст для Telegram ---
-    const telegramText = buildTelegramText({ reference, customer, cart, total });
+    const telegramText = buildTelegramText({
+      reference,
+      customer,
+      cart,
+      total,
+    });
 
     let emailSent = false;
     let telegramSent = false;

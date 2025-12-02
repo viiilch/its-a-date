@@ -1,6 +1,7 @@
+// api/create-payment.js
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
-// api/create-payment.js
+
 export default async function handler(req, res) {
   try {
     if (req.method !== "POST") {
@@ -15,7 +16,11 @@ export default async function handler(req, res) {
         req.on("data", (c) => (d += c));
         req.on("end", () => resolve(d));
       });
-      try { body = JSON.parse(raw || "{}"); } catch {}
+      try {
+        body = JSON.parse(raw || "{}");
+      } catch {
+        body = {};
+      }
     }
 
     const { cart, customer } = body || {};
@@ -23,15 +28,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Cart is empty" });
     }
 
-    // --- Перевіримо ENV і покажемо їх у лог (без секретів) ---
     const MONOPAY_TOKEN = process.env.MONOPAY_TOKEN;
-    const MONOPAY_BASE  = process.env.MONOPAY_BASE || "https://api.monobank.ua/api/merchant";
-    const PUBLIC_BASE   = process.env.PUBLIC_BASE_URL || "http://localhost:3000";
+    const MONOPAY_BASE =
+      process.env.MONOPAY_BASE || "https://api.monobank.ua/api/merchant";
+    const PUBLIC_BASE =
+      process.env.PUBLIC_BASE_URL || "http://localhost:3000";
 
     console.log("ENV CHECK create-payment:", {
       hasToken: !!MONOPAY_TOKEN,
       MONOPAY_BASE,
-      PUBLIC_BASE
+      PUBLIC_BASE,
     });
 
     if (!MONOPAY_TOKEN) {
@@ -45,25 +51,50 @@ export default async function handler(req, res) {
     const amount = Math.round(totalUAH * 100); // копійки
     const orderId = `ID-${Date.now()}`;
 
+    // ---------- ЗАШИФРОВАНИЙ PAYLOAD ДЛЯ ВЕБХУКА ----------
+    let webHookUrl = `${PUBLIC_BASE}/api/monopay-webhook`;
+    try {
+      const extraPayload = {
+        orderId,
+        totalUAH,
+        cart,
+        customer,
+      };
+      const json = JSON.stringify(extraPayload);
+      const b64 = Buffer.from(json, "utf8").toString("base64");
+      const encoded = encodeURIComponent(b64);
+
+      webHookUrl = `${PUBLIC_BASE}/api/monopay-webhook?payload=${encoded}`;
+    } catch (e) {
+      console.error("Failed to build webhook payload:", e);
+    }
+    // ------------------------------------------------------
+
     const payload = {
       amount,
       ccy: 980,
       redirectUrl: `${PUBLIC_BASE}/thanks`,
-      webHookUrl: `${PUBLIC_BASE}/api/monopay-webhook`,
+      webHookUrl, // <-- тут вже з payload-ом
       merchantPaymInfo: {
         reference: orderId,
         destination: `It's a Date — замовлення ${orderId}`,
         comment: `Товарів: ${cart.length}`,
       },
-      salePaymentData: { cart, customer, orderId },
-      validity: 3600
+      validity: 3600,
     };
 
-    console.log("MONO REQUEST →", MONOPAY_BASE + "/invoice/create", payload);
+    console.log(
+      "MONO REQUEST →",
+      MONOPAY_BASE + "/invoice/create",
+      JSON.stringify(payload, null, 2)
+    );
 
     const resp = await fetch(`${MONOPAY_BASE}/invoice/create`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Token": MONOPAY_TOKEN },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Token": MONOPAY_TOKEN,
+      },
       body: JSON.stringify(payload),
     });
 
@@ -80,7 +111,12 @@ export default async function handler(req, res) {
     }
 
     let data = {};
-    try { data = JSON.parse(text); } catch {}
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = {};
+    }
+
     const checkoutUrl = data.pageUrl || data.invoiceUrl;
 
     if (!checkoutUrl) {
@@ -93,6 +129,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ checkoutUrl, orderId });
   } catch (e) {
     console.error("SERVER ERROR create-payment:", e);
-    return res.status(500).json({ error: "Server error", message: String(e?.message || e) });
+    return res
+      .status(500)
+      .json({ error: "Server error", message: String(e?.message || e) });
   }
 }
