@@ -2,6 +2,8 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
+import { query } from "./lib/db.js";
+
 export default async function handler(req, res) {
   try {
     if (req.method !== "POST") {
@@ -10,7 +12,7 @@ export default async function handler(req, res) {
 
     // --- Надійно читаємо JSON-тіло ---
     let body = req.body;
-    if (!body || Object.keys(body).length === 0) {
+    if (!body) {
       const raw = await new Promise((resolve) => {
         let d = "";
         req.on("data", (c) => (d += c));
@@ -43,7 +45,6 @@ export default async function handler(req, res) {
     if (!MONOPAY_TOKEN) {
       return res.status(500).json({
         error: "Missing MONOPAY_TOKEN",
-        hint: "Додай MONOPAY_TOKEN у .env.local і у Vercel → Settings → Environment Variables.",
       });
     }
 
@@ -61,8 +62,7 @@ export default async function handler(req, res) {
         destination: `It's a Date — замовлення ${orderId}`,
         comment: `Товарів: ${cart.length}`,
       },
-      // передаємо дані, якщо Mono раптом почне їх віддавати у вебхуку
-      salePaymentData: { cart, customer, orderId },
+      // salePaymentData нам вже не потрібні у вебхуку — все лежить в БД
       validity: 3600,
     };
 
@@ -104,8 +104,52 @@ export default async function handler(req, res) {
       });
     }
 
-    // 👇 ТІЛЬКИ повертаємо URL на оплату, БЕЗ листів і Telegram
-    return res.status(200).json({ checkoutUrl, orderId });
+    // --- Зберігаємо замовлення в БД зі статусом pending ---
+    try {
+      await query(
+        `
+        INSERT INTO orders (
+          reference,
+          status,
+          customer_first_name,
+          customer_last_name,
+          phone,
+          np,
+          total_cents,
+          cart_json
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        ON CONFLICT (reference) DO UPDATE
+        SET
+          status = EXCLUDED.status,
+          customer_first_name = EXCLUDED.customer_first_name,
+          customer_last_name = EXCLUDED.customer_last_name,
+          phone = EXCLUDED.phone,
+          np = EXCLUDED.np,
+          total_cents = EXCLUDED.total_cents,
+          cart_json = EXCLUDED.cart_json;
+      `,
+        [
+          orderId,
+          "pending",
+          (customer?.firstName || "").trim(),
+          (customer?.lastName || "").trim(),
+          (customer?.phone || "").trim(),
+          (customer?.np || "").trim(),
+          amount,
+          JSON.stringify(cart),
+        ]
+      );
+      console.log("Order saved to DB:", orderId);
+    } catch (dbErr) {
+      console.error("DB ERROR (create-payment):", dbErr);
+      // навіть якщо БД впала, клієнту даємо оплатити
+    }
+
+    return res.status(200).json({
+      checkoutUrl,
+      orderId,
+    });
   } catch (e) {
     console.error("SERVER ERROR create-payment:", e);
     return res
