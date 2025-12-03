@@ -5,6 +5,7 @@ import "./index.css";
 
 /* ===== НАЛАШТУВАННЯ ===== */
 const INSTAGRAM_URL = "https://www.instagram.com/kyivdinnerclub/";
+const B2B_URL = "https://t.me/itsadate_b2b";
 
 /* ===== ТОВАРИ (BIG + TO GO) ===== */
 const PRODUCTS = [
@@ -353,23 +354,32 @@ function Header({ count, onOpen }) {
   const titleRef = useRef(null);
   const cartRef = useRef(null);
   const igRef = useRef(null);
+  const b2bRef = useRef(null);
 
   useEffect(() => {
     const align = () => {
-      const t = titleRef.current,
-        c = cartRef.current,
-        ig = igRef.current;
+      const t = titleRef.current;
+      const cart = cartRef.current;
+      const ig = igRef.current;
+      const b2b = b2bRef.current;
+
       if (!t) return;
 
+      // Mobile
       if (window.innerWidth <= 640) {
-        if (c) c.style.top = "12px";
+        if (cart) cart.style.top = "12px";
         if (ig) ig.style.top = "12px";
+        if (b2b) b2b.style.top = "12px";
         return;
       }
+
+      // Desktop — вирівнюємо всі по центру логотипа
       const tb = t.getBoundingClientRect();
-      const top = window.scrollY + tb.top + (tb.height - 28) / 2;
-      if (c) c.style.top = `${Math.round(top)}px`;
+      const top = window.scrollY + tb.top + (tb.height - 40) / 2;
+
+      if (cart) cart.style.top = `${Math.round(top)}px`;
       if (ig) ig.style.top = `${Math.round(top)}px`;
+      if (b2b) b2b.style.top = `${Math.round(top)}px`;
     };
 
     align();
@@ -383,6 +393,18 @@ function Header({ count, onOpen }) {
 
   return (
     <header className="siteHeader">
+      {/* B2B LEFT */}
+      <a
+        ref={b2bRef}
+        className="b2bFixed"
+        href="https://t.me/itsadate_b2b"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        СПІВПРАЦЯ / B2B
+      </a>
+
+      {/* LOGO */}
       <div className="siteHeader__inner">
         <div className="brandWrap">
           <h1 ref={titleRef} className="brand">
@@ -392,10 +414,11 @@ function Header({ count, onOpen }) {
         </div>
       </div>
 
+      {/* INSTAGRAM RIGHT */}
       <a
         ref={igRef}
         className="igFixed"
-        href={INSTAGRAM_URL}
+        href="https://www.instagram.com/kyivdinnerclub/"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Instagram"
@@ -403,6 +426,7 @@ function Header({ count, onOpen }) {
         <InstagramSvg />
       </a>
 
+      {/* CART RIGHT */}
       <button ref={cartRef} className="cartFixed" onClick={onOpen} aria-label="Кошик">
         <CartSvg />
         {!!count && <span className="cartBadge">{count}</span>}
