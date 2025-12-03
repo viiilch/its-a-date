@@ -29,17 +29,25 @@ body{
 }
 .brandWrap{ text-align:center; }
 
+/* h1 тепер лише контейнер під лого */
 .brand{
-  font-size:64px;
-  letter-spacing:.3px;
   margin:0;
-  font-weight:900;
 }
 
+/* svg-лого в хедері */
+.brandLogo{
+  display:block;
+  max-width:480px;
+  width:90vw;
+  height:auto;
+}
+
+/* підпис by Kyiv Dinner Club — новий шрифт */
 .subBrand{
-  margin-top:6px;
+  margin-top:8px;
   color:#444;
-  font-size:16px;
+  font-size:26px;
+  font-family:"KyivDinnerClub","SF Pro Display",cursive;
 }
 
 /* фіксовані елементи в хедері */
@@ -69,30 +77,22 @@ body{
   height: 40px;
 }
 
-/* ліворуч – СПІВПРАЦЯ B2B, просто текст */
+/* ліворуч – СПІВПРАЦЯ B2B (просто текст, без кнопки) */
 .b2bFixed{
   left: 24px;
-  top: 24px;
-  height: auto;
+  height: 40px;
   padding: 0;
-  border: none;
   background: transparent;
   color: #111;
   text-decoration: none;
 
-  /* БЕЗ Hagrid, щоб 2 була нормальною */
-  font-family: "SF Pro Display",-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Arial,sans-serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 14px;
-
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  font-family: "KyivDinnerClub","SF Pro Display",cursive;
+  font-size:22px;
 }
 
+/* щоб при hover нічого не підсвічувалось кнопкою */
 .b2bFixed:hover{
-  opacity: 0.7;
-  transform: translateY(-1px);
+  color:#111;
 }
 
 .cartBadge{
@@ -155,15 +155,15 @@ body{
   object-fit:contain;
 }
 
+/* НАЗВИ ФІНІКІВ — новий шрифт */
 .cardTitle{
-  font-size:20px;
-  font-weight:900;
+  font-size:22px;
   margin:0;
 
-  /* фіксована висота під 2 рядки назви */
+  font-family:"KyivDinnerClub","SF Pro Display",cursive;
   min-height: 48px;
   display:flex;
-  align-items:flex-end; /* щоб текст «стояв» по нижньому краю */
+  align-items:flex-end;
 }
 
 .cardDesc{
@@ -171,12 +171,10 @@ body{
   color:var(--muted);
   font-size:14px;
   line-height:1.4;
-
-  /* однакова висота для опису (2–3 рядки) */
   min-height: 60px;
 }
 
-/* ===== BIG / TO GO — як текст-опції ===== */
+/* ===== BIG / TO GO ===== */
 .formatRow{
   display:flex;
   gap:24px;
@@ -185,7 +183,7 @@ body{
   align-items:baseline;
 }
 
-/* базовий стиль (як назва фініків, але дрібніше) */
+/* BIG / TO GO — тим самим шрифтом, що Kyiv Dinner Club */
 .fmtChoice{
   appearance:none;
   -webkit-appearance:none;
@@ -194,25 +192,21 @@ body{
   padding:0;
   cursor:pointer;
 
-  font-family:"Hagrid","SF Pro Display",sans-serif;
-  font-weight:800;
+  font-family:"KyivDinnerClub","SF Pro Display",cursive;
+  font-weight:400;
   text-transform:uppercase;
-  letter-spacing:0.16em;
+  letter-spacing:0.12em;
 
-  font-size:17px;          /* ОДНАКОВИЙ великий шрифт */
-  color:var(--muted);      /* неактивний — сірий */
+  font-size:17px;
+  color:var(--muted);
 
   transition:
     color 0.15s ease,
     opacity 0.15s ease;
 }
-
 .fmtChoice.fmtChoice--active{
-  color:#000;              /* активний — чорний */
-  /* без збільшення, без руху */
+  color:#000;
 }
-
-/* hover */
 .fmtChoice:hover{
   color:#4b5563;
   opacity:0.9;
@@ -224,15 +218,14 @@ body{
   grid-template-columns:min-content 1fr auto;
   align-items:center;
   gap:16px;
-
-  margin-top:auto; /* притискаємо низ картки до дна */
+  margin-top:auto;
 }
 
 .price{
   white-space:nowrap;
   font-weight:900;
   align-self:center;
-  min-width:90px; /* фіксуємо ширину, щоб картка не дригалася */
+  min-width:90px;
 }
 
 .qtyGroup{
@@ -269,7 +262,7 @@ body{
   font-weight:700;
 }
 
-/* КУПИТИ — низька й ширша */
+/* КУПИТИ */
 .buyBtn{
   justify-self:end;
   height:32px;
@@ -321,6 +314,7 @@ body{
 .modalHead h3{
   margin:0;
   font-size:26px;
+  font-family:"Hagrid","SF Pro Display",sans-serif;
 }
 
 .iconBtn{
@@ -492,19 +486,8 @@ input{
 /* ===== МОБІЛЬНА ШАПКА ===== */
 @media (max-width:640px){
   .siteHeader{ padding-top:68px; }
-  .brand{ font-size:40px; }
+  .brandLogo{ max-width:360px; }
 
-  /* СПІВПРАЦЯ B2B – текст зверху зліва */
-  .b2bFixed{
-    left: 16px;
-    top: 16px;
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    background: transparent;
-    padding: 0;
-  }
-
-  /* Іконки – як були, в «бабл» */
   .igFixed,
   .cartFixed{
     top:12px;
@@ -519,6 +502,15 @@ input{
   }
   .cartFixed{ right:12px; }
   .igFixed{ right:60px; }
+
+  /* СПІВПРАЦЯ на мобілці — просто текст зверху зліва */
+  .b2bFixed{
+    top: 20px;
+    left:16px;
+    z-index:1000;
+    padding:0;
+    background:transparent;
+  }
 
   .modal{
     width:96vw;
@@ -561,12 +553,11 @@ input{
   }
   .grid2{ grid-template-columns:1fr; }
 
-    .formatRow{ gap:18px; }
-  .fmtChoice{ font-size:15px; }       /* однаковий розмір */
-  /* .fmtChoice.fmtChoice--active тут вже не потрібен */
+  .formatRow{ gap:18px; }
+  .fmtChoice{ font-size:15px; }
 }
 
-/* ===== Коли модалка відкрита — ховаємо IG/кошик ===== */
+/* ===== Коли модалка відкрита — ховаємо всі фіксовані елементи ===== */
 body.modal-open .igFixed,
 body.modal-open .cartFixed,
 body.modal-open .b2bFixed{
@@ -612,41 +603,17 @@ body.modal-open .b2bFixed{
   font-display:swap;
 }
 
-/* застосовуємо Hagrid на бренд і назви */
-.brand{
-  font-family:"Hagrid","SF Pro Display",sans-serif;
-  font-weight:900;
-}
-.cardTitle{
-  font-family:"Hagrid","SF Pro Display",sans-serif;
-  font-weight:800;
-}
-.modalHead h3{
-  font-family:"Hagrid","SF Pro Display",sans-serif;
-  font-weight:900;
+/* НОВИЙ шрифт Kyiv Dinner Club */
+@font-face{
+  font-family:"KyivDinnerClub";
+  src:url("/fonts/KyivDinnerClub.otf") format("opentype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
 }
 
 /* трохи відступу між хедером і каталогом */
 .container{ margin-top:10px; }
 @media (max-width:640px){
   .container{ margin-top:14px; }
-}
-/* === OVERRIDE: Kyiv Dinner Club — Shadows Into Light === */
-@font-face {
-  font-family: "Shadows Into Light Custom";
-  src: url("/fonts/ShadowsIntoLight-Regular.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-/* Підпис by Kyiv Dinner Club */
-.subBrand {
-  font-family: "Shadows Into Light Custom", "SF Pro Display", cursive !important;
-  font-weight: 400 !important;
-  font-size: 26px !important;
-  letter-spacing: 0.3px !important;
-  margin-top: 4px !important;
-  display: inline-block !important;
-  opacity: 0.95 !important;
 }
