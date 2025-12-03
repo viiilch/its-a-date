@@ -81,9 +81,9 @@ const fmt = (n) => `${n} грн`;
 
 /* ================= APP ================= */
 function App() {
-  const [cart, setCart] = useState([]); // [{id,title,price,img,qty,variant,baseId}]
+  const [cart, setCart] = useState([]);            // [{id,title,price,img,qty,variant,baseId}]
   const [cartOpen, setCartOpen] = useState(false);
-  const [stage, setStage] = useState("cart"); // "cart" | "checkout"
+  const [stage, setStage] = useState("cart");      // "cart" | "checkout"
   const [submitting, setSubmitting] = useState(false);
 
   // Коли модалка відкрита — додаємо клас на body
@@ -162,9 +162,7 @@ function App() {
 
       if (!resp.ok || !data.checkoutUrl) {
         console.error("MonoPay error:", data);
-        alert(
-          "Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram."
-        );
+        alert("Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram.");
         setSubmitting(false);
         return;
       }
@@ -258,10 +256,7 @@ function App() {
                     <button className="btn ghost" onClick={() => setCartOpen(false)}>
                       Продовжити покупки
                     </button>
-                    <button
-                      className="btn primary"
-                      onClick={() => setStage("checkout")}
-                    >
+                    <button className="btn primary" onClick={() => setStage("checkout")}>
                       Оформити
                     </button>
                   </div>
@@ -306,42 +301,22 @@ function App() {
                 <div className="grid2">
                   <div>
                     <label htmlFor="firstName">Ім’я</label>
-                    <input
-                      id="firstName"
-                      name="firstName"
-                      required
-                      placeholder="Ім’я отримувача"
-                    />
+                    <input id="firstName" name="firstName" required placeholder="Ім’я отримувача" />
                   </div>
                   <div>
                     <label htmlFor="lastName">Прізвище</label>
-                    <input
-                      id="lastName"
-                      name="lastName"
-                      required
-                      placeholder="Прізвище"
-                    />
+                    <input id="lastName" name="lastName" required placeholder="Прізвище" />
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="phone">Телефон</label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    required
-                    placeholder="+380XXXXXXXXX"
-                  />
+                  <input id="phone" name="phone" required placeholder="+380XXXXXXXXX" />
                 </div>
 
                 <div>
                   <label htmlFor="np">Місто / Відділення Нової Пошти</label>
-                  <input
-                    id="np"
-                    name="np"
-                    required
-                    placeholder="Київ, відділення №..."
-                  />
+                  <input id="np" name="np" required placeholder="Київ, відділення №..." />
                 </div>
 
                 <div className="modalFoot">
@@ -357,9 +332,7 @@ function App() {
                       Назад до кошика
                     </button>
                     <button type="submit" className="btn primary" disabled={submitting}>
-                      {submitting
-                        ? "Переходимо до оплати..."
-                        : "Підтвердити та оплатити"}
+                      {submitting ? "Переходимо до оплати..." : "Підтвердити та оплатити"}
                     </button>
                   </div>
                 </div>
@@ -384,37 +357,33 @@ function App() {
 
 /* ================= ХЕДЕР ================= */
 function Header({ count, onOpen }) {
-  const titleRef = useRef(null);
+  const logoRef = useRef(null);
   const cartRef = useRef(null);
   const igRef = useRef(null);
   const b2bRef = useRef(null);
 
   useEffect(() => {
     const align = () => {
-      const t = titleRef.current;
-      const c = cartRef.current;
+      const logo = logoRef.current;
+      const cart = cartRef.current;
       const ig = igRef.current;
       const b2b = b2bRef.current;
-      if (!t) return;
+      if (!logo) return;
 
-      // Мобілка — просто фіксовані зверху
+      // На мобілці — залишаємо стилі з CSS
       if (window.innerWidth <= 640) {
-        if (c) c.style.top = "12px";
+        if (cart) cart.style.top = "12px";
         if (ig) ig.style.top = "12px";
-        if (b2b) b2b.style.top = "16px";
+        if (b2b) b2b.style.top = "20px";
         return;
       }
 
-      // Десктоп — центруємо по висоті бренда
-      const tb = t.getBoundingClientRect();
-      const top = window.scrollY + tb.top + tb.height / 2;
+      const box = logo.getBoundingClientRect();
+      const top = window.scrollY + box.top + (box.height - 28) / 2;
 
-      const iconSize = 28; // приблизна висота svg
-      const offset = Math.round(top - iconSize / 2);
-
-      if (c) c.style.top = `${offset}px`;
-      if (ig) ig.style.top = `${offset}px`;
-      if (b2b) b2b.style.top = `${offset}px`;
+      if (cart) cart.style.top = `${Math.round(top)}px`;
+      if (ig) ig.style.top = `${Math.round(top)}px`;
+      if (b2b) b2b.style.top = `${Math.round(top)}px`;
     };
 
     align();
@@ -430,10 +399,11 @@ function Header({ count, onOpen }) {
     <header className="siteHeader">
       <div className="siteHeader__inner">
         <div className="brandWrap">
-          <h1 className="brand" ref={titleRef}>
+          <h1 className="brand">
             <img
+              ref={logoRef}
               src="/img/its-a-date-logo.svg"
-              alt="IT’S A DATE!"
+              alt="IT'S A DATE!"
               className="brandLogo"
             />
           </h1>
@@ -441,7 +411,7 @@ function Header({ count, onOpen }) {
         </div>
       </div>
 
-      {/* Ліворуч — співпраця */}
+      {/* Ліворуч — B2B (текст) */}
       <a
         ref={b2bRef}
         className="b2bFixed"
@@ -449,7 +419,7 @@ function Header({ count, onOpen }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        Співпраця B2B
+        B2B
       </a>
 
       {/* Праворуч — Instagram */}
@@ -464,7 +434,7 @@ function Header({ count, onOpen }) {
         <InstagramSvg />
       </a>
 
-      {/* Праворуч — кошик */}
+      {/* Праворуч — Кошик */}
       <button
         ref={cartRef}
         className="cartFixed"
@@ -621,12 +591,7 @@ function Catalog({ products, onBuy }) {
 function Modal({ children, onClose }) {
   return (
     <div className="modalOverlay" onClick={onClose}>
-      <div
-        className="modal"
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>

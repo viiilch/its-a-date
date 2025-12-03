@@ -65,34 +65,40 @@ body{
   cursor: pointer;
 }
 
+/* ліворуч – B2B (просто текст, без кнопки) */
+.b2bFixed{
+  position: fixed;
+  top: 32px;
+  left: 80px; /* трохи правіше від краю, ближче до центру */  
+  height: auto;
+  background: transparent;
+  padding: 0;
+
+  font-family: "KyivDinnerClub","SF Pro Display",cursive;
+  font-size: 32px; /* трохи більший розмір */
+  font-weight: 400;
+  color:#111;
+  text-decoration:none;
+
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  cursor:pointer;
+}
+
 /* праворуч – Instagram + кошик */
 .cartFixed{
-  right: 24px;
+  right: 80px;
   width: 40px;
   height: 40px;
 }
 .igFixed{
-  right: 72px;
+  right: 136px; /* 40px ширина + 16px відступ від корзини */
   width: 40px;
   height: 40px;
 }
 
-/* ліворуч – СПІВПРАЦЯ B2B (просто текст, без кнопки) */
-.b2bFixed{
-  left: 24px;
-  height: 40px;
-  padding: 0;
-  background: transparent;
-  color: #111;
-  text-decoration: none;
-
-  font-family: "KyivDinnerClub","SF Pro Display",cursive;
-  font-size:22px;
-}
-
-/* щоб при hover нічого не підсвічувалось кнопкою */
 .b2bFixed:hover{
-  color:#111;
+  opacity: 0.7;
 }
 
 .cartBadge{
@@ -113,15 +119,24 @@ body{
 
 /* ===== КОНТЕНТ ===== */
 .container{
-  max-width:1120px;
-  padding:32px 16px 40px;
+  width: 100%;
   margin: 0 auto;
+  padding: 32px 0 40px;   /* без горизонтальних відступів */
+  display: flex;
+  justify-content: center; /* центруємо всередині */
 }
+
 .grid{
-  display:grid;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap:24px;
+  gap: 24px;
+
+  width: 100%;
+  max-width: 1120px;       /* ширина самого каталогу */
+  padding: 0 16px;         /* однаковий відступ зліва і справа */
+  margin: 0 auto;          /* і ще раз по центру */
 }
+
 @media (max-width:900px){
   .grid{ grid-template-columns: repeat(2, 1fr); }
 }
@@ -155,9 +170,9 @@ body{
   object-fit:contain;
 }
 
-/* НАЗВИ ФІНІКІВ — новий шрифт */
+/* НАЗВИ ФІНІКІВ — новий шрифт і трішки більші */
 .cardTitle{
-  font-size:22px;
+  font-size:26px;
   margin:0;
 
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
@@ -183,7 +198,7 @@ body{
   align-items:baseline;
 }
 
-/* BIG / TO GO — тим самим шрифтом, що Kyiv Dinner Club */
+/* BIG / TO GO — великий красивий шрифт KyivDinnerClub */
 .fmtChoice{
   appearance:none;
   -webkit-appearance:none;
@@ -197,7 +212,7 @@ body{
   text-transform:uppercase;
   letter-spacing:0.12em;
 
-  font-size:17px;
+  font-size:24px;       /* ЗБІЛЬШИЛИ BIG / TO GO */
   color:var(--muted);
 
   transition:
@@ -503,13 +518,14 @@ input{
   .cartFixed{ right:12px; }
   .igFixed{ right:60px; }
 
-  /* СПІВПРАЦЯ на мобілці — просто текст зверху зліва */
+  /* B2B на мобілці — просто текст зверху зліва */
   .b2bFixed{
     top: 20px;
-    left:16px;
+    left: 40px; /* правіше на мобілці */
     z-index:1000;
     padding:0;
     background:transparent;
+    font-size: 26px; /* трохи більший розмір */
   }
 
   .modal{
@@ -554,7 +570,9 @@ input{
   .grid2{ grid-template-columns:1fr; }
 
   .formatRow{ gap:18px; }
-  .fmtChoice{ font-size:15px; }
+
+  /* BIG / TO GO на мобілці — теж трошки більші */
+  .fmtChoice{ font-size:20px; }
 }
 
 /* ===== Коли модалка відкрита — ховаємо всі фіксовані елементи ===== */
