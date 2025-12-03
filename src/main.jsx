@@ -401,7 +401,7 @@ function Header({ count, onOpen }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        СПІВПРАЦЯ / B2B
+        СПІВПРАЦЯ B2B
       </a>
 
       {/* LOGO */}

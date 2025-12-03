@@ -69,35 +69,28 @@ body{
   height: 40px;
 }
 
-/* LEFT B2B BUTTON */
-.b2bFixed {
+/* ліворуч – СПІВПРАЦЯ B2B, як текст */
+.b2bFixed{
   left: 24px;
   height: 40px;
-  padding: 0 20px;
-  border-radius: 999px;
-  border: 1px solid #111;
-  background: #fff;
+  padding: 0;
+  border: none;
+  background: transparent;
   color: #111;
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
 
   font-family: "Hagrid","SF Pro Display",sans-serif;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: .16em;
-  font-size: 13px;
+  letter-spacing: 0.18em;
+  font-size: 18px;
 
-  transition: .15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .b2bFixed:hover{
-  background:#111;
-  color:#fff;
-  box-shadow:0 4px 16px rgba(0,0,0,.14);
-  transform:translateY(-1px);
+  opacity: 0.7;
+  transform: translateY(-1px);
 }
 
 .cartBadge{
@@ -499,8 +492,13 @@ input{
   .siteHeader{ padding-top:68px; }
   .brand{ font-size:40px; }
 
-  /* ОНОВЛЕНИЙ РЯДОК ТУТ 👇 */
-  .igFixed, .cartFixed, .b2bFixed{
+  /* на мобілі ховаємо СПІВПРАЦЯ B2B, залишаємо тільки іконки */
+  .b2bFixed{
+    display: none;
+  }
+
+  .igFixed,
+  .cartFixed{
     top:12px;
     z-index:1000;
     width:44px;
