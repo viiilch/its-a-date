@@ -42,22 +42,63 @@ body{
   font-size:16px;
 }
 
-/* фіксовані іконки праворуч */
-.igFixed,.cartFixed{
+/* фіксовані елементи в хедері */
+.igFixed,
+.cartFixed,
+.b2bFixed{
   position: fixed;
-  right: 24px;
   top: 24px;
-  width: 40px;
-  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  border:0;
-  padding:0;
-  cursor:pointer;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
-.igFixed{ right: 72px; }
+
+/* праворуч – Instagram + кошик */
+.cartFixed{
+  right: 24px;
+  width: 40px;
+  height: 40px;
+}
+.igFixed{
+  right: 72px;
+  width: 40px;
+  height: 40px;
+}
+
+/* LEFT B2B BUTTON */
+.b2bFixed {
+  left: 24px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid #111;
+  background: #fff;
+  color: #111;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  font-family: "Hagrid","SF Pro Display",sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: 13px;
+
+  transition: .15s ease;
+}
+
+.b2bFixed:hover{
+  background:#111;
+  color:#fff;
+  box-shadow:0 4px 16px rgba(0,0,0,.14);
+  transform:translateY(-1px);
+}
 
 .cartBadge{
   position:absolute;
@@ -457,7 +498,9 @@ input{
 @media (max-width:640px){
   .siteHeader{ padding-top:68px; }
   .brand{ font-size:40px; }
-  .igFixed,.cartFixed{
+
+  /* ОНОВЛЕНИЙ РЯДОК ТУТ 👇 */
+  .igFixed, .cartFixed, .b2bFixed{
     top:12px;
     z-index:1000;
     width:44px;
@@ -519,7 +562,8 @@ input{
 
 /* ===== Коли модалка відкрита — ховаємо IG/кошик ===== */
 body.modal-open .igFixed,
-body.modal-open .cartFixed{
+body.modal-open .cartFixed,
+body.modal-open .b2bFixed{
   opacity:0;
   pointer-events:none;
   transition: opacity .12s ease;
