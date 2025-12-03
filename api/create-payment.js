@@ -53,18 +53,17 @@ export default async function handler(req, res) {
     const orderId = `ID-${Date.now()}`;
 
     const payload = {
-      amount,
-      ccy: 980,
-      redirectUrl: `${PUBLIC_BASE}/thanks`,
-      webHookUrl: `${PUBLIC_BASE}/api/monopay-webhook`,
-      merchantPaymInfo: {
-        reference: orderId,
-        destination: `It's a Date — замовлення ${orderId}`,
-        comment: `Товарів: ${cart.length}`,
-      },
-      // salePaymentData нам вже не потрібні у вебхуку — все лежить в БД
-      validity: 3600,
-    };
+  amount,
+  ccy: 980,
+  redirectUrl: PUBLIC_BASE, // ← без /thanks
+  webHookUrl: `${PUBLIC_BASE}/api/monopay-webhook`,
+  merchantPaymInfo: {
+    reference: orderId,
+    destination: `It's a Date — замовлення ${orderId}`,
+    comment: `Товарів: ${cart.length}`,
+  },
+  validity: 3600,
+};
 
     console.log("MONO REQUEST →", MONOPAY_BASE + "/invoice/create", payload);
 
