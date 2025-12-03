@@ -155,21 +155,17 @@ body{
   text-transform:uppercase;
   letter-spacing:0.16em;
 
-  font-size:15px;
-  color:var(--muted); /* сіра, як опис */
+  font-size:17px;          /* ОДНАКОВИЙ великий шрифт */
+  color:var(--muted);      /* неактивний — сірий */
 
   transition:
     color 0.15s ease,
-    font-size 0.15s ease,
-    transform 0.15s ease,
     opacity 0.15s ease;
 }
 
-/* обрана опція — чорна й трохи більша */
 .fmtChoice.fmtChoice--active{
-  color:#111;
-  font-size:17px;
-  transform:translateY(-1px);
+  color:#000;              /* активний — чорний */
+  /* без збільшення, без руху */
 }
 
 /* hover */
@@ -505,9 +501,9 @@ input{
   }
   .grid2{ grid-template-columns:1fr; }
 
-  .formatRow{ gap:18px; }
-  .fmtChoice{ font-size:13px; }
-  .fmtChoice.fmtChoice--active{ font-size:15px; }
+    .formatRow{ gap:18px; }
+  .fmtChoice{ font-size:15px; }       /* однаковий розмір */
+  /* .fmtChoice.fmtChoice--active тут вже не потрібен */
 }
 
 /* ===== Коли модалка відкрита — ховаємо IG/кошик ===== */
