@@ -186,6 +186,7 @@ body{
   white-space:nowrap;
   font-weight:900;
   align-self:center;
+  min-width:90px; /* фіксуємо ширину, щоб картка не дригалася */
 }
 
 .qtyGroup{
