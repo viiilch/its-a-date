@@ -395,14 +395,13 @@ function Header({ count, onOpen }) {
     <header className="siteHeader">
       {/* B2B LEFT */}
       <a
-        ref={b2bRef}
-        className="b2bFixed"
-        href="https://t.me/itsadate_b2b"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        СПІВПРАЦЯ B2B
-      </a>
+  href="https://t.me/itsadate_b2b"
+  className="b2bFixed"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  СПІВПРАЦЯ B2B
+</a>
 
       {/* LOGO */}
       <div className="siteHeader__inner">

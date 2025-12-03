@@ -69,21 +69,23 @@ body{
   height: 40px;
 }
 
-/* ліворуч – СПІВПРАЦЯ B2B, як текст */
+/* ліворуч – СПІВПРАЦЯ B2B, просто текст */
 .b2bFixed{
   left: 24px;
-  height: 40px;
+  top: 24px;
+  height: auto;
   padding: 0;
   border: none;
   background: transparent;
   color: #111;
   text-decoration: none;
 
-  font-family: "Hagrid","SF Pro Display",sans-serif;
-  font-weight: 900;
+  /* БЕЗ Hagrid, щоб 2 була нормальною */
+  font-family: "SF Pro Display",-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 18px;
+  font-size: 14px;
 
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
@@ -492,11 +494,17 @@ input{
   .siteHeader{ padding-top:68px; }
   .brand{ font-size:40px; }
 
-  /* на мобілі ховаємо СПІВПРАЦЯ B2B, залишаємо тільки іконки */
+  /* СПІВПРАЦЯ B2B – текст зверху зліва */
   .b2bFixed{
-    display: none;
+    left: 16px;
+    top: 16px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    background: transparent;
+    padding: 0;
   }
 
+  /* Іконки – як були, в «бабл» */
   .igFixed,
   .cartFixed{
     top:12px;
