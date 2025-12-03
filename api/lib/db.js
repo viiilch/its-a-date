@@ -1,19 +1,16 @@
 // api/lib/db.js
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+import pkg from "pg";
 
-import pg from "pg";
-const { Pool } = pg;
+const { Pool } = pkg;
 
 const connectionString = process.env.DB_URL;
 
 if (!connectionString) {
-  console.error("DB_URL is not set");
-  throw new Error("DB_URL is not set");
+  throw new Error("DB_URL is not set. Please configure it in .env.local and Vercel.");
 }
 
-// один pool на всі виклики (Vercel це кешує між викликами)
-const pool = new Pool({
+// Пул підключень до Postgres (Neon)
+export const pool = new Pool({
   connectionString,
   ssl: {
     rejectUnauthorized: false, // для Neon ок
@@ -21,6 +18,11 @@ const pool = new Pool({
 });
 
 export async function query(text, params) {
-  const res = await pool.query(text, params);
-  return res;
+  const client = await pool.connect();
+  try {
+    const res = await client.query(text, params);
+    return res;
+  } finally {
+    client.release();
+  }
 }
