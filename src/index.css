@@ -123,6 +123,11 @@ body{
   font-size:20px;
   font-weight:900;
   margin:0;
+
+  /* фіксована висота під 2 рядки назви */
+  min-height: 48px;
+  display:flex;
+  align-items:flex-end; /* щоб текст «стояв» по нижньому краю */
 }
 
 .cardDesc{
@@ -130,6 +135,9 @@ body{
   color:var(--muted);
   font-size:14px;
   line-height:1.4;
+
+  /* однакова висота для опису (2–3 рядки) */
+  min-height: 60px;
 }
 
 /* ===== BIG / TO GO — як текст-опції ===== */
