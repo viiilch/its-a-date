@@ -16,17 +16,17 @@ body{
   color:var(--text);
   background:var(--bg);
   font-family:"SF Pro Display",-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ===== ХЕДЕР ===== */
 .siteHeader{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  padding: 28px 16px 0;
+  position:sticky;
+  top:0;
+  z-index:100;
   background:#fff;
-  border-bottom: none;   /* забрали лінію */
-  box-shadow: none;      /* на всякий випадок */
+  padding:28px 16px 0; /* без border-bottom і тіней */
 }
 
 .siteHeader__inner{
@@ -57,8 +57,8 @@ body{
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
 }
 
-/* фіксовані елементи в хедері */
- 
+/* ===== ФІКСОВАНІ ЕЛЕМЕНТИ В ШАПЦІ ===== */
+
 .igFixed,
 .cartFixed,
 .b2bFixed{
@@ -75,7 +75,7 @@ body{
   -webkit-appearance: none;
 }
 
-/* B2B — трохи ближче до краю зліва */
+/* B2B — ближче до лівого краю */
 .b2bFixed{
   top: 32px;
   left: 32px;
@@ -91,7 +91,7 @@ body{
   white-space: nowrap;
 }
 
-/* праворуч – Instagram + кошик, ближче до правого краю */
+/* праворуч – Instagram + кошик, ближче до краю */
 .cartFixed{
   right: 32px;
   width: 40px;
@@ -109,9 +109,49 @@ body{
 .cartFixed:hover{
   opacity: 0.8;
 }
+
+/* бейдж на корзині */
+.cartBadge{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  min-width:18px;
+  height:18px;
+  border-radius:9px;
+  background:#111;
+  color:#fff;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 4px;
+}
+
+/* ===== КОНТЕНТ / КАТАЛОГ ===== */
+
+.container{
+  max-width:1120px;
+  padding:32px 16px 40px;
+  margin:0 auto;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:24px;
+}
+
+@media (max-width:900px){
+  .grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width:640px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
 /* ===== КАРТКИ ===== */
+
 .card{
-  background:#fff;
+  background:var(--card);
   border:1px solid var(--border);
   border-radius:16px;
   padding:16px;
@@ -122,22 +162,24 @@ body{
 
 .imgWrap{
   width:100%;
-  aspect-ratio:1/1;
+  max-height:320px;           /* обмежуємо висоту картинок товарів */
   border-radius:12px;
   background:#fafafa;
   display:flex;
   align-items:center;
   justify-content:center;
+  overflow:hidden;
 }
+
 .imgWrap img{
-  width:100%;
-  height:100%;
+  max-height:100%;            /* не вище 320px */
+  width:auto;
   object-fit:contain;
 }
 
-/* ===== ТЕКСТИ ===== */
+/* ===== ТЕКСТИ В КАРТЦІ ===== */
 
-/* НАЗВА — ТЕПЕР КАПСОМ */
+/* НАЗВА — КАПСОМ, шрифт finik */
 .cardTitle{
   font-size:26px;
   margin:0;
@@ -145,7 +187,7 @@ body{
   min-height: 48px;
   display:flex;
   align-items:flex-end;
-  text-transform: uppercase;   /* ВСІ БУКВИ ВЕЛИКІ */
+  text-transform: uppercase;
 }
 
 .cardDesc{
@@ -157,6 +199,7 @@ body{
 }
 
 /* ===== FORMAT: BIG / TO GO ===== */
+
 .formatRow{
   display:flex;
   gap:24px;
@@ -167,18 +210,21 @@ body{
 .fmtChoice{
   border:none;
   background:transparent;
+  padding:0;
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
   font-size:24px;
   letter-spacing:.12em;
   color:var(--muted);
   cursor:pointer;
+  text-transform:uppercase;
 }
 
 .fmtChoice--active{
   color:#000;
 }
 
-/* ===== FOOTER CARD ===== */
+/* ===== НИЗ КАРТКИ ===== */
+
 .cardFooter{
   display:grid;
   grid-template-columns:min-content 1fr auto;
@@ -193,9 +239,11 @@ body{
 }
 
 .qtyGroup{
-  display:flex;
+  display:inline-flex;
   align-items:center;
+  justify-content:center;
   gap:12px;
+  min-width:120px;
 }
 
 .qtyBtn{
@@ -204,7 +252,17 @@ body{
   border-radius:8px;
   border:1px solid #ddd;
   background:#fff;
+  font-size:18px;
+  line-height:1;
+  font-weight:700;
+  padding:0;
   cursor:pointer;
+}
+
+.qtyVal{
+  min-width:24px;
+  text-align:center;
+  font-weight:700;
 }
 
 .buyBtn{
@@ -214,13 +272,240 @@ body{
   border:1px solid #111;
   background:#111;
   color:#fff;
+  font-size:16px;
   font-weight:900;
+  letter-spacing:0.02em;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   cursor:pointer;
 }
 
-/* ===== MOBILE ===== */
+.buyBtn:hover{ opacity:.9; }
+
+/* ===== МОДАЛКА / ОФОРМЛЕННЯ ===== */
+
+.modalOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.18);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:3000;
+}
+
+.modal{
+  width:720px;
+  max-width:92vw;
+  max-height:88vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:16px;
+  border:1px solid var(--border);
+  padding:16px;
+}
+
+.modalHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  background:#fff;
+  z-index:1;
+  padding-bottom:8px;
+}
+
+.modalHead h3{
+  margin:0;
+  font-size:26px;
+  font-family:"Hagrid","SF Pro Display",sans-serif;
+}
+
+.iconBtn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border:1px solid #e5e5e5;
+  border-radius:8px;
+  background:#fff;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+}
+
+/* кошик в модалці */
+.cartEmpty{
+  text-align:center;
+  padding:24px 12px;
+}
+
+.cartList{
+  list-style:none;
+  margin:0;
+  padding:8px 0;
+  max-height:50vh;
+  overflow:auto;
+}
+
+.cartRow,
+.summaryRow{
+  display:grid;
+  grid-template-columns:80px 1fr 160px minmax(86px,auto) 36px;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  margin:10px 0;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+.thumb{
+  width:80px;
+  height:80px;
+  border-radius:10px;
+  object-fit:contain;
+  background:#fafafa;
+}
+
+.cTitle{ font-weight:800; }
+
+.qtyRow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  min-width:120px;
+}
+
+.qty{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:24px;
+  height:30px;
+  font-weight:700;
+}
+
+.cPrice{
+  text-align:right;
+  white-space:nowrap;
+  font-weight:800;
+  padding:0 4px 0 6px;
+}
+
+.rowX{ justify-self:end; }
+
+.modalFoot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+
+.sum{ font-size:18px; }
+.actions{ display:flex; gap:10px; }
+
+.btn{
+  height:44px;
+  padding:0 16px;
+  border-radius:10px;
+  border:1px solid #111;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+  font-weight:800;
+}
+
+.btn.ghost{
+  background:#fff;
+  color:#111;
+  border:1px solid #ddd;
+}
+
+.btn.primary{
+  background:#111;
+  color:#fff;
+  border:1px solid #111;
+}
+
+/* оформлення в модалці */
+.summaryInModal{ padding:8px 0 0; }
+.summaryFoot{ padding:6px 2px 0; font-size:16px; }
+
+.formInModal{
+  display:grid;
+  gap:14px;
+  padding-top:12px;
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:800;
+  font-size:14px;
+}
+
+input{
+  width:100%;
+  height:44px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:0 12px;
+  font-size:16px;
+}
+
+/* ===== ФУТЕР ===== */
+
+.footer{
+  max-width:1120px;
+  margin:32px auto 24px;
+  padding:0 16px;
+  text-align:center;
+  color:#888;
+  font-size:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.payRow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.payIcon{
+  height:28px;   /* зменшені логотипи оплат */
+  width:auto;
+  display:inline-block;
+  image-rendering:auto;
+}
+
+.copy{
+  margin-top:8px;
+}
+
+/* ===== МОБІЛЬНА ШАПКА ===== */
 @media (max-width:640px){
   .siteHeader{ padding-top:68px; }
+  .brandLogo{ max-width:360px; }
 
   .b2bFixed{
     left:16px;
@@ -229,14 +514,122 @@ body{
 
   .igFixed{ right:70px; }
   .cartFixed{ right:16px; }
+
+  .igFixed,
+  .cartFixed{
+    top:12px;
+  }
+
+  .modal{
+    width:96vw;
+    max-height:92vh;
+    margin:0 auto;
+  }
+
+  .cartRow,
+  .summaryRow{
+    grid-template-columns:56px 1fr 120px minmax(72px,auto) 30px;
+    padding:10px;
+  }
+
+  .thumb{
+    width:56px;
+    height:56px;
+  }
+
+  .cTitle{
+    font-size:14px;
+    line-height:1.25;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .modalFoot{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+
+  .modalFoot .sum{
+    text-align:right;
+    font-size:16px;
+  }
+
+  .modalFoot .actions .btn{ flex:1; }
+
+  .formInModal{
+    padding:14px;
+    gap:14px;
+  }
+
+  .grid2{ grid-template-columns:1fr; }
+
+  .formatRow{ gap:18px; }
+
+  .fmtChoice{ font-size:20px; }
+}
+
+/* ===== Коли модалка відкрита — ховаємо фіксовані елементи ===== */
+body.modal-open .igFixed,
+body.modal-open .cartFixed,
+body.modal-open .b2bFixed{
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .12s ease;
 }
 
 /* ===== ШРИФТИ ===== */
 @font-face{
-  font-family:"KyivDinnerClub";
-  src:url("/fonts/KyivDinnerClub.otf");
+  font-family:"Hagrid";
+  src:url("/fonts/Hagrid-Heavy-trial.otf") format("opentype");
+  font-weight:900;
+  font-style:normal;
+  font-display:swap;
 }
+@font-face{
+  font-family:"Hagrid";
+  src:url("/fonts/Hagrid-Extrabold-trial.otf") format("opentype");
+  font-weight:800;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
+  font-weight:500;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* Kyiv Dinner Club */
+@font-face{
+  font-family:"KyivDinnerClub";
+  src:url("/fonts/KyivDinnerClub.otf") format("opentype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* finik — новий шрифт */
 @font-face{
   font-family:"finik";
   src:url("/fonts/finik.ttf") format("truetype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
 }
