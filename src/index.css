@@ -19,13 +19,14 @@ body{
 }
 
 /* ===== ХЕДЕР ===== */
-.siteHeader {
-  position:sticky;
-  top:0;
-  z-index:1000;
+.siteHeader{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 28px 16px 0;
   background:#fff;
-  padding:28px 0 12px;
-  border-bottom:1px solid #f3f3f3;
+  border-bottom: none;   /* забрали лінію */
+  box-shadow: none;      /* на всякий випадок */
 }
 
 .siteHeader__inner{
@@ -56,68 +57,58 @@ body{
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
 }
 
-/* ===== ФІКСОВАНІ ЕЛЕМЕНТИ ===== */
-.b2bFixed,
+/* фіксовані елементи в хедері */
+ 
 .igFixed,
-.cartFixed{
-  position:absolute;
-  top:24px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* --- B2B LEFT --- */
+.cartFixed,
 .b2bFixed{
-  left:0;
-  padding-left:24px;
-  font-family:"KyivDinnerClub","SF Pro Display",cursive;
-  font-size:32px;
-  text-decoration:none;
-  color:#111;
-  letter-spacing:.8px;
-  cursor:pointer;
-  transform:translateY(4px);
+  position: fixed;
+  top: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-/* --- RIGHT ICONS --- */
+/* B2B — трохи ближче до краю зліва */
+.b2bFixed{
+  top: 32px;
+  left: 32px;
+  height: auto;
+  background: transparent;
+
+  font-family: "finik","KyivDinnerClub","SF Pro Display",cursive;
+  font-size: 32px;
+  font-weight: 400;
+  color:#111;
+  text-decoration:none;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+}
+
+/* праворуч – Instagram + кошик, ближче до правого краю */
 .cartFixed{
-  right:24px;
-  width:40px;
-  height:40px;
+  right: 32px;
+  width: 40px;
+  height: 40px;
 }
 
 .igFixed{
-  right:80px;
-  width:40px;
-  height:40px;
+  right: 84px; /* 32 + 40 ширина корзини + ~12 відступ */
+  width: 40px;
+  height: 40px;
 }
 
-/* ===== КАТАЛОГ ===== */
-.container{
-  width:100%;
-  padding:32px 0 40px;
-  display:flex;
-  justify-content:center;
+.b2bFixed:hover,
+.igFixed:hover,
+.cartFixed:hover{
+  opacity: 0.8;
 }
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:24px;
-  width:100%;
-  max-width:1120px;
-  padding:0 16px;
-  margin:0 auto;
-}
-
-@media (max-width:900px){
-  .grid{ grid-template-columns:repeat(2,1fr); }
-}
-@media (max-width:640px){
-  .grid{ grid-template-columns:1fr; }
-}
-
 /* ===== КАРТКИ ===== */
 .card{
   background:#fff;
@@ -150,9 +141,11 @@ body{
 .cardTitle{
   font-size:26px;
   margin:0;
-  text-transform:uppercase;
-  font-family:"KyivDinnerClub","SF Pro Display",cursive;
-  min-height:48px;
+  font-family:"finik","KyivDinnerClub","SF Pro Display",cursive;
+  min-height: 48px;
+  display:flex;
+  align-items:flex-end;
+  text-transform: uppercase;   /* ВСІ БУКВИ ВЕЛИКІ */
 }
 
 .cardDesc{
@@ -244,6 +237,6 @@ body{
   src:url("/fonts/KyivDinnerClub.otf");
 }
 @font-face{
-  font-family:"FinikFont";
-  src:url("/fonts/finik.ttf");
+  font-family:"finik";
+  src:url("/fonts/finik.ttf") format("truetype");
 }
