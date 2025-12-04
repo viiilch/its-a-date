@@ -19,22 +19,29 @@ body{
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===== ХЕДЕР ===== */
-.siteHeader{ position:relative; padding:28px 16px 0; }
+/* ===== ХЕДЕР (тепер прилиплий) ===== */
+.siteHeader{
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 16px 16px 10px;
+  background:#fff;
+}
 .siteHeader__inner{
   max-width:1120px;
   margin:0 auto;
   display:flex;
   justify-content:center;
+  position:relative; /* щоб B2B/іконки були всередині */
 }
 .brandWrap{ text-align:center; }
 
-/* h1 тепер лише контейнер під лого */
+/* h1 — контейнер під лого */
 .brand{
   margin:0;
 }
 
-/* svg-лого в хедері */
+/* svg-лого */
 .brandLogo{
   display:block;
   max-width:480px;
@@ -42,7 +49,7 @@ body{
   height:auto;
 }
 
-/* підпис by Kyiv Dinner Club — новий шрифт */
+/* підпис by Kyiv Dinner Club — KyivDinnerClub */
 .subBrand{
   margin-top:8px;
   color:#444;
@@ -50,32 +57,32 @@ body{
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
 }
 
-/* фіксовані елементи в хедері */
+/* B2B + Instagram + кошик — ТЕПЕР absolute, не fixed */
+.b2bFixed,
 .igFixed,
-.cartFixed,
-.b2bFixed{
-  position: fixed;
-  top: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
+.cartFixed{
+  position:absolute;
+  top: 28px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
+  border:0;
+  padding:0;
+  cursor:pointer;
 }
 
-/* ліворуч – B2B (просто текст, без кнопки) */
+/* ліворуч — B2B */
 .b2bFixed{
   position: fixed;
   top: 32px;
-  left: 80px; /* трохи правіше від краю, ближче до центру */  
+  left: 40px;        /* ЛІВІШЕ, ближче до краю */
   height: auto;
   background: transparent;
   padding: 0;
 
-  font-family: "KyivDinnerClub","SF Pro Display",cursive;
-  font-size: 32px; /* трохи більший розмір */
+  font-family: "FinikFont", "KyivDinnerClub", "SF Pro Display", sans-serif;
+  font-size: 32px;
   font-weight: 400;
   color:#111;
   text-decoration:none;
@@ -85,20 +92,16 @@ body{
   cursor:pointer;
 }
 
-/* праворуч – Instagram + кошик */
+/* праворуч – Instagram + кошик, ПРАВІШЕ */
 .cartFixed{
-  right: 80px;
+  right: 40px;       /* ближче до правого краю */
   width: 40px;
   height: 40px;
 }
 .igFixed{
-  right: 136px; /* 40px ширина + 16px відступ від корзини */
+  right: 96px;       /* 40px іконка + 16px відступ */
   width: 40px;
   height: 40px;
-}
-
-.b2bFixed:hover{
-  opacity: 0.7;
 }
 
 .cartBadge{
@@ -121,7 +124,7 @@ body{
 .container{
   width: 100%;
   margin: 0 auto;
-  padding: 32px 0 40px;   /* без горизонтальних відступів */
+  padding: 32px 0 40px;   /* без горизонтальних паддінгів */
   display: flex;
   justify-content: center; /* центруємо всередині */
 }
@@ -132,9 +135,9 @@ body{
   gap: 24px;
 
   width: 100%;
-  max-width: 1120px;       /* ширина самого каталогу */
-  padding: 0 16px;         /* однаковий відступ зліва і справа */
-  margin: 0 auto;          /* і ще раз по центру */
+  max-width: 1120px;   /* ширина самого каталогу */
+  padding: 0 16px;     /* ОДНАКОВИЙ відступ зліва і справа */
+  margin: 0 auto;
 }
 
 @media (max-width:900px){
@@ -172,10 +175,10 @@ body{
 
 /* НАЗВИ ФІНІКІВ — новий шрифт і трішки більші */
 .cardTitle{
-  font-size:26px;
+  font-size:28px;
   margin:0;
 
-  font-family:"KyivDinnerClub","SF Pro Display",cursive;
+  font-family: "FinikFont", "KyivDinnerClub", "SF Pro Display", sans-serif;
   min-height: 48px;
   display:flex;
   align-items:flex-end;
@@ -629,9 +632,11 @@ body.modal-open .b2bFixed{
   font-style:normal;
   font-display:swap;
 }
-
-/* трохи відступу між хедером і каталогом */
-.container{ margin-top:10px; }
-@media (max-width:640px){
-  .container{ margin-top:14px; }
+/* Шрифт для B2B та назв товарів */
+@font-face {
+  font-family: "FinikFont";
+  src: url("/fonts/finik.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
