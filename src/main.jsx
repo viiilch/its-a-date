@@ -471,7 +471,7 @@ function Catalog({ products, onBuy }) {
             <div className="imgWrap">
               <img src={p.img} alt={p.title} />
             </div>
-            <h3 className="cardTitle">{p.title}</h3>
+            <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
             {p.desc && <p className="cardDesc">{p.desc}</p>}
 
             <div className="formatRow">
