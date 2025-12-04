@@ -1,18 +1,18 @@
 // src/main.jsx
-import React, { StrictMode, useEffect, useMemo, useRef, useState } from "react";
+import React, { StrictMode, useMemo, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
 /* ===== НАЛАШТУВАННЯ ===== */
 const INSTAGRAM_URL = "https://www.instagram.com/kyivdinnerclub/";
-const B2B_URL = "https://t.me/itsadate_b2b";
+const B2B_URL = "https://www.instagram.com/itsadate_b2b/";
 
 /* ===== ТОВАРИ (BIG + TO GO) ===== */
 const PRODUCTS = [
   {
     id: "dark",
     title: "Dark Chocolate Dates",
-    price: 300, // BIG за замовчуванням
+    price: 300,
     img: "/img/dark.png",
     desc: "Фініки без кісточки, темний шоколад, арахісова паста, мальдонська сіль.",
     formats: {
@@ -81,12 +81,11 @@ const fmt = (n) => `${n} грн`;
 
 /* ================= APP ================= */
 function App() {
-  const [cart, setCart] = useState([]);            // [{id,title,price,img,qty,variant,baseId}]
+  const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [stage, setStage] = useState("cart");      // "cart" | "checkout"
+  const [stage, setStage] = useState("cart");
   const [submitting, setSubmitting] = useState(false);
 
-  // Коли модалка відкрита — додаємо клас на body
   useEffect(() => {
     if (cartOpen) document.body.classList.add("modal-open");
     else document.body.classList.remove("modal-open");
@@ -120,16 +119,9 @@ function App() {
     setCart([]);
   }
 
-  const total = useMemo(
-    () => cart.reduce((s, it) => s + it.price * it.qty, 0),
-    [cart]
-  );
-  const count = useMemo(
-    () => cart.reduce((s, it) => s + it.qty, 0),
-    [cart]
-  );
+  const total = useMemo(() => cart.reduce((s, it) => s + it.price * it.qty, 0), [cart]);
+  const count = useMemo(() => cart.reduce((s, it) => s + it.qty, 0), [cart]);
 
-  // ====== ОФОРМЛЕННЯ → САМА ОПЛАТА (MonoPay) ======
   async function submit(e) {
     e.preventDefault();
     if (!cart.length || submitting) return;
@@ -142,7 +134,6 @@ function App() {
       np: (fd.get("np") || "").trim(),
     };
 
-    // легка корзина (title вже включає "TO GO" коли треба)
     const safeCart = cart.map((it) => ({
       id: it.id,
       title: it.title,
@@ -265,7 +256,6 @@ function App() {
             )
           ) : (
             <>
-              {/* Підісумок позицій */}
               <div className="summaryInModal">
                 {cart.map((it) => (
                   <div className="summaryRow" key={it.id}>
@@ -296,7 +286,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Форма оформлення з onSubmit */}
               <form className="formInModal" onSubmit={submit}>
                 <div className="grid2">
                   <div>
@@ -357,93 +346,44 @@ function App() {
 
 /* ================= ХЕДЕР ================= */
 function Header({ count, onOpen }) {
-  const logoRef = useRef(null);
-  const cartRef = useRef(null);
-  const igRef = useRef(null);
-  const b2bRef = useRef(null);
-
-  useEffect(() => {
-    const align = () => {
-      const logo = logoRef.current;
-      const cart = cartRef.current;
-      const ig = igRef.current;
-      const b2b = b2bRef.current;
-      if (!logo) return;
-
-      // На мобілці — залишаємо стилі з CSS
-      if (window.innerWidth <= 640) {
-        if (cart) cart.style.top = "12px";
-        if (ig) ig.style.top = "12px";
-        if (b2b) b2b.style.top = "20px";
-        return;
-      }
-
-      const box = logo.getBoundingClientRect();
-      const top = window.scrollY + box.top + (box.height - 28) / 2;
-
-      if (cart) cart.style.top = `${Math.round(top)}px`;
-      if (ig) ig.style.top = `${Math.round(top)}px`;
-      if (b2b) b2b.style.top = `${Math.round(top)}px`;
-    };
-
-    align();
-    window.addEventListener("resize", align);
-    window.addEventListener("scroll", align, { passive: true });
-    return () => {
-      window.removeEventListener("resize", align);
-      window.removeEventListener("scroll", align);
-    };
-  }, []);
-
   return (
     <header className="siteHeader">
       <div className="siteHeader__inner">
         <div className="brandWrap">
           <h1 className="brand">
             <img
-              ref={logoRef}
               src="/img/its-a-date-logo.svg"
-              alt="IT'S A DATE!"
+              alt="IT’S A DATE!"
               className="brandLogo"
             />
           </h1>
           <div className="subBrand">by Kyiv Dinner Club</div>
         </div>
+
+        <a
+          className="b2bFixed"
+          href={B2B_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          B2B
+        </a>
+
+        <a
+          className="igFixed"
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+        >
+          <InstagramSvg />
+        </a>
+
+        <button className="cartFixed" onClick={onOpen} aria-label="Кошик">
+          <CartSvg />
+          {!!count && <span className="cartBadge">{count}</span>}
+        </button>
       </div>
-
-      {/* Ліворуч — B2B (текст) */}
-      <a
-        ref={b2bRef}
-        className="b2bFixed"
-        href={B2B_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        B2B
-      </a>
-
-      {/* Праворуч — Instagram */}
-      <a
-        ref={igRef}
-        className="igFixed"
-        href={INSTAGRAM_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Instagram"
-      >
-        <InstagramSvg />
-      </a>
-
-      {/* Праворуч — Кошик */}
-      <button
-        ref={cartRef}
-        className="cartFixed"
-        onClick={onOpen}
-        aria-label="Кошик"
-      >
-        <CartSvg />
-        {!!count && <span className="cartBadge">{count}</span>}
-      </button>
     </header>
   );
 }
@@ -490,7 +430,7 @@ const InstagramSvg = ({ size = 28 }) => (
 /* ================= КАТАЛОГ ================= */
 function Catalog({ products, onBuy }) {
   const [qtyMap, setQtyMap] = useState({});
-  const [formatMap, setFormatMap] = useState({}); // productId -> "big" | "togo"
+  const [formatMap, setFormatMap] = useState({});
 
   const setQty = (id, f) =>
     setQtyMap((m) => ({ ...m, [id]: Math.max(1, Math.min(99, f(m[id] || 1))) }));
@@ -534,7 +474,6 @@ function Catalog({ products, onBuy }) {
             <h3 className="cardTitle">{p.title}</h3>
             {p.desc && <p className="cardDesc">{p.desc}</p>}
 
-            {/* Перемикач формату */}
             <div className="formatRow">
               <button
                 type="button"
