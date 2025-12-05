@@ -39,7 +39,7 @@ export default function Header() {
       <div className="siteHeader__inner">
         <div className="brandWrap">
           <h1 ref={titleRef} className="brand">IT’S A DATE!</h1>
-          <div className="subBrand">by Kyiv Dinner Club</div>
+          <div className="subBrand">Kyiv Dinner Club</div>
         </div>
       </div>
 

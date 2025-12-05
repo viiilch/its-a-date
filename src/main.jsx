@@ -39,7 +39,7 @@ const PRODUCTS = [
     desc: "Фініки без кісточки, білий шоколад, фісташкова паста, вершки.",
     formats: {
       big: { label: "BIG", price: 375 },
-      togo: { label: "TO GO", price: 130 },
+      togo: { label: "TO GO", price: 140 },
     },
   },
   {
@@ -50,7 +50,7 @@ const PRODUCTS = [
     desc: "Карамельний шоколад, праліне з грецького горіха, волоський горіх.",
     formats: {
       big: { label: "BIG", price: 350 },
-      togo: { label: "TO GO", price: 120 },
+      togo: { label: "TO GO", price: 125 },
     },
   },
   {
@@ -357,33 +357,31 @@ function Header({ count, onOpen }) {
               className="brandLogo"
             />
           </h1>
-          <div className="subBrand">by Kyiv Dinner Club</div>
+          {/* без "by" */}
+          <div className="subBrand">Kyiv Dinner Club</div>
         </div>
-
-        <a
-          className="b2bFixed"
-          href={B2B_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          B2B
-        </a>
-
-        <a
-          className="igFixed"
-          href={INSTAGRAM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Instagram"
-        >
-          <InstagramSvg />
-        </a>
-
-        <button className="cartFixed" onClick={onOpen} aria-label="Кошик">
-          <CartSvg />
-          {!!count && <span className="cartBadge">{count}</span>}
-        </button>
       </div>
+
+      {/* Іконка Instagram у правому верхньому куті */}
+      <a
+        className="igFixed"
+        href={INSTAGRAM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Instagram"
+      >
+        <InstagramSvg />
+      </a>
+
+      {/* Кошик – така ж "голенька" іконка, як Instagram */}
+      <button
+        className="cartFixed"
+        onClick={onOpen}
+        aria-label="Кошик"
+      >
+        <CartSvg />
+        {!!count && <span className="cartBadge">{count}</span>}
+      </button>
     </header>
   );
 }
