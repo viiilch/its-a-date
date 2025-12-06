@@ -22,13 +22,15 @@ body{
 }
 
 /* ===== ХЕДЕР ===== */
-.siteHeader{
-  position:fixed;
-  top:0;
-  z-index:100;
-  background:#fff;
-  padding:24px 16px 14px;
-  box-shadow:0 1px 0 rgba(0,0,0,0.04);
+.siteHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #fff;
+  padding: 24px 16px 14px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
 }
 
 .siteHeader__inner{
@@ -96,6 +98,60 @@ body{
   width:28px;
   height:28px;
 }
+/* ===== ІКОНКИ В ХЕДЕРІ ===== */
+
+/* Контейнер для іконок справа */
+.headerIcons{
+  position:absolute;
+  top:28px;
+  right:20px;
+  display:inline-flex;
+  align-items:center;
+  gap:24px;
+}
+
+/* Самі іконки – без квадратів */
+.igFixed,
+.cartFixed{
+  position:static;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  padding:0;
+  margin:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+}
+
+.igFixed svg,
+.cartFixed svg{
+  width:28px;
+  height:28px;
+}
+
+.cartBadge{
+  position:absolute;
+  top:-4px;
+  right:-6px;
+  min-width:18px;
+  height:18px;
+  border-radius:9px;
+  background:#111;
+  color:#fff;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 4px;
+}
+
+.igFixed:hover,
+.cartFixed:hover{
+  opacity:0.85;
+}
 
 .cartBadge{
   position:absolute;
@@ -123,6 +179,7 @@ body{
   max-width:1120px;
   margin:0 auto;
   padding:32px 16px 40px;
+  padding-top: 180px; 
 }
 
 .grid{
@@ -593,145 +650,4 @@ input{
   font-weight:400;
   font-style:normal;
   font-display:swap;
-}
-/* ===== ІКОНКИ В ПРАВОМУ КУТІ ===== */
-
-.igFixed,
-.cartFixed{
-  position:fixed;
-  top:32px;
-
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-
-  width:32px;
-  height:32px;
-
-  padding:0;
-  margin:0;
-  border:0;
-  background:transparent;
-  cursor:pointer;
-
-  appearance:none;
-  -webkit-appearance:none;
-}
-
-/* Instagram трохи лівіше, кошик прямо в куті */
-.cartFixed{
-  right:32px;
-}
-
-.igFixed{
-  right:76px;   /* 32 + 32 ширина іконки + ~12px відступ */
-}
-
-/* При наведенні тільки легкий ефект */
-.igFixed:hover svg,
-.cartFixed:hover svg{
-  transform:translateY(-1px);
-  transition:transform .12s ease;
-}
-@media (max-width:640px){
-  .siteHeader{
-    padding-top:18px;
-    padding-bottom:10px;
-  }
-
-  /* Хедер всередині – в колонку:
-     спочатку логотип, потім Kyiv Dinner Club,
-     потім рядок з Instagram + кошик */
-  .siteHeader__inner{
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .brandLogo{
-    max-width:360px;
-  }
-
-  .subBrand{
-    font-size:20px;
-    margin-top:8px;
-  }
-
-  /* На мобілці іконки більше НЕ fixed, а звичайні елементи під логотипом */
-  .igFixed,
-  .cartFixed{
-    position:static;
-    top:auto;
-    right:auto;
-
-    width:28px;
-    height:28px;
-    margin-top:10px;
-  }
-
-  /* Щоб вони стояли поряд */
-  .igFixed + .cartFixed{
-    margin-left:16px;
-  }
-
-  /* Модалка – як було */
-  .modal{
-    width:96vw;
-    max-height:92vh;
-    margin:0 auto;
-  }
-
-  .cartRow,
-  .summaryRow{
-    grid-template-columns:56px 1fr 120px minmax(72px,auto) 30px;
-    padding:10px;
-  }
-
-  .thumb{
-    width:56px;
-    height:56px;
-  }
-
-  .cTitle{
-    font-size:14px;
-    line-height:1.25;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-
-  .modalFoot{
-    flex-direction:column;
-    align-items:stretch;
-    gap:12px;
-  }
-
-  .modalFoot .sum{
-    text-align:right;
-    font-size:16px;
-  }
-
-  .modalFoot .actions .btn{ flex:1; }
-
-  .formInModal{
-    padding:14px;
-    gap:14px;
-  }
-
-  .grid2{ grid-template-columns:1fr; }
-}
-@media (max-width:640px){
-  /* ... тут у тебе вже є купа правил, просто додай нижче: */
-
-  .siteHeader__inner{
-    display:block;
-    text-align:center;
-  }
-
-  .igFixed,
-  .cartFixed{
-    position:static;        /* більше не фіксовані */
-    margin-top:10px;
-    margin-inline:8px;      /* іконки поруч одна з одною */
-  }
 }

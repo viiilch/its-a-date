@@ -1,58 +1,46 @@
-import { useEffect, useRef } from "react";
-import { useCart } from "../cart.jsx";
+// src/components/Header.jsx
+import React from "react";
+import { InstagramSvg, CartSvg } from "./Icons"; // якщо у тебе інший шлях до іконок – залиш, як було
 
-const CartSvg = ({ size = 28 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-       xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Кошик">
-    <path d="M6 6h14l-1.6 7.2a2 2 0 0 1-2 1.6H9.1a2 2 0 0 1-2-1.5L5.2 3.8H3"
-      stroke="#111" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="9.5" cy="19.5" r="1.5" fill="#111"/>
-    <circle cx="16.5" cy="19.5" r="1.5" fill="#111"/>
-  </svg>
-);
-
-export default function Header() {
-  const { count, open } = useCart();
-  const titleRef = useRef(null);
-  const cartRef  = useRef(null);
-
-  useEffect(() => {
-    const align = () => {
-      const t = titleRef.current, c = cartRef.current;
-      if (!t || !c) return;
-      const tb = t.getBoundingClientRect();
-      const cb = c.getBoundingClientRect();
-      const y = window.scrollY + tb.top + (tb.height - cb.height)/2;
-      c.style.top = `${Math.round(y)}px`;
-    };
-    align();
-    window.addEventListener("resize", align);
-    window.addEventListener("scroll", align, { passive: true });
-    return () => {
-      window.removeEventListener("resize", align);
-      window.removeEventListener("scroll", align);
-    };
-  }, []);
-
+function Header({ count, onOpen }) {
   return (
     <header className="siteHeader">
       <div className="siteHeader__inner">
         <div className="brandWrap">
-          <h1 ref={titleRef} className="brand">IT’S A DATE!</h1>
+          <h1 className="brand">
+            <img
+              src="/img/its-a-date-logo.svg"
+              alt="IT’S A DATE!"
+              className="brandLogo"
+            />
+          </h1>
           <div className="subBrand">Kyiv Dinner Club</div>
         </div>
-      </div>
 
-      <button
-        ref={cartRef}
-        type="button"
-        className="cartFixed"
-        onClick={open}
-        aria-label="Відкрити кошик"
-      >
-        <CartSvg />
-        {!!count && <span className="cartBadge">{count}</span>}
-      </button>
+        {/* НОВИЙ блок для іконок */}
+        <div className="headerIcons">
+          <a
+            className="igFixed"
+            href="https://www.instagram.com/kyivdinnerclub/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <InstagramSvg />
+          </a>
+
+          <button
+            className="cartFixed"
+            onClick={onOpen}
+            aria-label="Кошик"
+          >
+            <CartSvg />
+            {!!count && <span className="cartBadge">{count}</span>}
+          </button>
+        </div>
+      </div>
     </header>
   );
 }
+
+export default Header;
