@@ -69,11 +69,13 @@ body{
   display:none !important;
 }
 
-/* ПРАВИЙ ВЕРХНІЙ КУТОК: instagram + cart */
+/* ===== ІКОНКИ В ХЕДЕРІ ===== */
+/* ПРАВИЙ ВЕРХНІЙ КУТОК: instagram + cart (десктоп) */
 .igFixed,
 .cartFixed{
   position:absolute;
-  top:28px;
+  top:50%;                    /* посередині по висоті шапки */
+  transform:translateY(-50%); /* щоб було точно по центру */
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -84,21 +86,21 @@ body{
   cursor:pointer;
 }
 
+/* instagram трохи лівіше, cart – в самому кутку */
 .igFixed{
-  right:56px;                 /* трішки лівіше від корзини */
+  right:56px;
 }
 
 .cartFixed{
   right:20px;
 }
 
-/* всередині — тільки svg, без квадратів */
+/* розмір svg-іконок */
 .igFixed svg,
 .cartFixed svg{
   width:28px;
   height:28px;
 }
-/* ===== ІКОНКИ В ХЕДЕРІ ===== */
 
 /* Контейнер для іконок справа */
 .headerIcons{
@@ -538,16 +540,27 @@ input{
     padding-bottom:10px;
   }
 
-  .brandLogo{ max-width:360px; }
-
-  .igFixed{
-    top:18px;
-    right:56px;
+  /* щоб все ставало колонкою і центрувалось */
+  .siteHeader__inner{
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
   }
 
+  .brandLogo{ max-width:360px; }
+
+  /* на мобілці іконки вже НЕ absolute,
+     просто йдуть під логотипом по центру */
+  .igFixed,
   .cartFixed{
-    top:18px;
-    right:16px;
+    position:static;
+    transform:none;
+    margin-top:8px;
+  }
+
+  /* відступ між інстою і корзиною */
+  .igFixed + .cartFixed{
+    margin-left:24px;
   }
 
   .igFixed svg,
@@ -555,53 +568,7 @@ input{
     width:26px;
     height:26px;
   }
-
-  .modal{
-    width:96vw;
-    max-height:92vh;
-    margin:0 auto;
-  }
-
-  .cartRow,
-  .summaryRow{
-    grid-template-columns:56px 1fr 120px minmax(72px,auto) 30px;
-    padding:10px;
-  }
-
-  .thumb{
-    width:56px;
-    height:56px;
-  }
-
-  .cTitle{
-    font-size:14px;
-    line-height:1.25;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-
-  .modalFoot{
-    flex-direction:column;
-    align-items:stretch;
-    gap:12px;
-  }
-
-  .modalFoot .sum{
-    text-align:right;
-    font-size:16px;
-  }
-
-  .modalFoot .actions .btn{ flex:1; }
-
-  .formInModal{
-    padding:14px;
-    gap:14px;
-  }
-
-  .grid2{ grid-template-columns:1fr; }
-}
-
+ }  
 /* ===== ЛОКАЛЬНІ ШРИФТИ ===== */
 @font-face{
   font-family:"Hagrid";
@@ -650,4 +617,4 @@ input{
   font-weight:400;
   font-style:normal;
   font-display:swap;
-}
+} 
