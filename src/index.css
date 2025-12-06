@@ -300,7 +300,9 @@ body{
 .modalHead h3{
   margin:0;
   font-size:26px;
-  font-family:"Hagrid","SF Pro Display",sans-serif;
+  font-family:"Lora","SF Pro Display",serif;
+  font-weight:600;
+  text-transform: uppercase;
 }
 
 .iconBtn{
@@ -630,4 +632,91 @@ input{
 .cartFixed:hover svg{
   transform:translateY(-1px);
   transition:transform .12s ease;
+}
+@media (max-width:640px){
+  .siteHeader{
+    padding-top:18px;
+    padding-bottom:10px;
+  }
+
+  /* Хедер всередині – в колонку:
+     спочатку логотип, потім Kyiv Dinner Club,
+     потім рядок з Instagram + кошик */
+  .siteHeader__inner{
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .brandLogo{
+    max-width:360px;
+  }
+
+  .subBrand{
+    font-size:20px;
+    margin-top:8px;
+  }
+
+  /* На мобілці іконки більше НЕ fixed, а звичайні елементи під логотипом */
+  .igFixed,
+  .cartFixed{
+    position:static;
+    top:auto;
+    right:auto;
+
+    width:28px;
+    height:28px;
+    margin-top:10px;
+  }
+
+  /* Щоб вони стояли поряд */
+  .igFixed + .cartFixed{
+    margin-left:16px;
+  }
+
+  /* Модалка – як було */
+  .modal{
+    width:96vw;
+    max-height:92vh;
+    margin:0 auto;
+  }
+
+  .cartRow,
+  .summaryRow{
+    grid-template-columns:56px 1fr 120px minmax(72px,auto) 30px;
+    padding:10px;
+  }
+
+  .thumb{
+    width:56px;
+    height:56px;
+  }
+
+  .cTitle{
+    font-size:14px;
+    line-height:1.25;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .modalFoot{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+
+  .modalFoot .sum{
+    text-align:right;
+    font-size:16px;
+  }
+
+  .modalFoot .actions .btn{ flex:1; }
+
+  .formInModal{
+    padding:14px;
+    gap:14px;
+  }
+
+  .grid2{ grid-template-columns:1fr; }
 }

@@ -14,7 +14,7 @@ const PRODUCTS = [
     title: "Dark Chocolate Dates",
     price: 300,
     img: "/img/dark.png",
-    desc: "Фініки без кісточки, темний шоколад, арахісова паста, мальдонська сіль.",
+    desc: "Фініки без кісточки, темний шоколад, арахісова паста, мальдонська сіль",
     formats: {
       big: { label: "BIG", price: 300 },
       togo: { label: "TO GO", price: 110 },
@@ -25,7 +25,7 @@ const PRODUCTS = [
     title: "Milk Chocolate Dates",
     price: 300,
     img: "/img/milk.png",
-    desc: "Фініки без кісточки, молочний шоколад, арахісова паста, мальдонська сіль.",
+    desc: "Фініки без кісточки, молочний шоколад, арахісова паста, мальдонська сіль",
     formats: {
       big: { label: "BIG", price: 300 },
       togo: { label: "TO GO", price: 110 },
@@ -36,7 +36,7 @@ const PRODUCTS = [
     title: "White Chocolate & Pistachio Dates",
     price: 375,
     img: "/img/white-pistachio.png",
-    desc: "Фініки без кісточки, білий шоколад, фісташкова паста, вершки.",
+    desc: "Фініки без кісточки, білий шоколад, фісташкова паста, вершки",
     formats: {
       big: { label: "BIG", price: 375 },
       togo: { label: "TO GO", price: 140 },
@@ -47,7 +47,7 @@ const PRODUCTS = [
     title: "Caramel Chocolate & Walnut Dates",
     price: 350,
     img: "/img/caramel.png",
-    desc: "Карамельний шоколад, праліне з грецького горіха, волоський горіх.",
+    desc: "Карамельний шоколад, праліне з грецького горіха, волоський горіх",
     formats: {
       big: { label: "BIG", price: 350 },
       togo: { label: "TO GO", price: 125 },
@@ -58,7 +58,7 @@ const PRODUCTS = [
     title: "Matcha & Raspberry Dates",
     price: 375,
     img: "/img/matcha-raspberry.png",
-    desc: "Фініки без кісточки, ганаш з малиновим пюре, білий шоколад з матча.",
+    desc: "Фініки без кісточки, ганаш з малиновим пюре, білий шоколад з матча",
     formats: {
       big: { label: "BIG", price: 375 },
       togo: { label: "TO GO", price: 140 },
@@ -69,7 +69,7 @@ const PRODUCTS = [
     title: "Mixed (Milk & Dark) Chocolate Dates",
     price: 300,
     img: "/img/mixed.png",
-    desc: "Мікс молочного й темного шоколаду, арахісова паста, мальдонська сіль.",
+    desc: "Мікс молочного й темного шоколаду, арахісова паста, мальдонська сіль",
     formats: {
       big: { label: "BIG", price: 300 },
       togo: { label: "TO GO", price: 110 },
