@@ -22,15 +22,13 @@ body{
 }
 
 /* ===== ХЕДЕР ===== */
-.siteHeader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  background: #fff;
-  padding: 24px 16px 14px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+.siteHeader{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:#fff;
+  padding:24px 16px 14px;
+  box-shadow:0 1px 0 rgba(0,0,0,0.04);
 }
 
 .siteHeader__inner{
@@ -39,8 +37,8 @@ body{
   margin:0 auto;
   display:flex;
   align-items:flex-start;
-  justify-content:center; /* бренд по центру */
-  position:relative;      /* для absolute-іконок */
+  justify-content:center;
+  position:relative;
 }
 
 .brandWrap{
@@ -58,7 +56,7 @@ body{
 }
 
 .subBrand{
-  margin-top:10px;
+  margin-top:10px;            /* трішки більше відступу */
   color:#444;
   font-size:24px;
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
@@ -69,43 +67,36 @@ body{
   display:none !important;
 }
 
-/* ===== ІКОНКИ В ХЕДЕРІ (ДЕСКТОП) ===== */
-
-/* блок з іконками — притиснутий до правого краю, по центру по висоті */
-.headerIcons{
-  position:absolute;
-  top:50%;
-  right:20px;
-  transform:translateY(-50%);
-  display:flex;
-  align-items:center;
-  gap:24px;
-}
-
-/* самі кнопки-іконки */
+/* ПРАВИЙ ВЕРХНІЙ КУТОК: instagram + cart */
 .igFixed,
 .cartFixed{
+  position:absolute;
+  top:28px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:28px;
-  height:28px;
+  background:transparent;
+  border:0;
   padding:0;
   margin:0;
-  border:0;
-  background:transparent;
   cursor:pointer;
-  position:relative; /* щоб бейдж кошика позиціонувався від кнопки */
 }
 
-/* розмір svg */
+.igFixed{
+  right:56px;                 /* трішки лівіше від корзини */
+}
+
+.cartFixed{
+  right:20px;
+}
+
+/* всередині — тільки svg, без квадратів */
 .igFixed svg,
 .cartFixed svg{
   width:28px;
   height:28px;
 }
 
-/* бейдж кількості в кошику */
 .cartBadge{
   position:absolute;
   top:-4px;
@@ -132,7 +123,6 @@ body{
   max-width:1120px;
   margin:0 auto;
   padding:32px 16px 40px;
-  padding-top: 180px; 
 }
 
 .grid{
@@ -484,32 +474,23 @@ input{
 
 .copy{ margin-top:8px; }
 
-/* ===== МОБІЛЬНИЙ ХЕДЕР + МОДАЛКА ===== */
+/* ===== МОБІЛЬНИЙ ХЕДЕР ===== */
 @media (max-width:640px){
   .siteHeader{
     padding-top:18px;
     padding-bottom:10px;
   }
 
-  /* хедер стає колонкою, все по центру */
-  .siteHeader__inner{
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-  }
-
   .brandLogo{ max-width:360px; }
 
-  /* блок з іконками під логотипом по центру */
-  .headerIcons{
-    position:static;
-    transform:none;
-    margin-top:8px;
-    justify-content:center;
+  .igFixed{
+    top:18px;
+    right:56px;
   }
 
-  .igFixed + .cartFixed{
-    margin-left:24px;
+  .cartFixed{
+    top:18px;
+    right:16px;
   }
 
   .igFixed svg,
@@ -563,59 +544,6 @@ input{
 
   .grid2{ grid-template-columns:1fr; }
 }
-/* ===== ФІНАЛЬНИЙ ЛЕЙАУТ ХЕДЕРА ===== */
-.siteHeader__inner{
-  justify-content:center !important;
-  align-items:flex-start !important;
-  position:relative !important;
-}
-
-/* Десктоп: іконки справа, по центру шапки */
-.headerIcons{
-  position:absolute !important;
-  top:50% !important;
-  right:20px !important;
-  transform:translateY(-50%) !important;
-  display:flex !important;
-  align-items:center !important;
-  gap:24px !important;
-}
-
-/* самі іконки */
-.igFixed,
-.cartFixed{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:28px !important;
-  height:28px !important;
-  padding:0 !important;
-  margin:0 !important;
-  border:0 !important;
-  background:transparent !important;
-  cursor:pointer !important;
-  position:relative !important;
-}
-
-/* мобілка: логотип по центру, іконки під ним по центру */
-@media (max-width:640px){
-  .siteHeader__inner{
-    flex-direction:column !important;
-    justify-content:center !important;
-    align-items:center !important;
-  }
-
-  .headerIcons{
-    position:static !important;
-    transform:none !important;
-    margin-top:8px !important;
-    justify-content:center !important;
-  }
-
-  .igFixed + .cartFixed{
-    margin-left:24px !important;
-  }
-}
 
 /* ===== ЛОКАЛЬНІ ШРИФТИ ===== */
 @font-face{
@@ -665,4 +593,43 @@ input{
   font-weight:400;
   font-style:normal;
   font-display:swap;
+}
+/* ===== ІКОНКИ В ПРАВОМУ КУТІ ===== */
+
+.igFixed,
+.cartFixed{
+  position:fixed;
+  top:32px;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  width:32px;
+  height:32px;
+
+  padding:0;
+  margin:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+
+  appearance:none;
+  -webkit-appearance:none;
+}
+
+/* Instagram трохи лівіше, кошик прямо в куті */
+.cartFixed{
+  right:32px;
+}
+
+.igFixed{
+  right:76px;   /* 32 + 32 ширина іконки + ~12px відступ */
+}
+
+/* При наведенні тільки легкий ефект */
+.igFixed:hover svg,
+.cartFixed:hover svg{
+  transform:translateY(-1px);
+  transition:transform .12s ease;
 }
