@@ -1,6 +1,6 @@
 // src/components/Header.jsx
 import React from "react";
-import { InstagramSvg, CartSvg } from "./Icons"; // якщо у тебе інший шлях до іконок – залиш, як було
+import { InstagramSvg, CartSvg } from "./Icons";
 
 function Header({ count, onOpen }) {
   return (
@@ -17,7 +17,7 @@ function Header({ count, onOpen }) {
           <div className="subBrand">Kyiv Dinner Club</div>
         </div>
 
-        {/* НОВИЙ блок для іконок */}
+        {/* Іконки у правому кутку (десктоп), під логотипом по центру (мобілка) */}
         <div className="headerIcons">
           <a
             className="igFixed"

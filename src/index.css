@@ -39,8 +39,8 @@ body{
   margin:0 auto;
   display:flex;
   align-items:flex-start;
-  justify-content:center;
-  position:relative;
+  justify-content:center; /* бренд по центру */
+  position:relative;      /* для absolute-іконок */
 }
 
 .brandWrap{
@@ -58,7 +58,7 @@ body{
 }
 
 .subBrand{
-  margin-top:10px;            /* трішки більше відступу */
+  margin-top:10px;
   color:#444;
   font-size:24px;
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
@@ -69,53 +69,22 @@ body{
   display:none !important;
 }
 
-/* ===== ІКОНКИ В ХЕДЕРІ ===== */
-/* ПРАВИЙ ВЕРХНІЙ КУТОК: instagram + cart (десктоп) */
-.igFixed,
-.cartFixed{
-  position:absolute;
-  top:50%;                    /* посередині по висоті шапки */
-  transform:translateY(-50%); /* щоб було точно по центру */
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  background:transparent;
-  border:0;
-  padding:0;
-  margin:0;
-  cursor:pointer;
-}
+/* ===== ІКОНКИ В ХЕДЕРІ (ДЕСКТОП) ===== */
 
-/* instagram трохи лівіше, cart – в самому кутку */
-.igFixed{
-  right:56px;
-}
-
-.cartFixed{
-  right:20px;
-}
-
-/* розмір svg-іконок */
-.igFixed svg,
-.cartFixed svg{
-  width:28px;
-  height:28px;
-}
-
-/* Контейнер для іконок справа */
+/* блок з іконками — притиснутий до правого краю, по центру по висоті */
 .headerIcons{
   position:absolute;
-  top:28px;
+  top:50%;
   right:20px;
-  display:inline-flex;
+  transform:translateY(-50%);
+  display:flex;
   align-items:center;
   gap:24px;
 }
 
-/* Самі іконки – без квадратів */
+/* самі кнопки-іконки */
 .igFixed,
 .cartFixed{
-  position:static;
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -126,35 +95,17 @@ body{
   border:0;
   background:transparent;
   cursor:pointer;
+  position:relative; /* щоб бейдж кошика позиціонувався від кнопки */
 }
 
+/* розмір svg */
 .igFixed svg,
 .cartFixed svg{
   width:28px;
   height:28px;
 }
 
-.cartBadge{
-  position:absolute;
-  top:-4px;
-  right:-6px;
-  min-width:18px;
-  height:18px;
-  border-radius:9px;
-  background:#111;
-  color:#fff;
-  font-size:11px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 4px;
-}
-
-.igFixed:hover,
-.cartFixed:hover{
-  opacity:0.85;
-}
-
+/* бейдж кількості в кошику */
 .cartBadge{
   position:absolute;
   top:-4px;
@@ -533,32 +484,30 @@ input{
 
 .copy{ margin-top:8px; }
 
-/* ===== МОБІЛЬНИЙ ХЕДЕР ===== */
+/* ===== МОБІЛЬНИЙ ХЕДЕР + МОДАЛКА ===== */
 @media (max-width:640px){
   .siteHeader{
     padding-top:18px;
     padding-bottom:10px;
   }
 
-  /* щоб все ставало колонкою і центрувалось */
+  /* хедер стає колонкою, все по центру */
   .siteHeader__inner{
-    flex-wrap:wrap;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
   }
 
   .brandLogo{ max-width:360px; }
 
-  /* на мобілці іконки вже НЕ absolute,
-     просто йдуть під логотипом по центру */
-  .igFixed,
-  .cartFixed{
+  /* блок з іконками під логотипом по центру */
+  .headerIcons{
     position:static;
     transform:none;
     margin-top:8px;
+    justify-content:center;
   }
 
-  /* відступ між інстою і корзиною */
   .igFixed + .cartFixed{
     margin-left:24px;
   }
@@ -568,7 +517,53 @@ input{
     width:26px;
     height:26px;
   }
- }  
+
+  .modal{
+    width:96vw;
+    max-height:92vh;
+    margin:0 auto;
+  }
+
+  .cartRow,
+  .summaryRow{
+    grid-template-columns:56px 1fr 120px minmax(72px,auto) 30px;
+    padding:10px;
+  }
+
+  .thumb{
+    width:56px;
+    height:56px;
+  }
+
+  .cTitle{
+    font-size:14px;
+    line-height:1.25;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .modalFoot{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+
+  .modalFoot .sum{
+    text-align:right;
+    font-size:16px;
+  }
+
+  .modalFoot .actions .btn{ flex:1; }
+
+  .formInModal{
+    padding:14px;
+    gap:14px;
+  }
+
+  .grid2{ grid-template-columns:1fr; }
+}
+
 /* ===== ЛОКАЛЬНІ ШРИФТИ ===== */
 @font-face{
   font-family:"Hagrid";
@@ -617,4 +612,4 @@ input{
   font-weight:400;
   font-style:normal;
   font-display:swap;
-} 
+}
