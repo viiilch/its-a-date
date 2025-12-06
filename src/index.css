@@ -23,7 +23,7 @@ body{
 
 /* ===== ХЕДЕР ===== */
 .siteHeader{
-  position:sticky;
+  position:fixed;
   top:0;
   z-index:100;
   background:#fff;
@@ -719,4 +719,19 @@ input{
   }
 
   .grid2{ grid-template-columns:1fr; }
+}
+@media (max-width:640px){
+  /* ... тут у тебе вже є купа правил, просто додай нижче: */
+
+  .siteHeader__inner{
+    display:block;
+    text-align:center;
+  }
+
+  .igFixed,
+  .cartFixed{
+    position:static;        /* більше не фіксовані */
+    margin-top:10px;
+    margin-inline:8px;      /* іконки поруч одна з одною */
+  }
 }
