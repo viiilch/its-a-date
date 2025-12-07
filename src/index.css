@@ -606,3 +606,21 @@ input{
   transform:translateY(-1px);
   transition:transform .12s ease;
 }
+/* === ФІНАЛЬНИЙ ОВЕРРАЙД ДЛЯ МОБІЛЬНОГО ХЕДЕРА === */
+@media (max-width:640px){
+  .headerIcons{
+    position:static !important;
+    transform:none !important;
+    margin-top:8px !important;
+
+    width:100% !important;
+    display:flex !important;
+    justify-content:flex-end !important;  /* ПРИТИСНУТИ ВПРАВО */
+    align-items:center !important;
+    padding-right:16px !important;        /* трішки відступу від краю */
+  }
+
+  .igFixed + .cartFixed{
+    margin-left:24px !important;
+  }
+}
