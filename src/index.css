@@ -497,13 +497,15 @@ input{
   }
 
   /* ІКОНКИ – під логотипом, по центру */
-  .headerIcons{
+    .headerIcons{
     position:static !important;
     transform:none !important;
-    margin-top:12px !important;
+    margin-top:8px !important;
+    width:100% !important;              /* на всю ширину строки */
     display:flex !important;
-    justify-content:center !important;
+    justify-content:flex-end !important;/* притискаємо вправо */
     align-items:center !important;
+    padding-right:16px;                 /* невеликий відступ від краю */
   }
 
   .igFixed,
