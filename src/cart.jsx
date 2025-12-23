@@ -121,6 +121,7 @@ function CartModal() {
       lastName: (fd.get("lastName") || "").trim(),
       phone: (fd.get("phone") || "").trim(),
       np: (fd.get("np") || "").trim(),
+      comment: (fd.get("comment") || "").trim(), // ✅ нове поле
     };
 
     const safeCart = cart.map((it) => ({
@@ -220,6 +221,13 @@ function CartModal() {
                 ))}
               </ul>
 
+              {/* ✅ ТЕКСТ ЗІ ЗІРОЧКОЮ ПІД ТОВАРАМИ */}
+              <p className="cartNote">
+                * Замовлення відправляємо протягом 2–4 робочих днів з моменту
+                оплати. Десерт готується вручну та крафтово саме під вашу
+                відправку.
+              </p>
+
               <div className="modalFoot">
                 <div className="sum">
                   Всього: <b>{fmt(total)}</b>
@@ -308,6 +316,19 @@ function CartModal() {
                   name="np"
                   required
                   placeholder="Київ, відділення №..."
+                />
+              </div>
+
+              {/* ✅ НОВЕ НЕОБОВʼЯЗКОВЕ ПОЛЕ "КОМЕНТАР" */}
+              <div>
+                <label htmlFor="comment">
+                  Коментар до замовлення (необовʼязково)
+                </label>
+                <textarea
+                  id="comment"
+                  name="comment"
+                  rows={3}
+                  placeholder="Напишіть побажання до замовлення, упаковки тощо"
                 />
               </div>
 
