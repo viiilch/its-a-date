@@ -100,7 +100,7 @@ function CartModal() {
     total,
     changeQty,
     removeItem,
-    clear,
+    clear, // якщо колись захочеш "очистити кошик"
     isOpen,
     close,
     showCheckout,

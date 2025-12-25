@@ -56,7 +56,7 @@ body{
 }
 
 .subBrand{
-  margin-top:10px;            /* трішки більше відступу */
+  margin-top:10px;
   color:#444;
   font-size:24px;
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
@@ -83,7 +83,7 @@ body{
 }
 
 .igFixed{
-  right:56px;                 /* трішки лівіше від корзини */
+  right:56px; /* трішки лівіше від корзини */
 }
 
 .cartFixed{
@@ -127,7 +127,7 @@ body{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr)); /* 3 товари в ряд */
+  grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:24px;
 }
 
@@ -168,7 +168,6 @@ body{
 }
 
 /* ===== ТЕКСТИ ===== */
-/* Назва — Lora, капсом */
 .cardTitle{
   font-size:22px;
   margin:0;
@@ -262,7 +261,9 @@ body{
   white-space:nowrap;
 }
 
-.buyBtn:hover{ opacity:.9; }
+.buyBtn:hover{
+  opacity:.9;
+}
 
 /* ===== МОДАЛКА ===== */
 .modalOverlay{
@@ -331,6 +332,7 @@ body{
   max-height:50vh;
   overflow:auto;
 }
+
 .cartNote{
   margin:8px 2px 14px;
   font-size:13px;
@@ -359,7 +361,9 @@ body{
   background:#fafafa;
 }
 
-.cTitle{ font-weight:800; }
+.cTitle{
+  font-weight:800;
+}
 
 .qtyRow{
   display:inline-flex;
@@ -382,7 +386,9 @@ body{
   padding:0 4px 0 6px;
 }
 
-.rowX{ justify-self:end; }
+.rowX{
+  justify-self:end;
+}
 
 .modalFoot{
   display:flex;
@@ -393,8 +399,14 @@ body{
   border-top:1px solid var(--border);
 }
 
-.sum{ font-size:18px; }
-.actions{ display:flex; gap:10px; }
+.sum{
+  font-size:18px;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+}
 
 .btn{
   height:44px;
@@ -420,8 +432,14 @@ body{
 }
 
 /* ===== ОФОРМЛЕННЯ ФОРМИ ===== */
-.summaryInModal{ padding:8px 0 0; }
-.summaryFoot{ padding:6px 2px 0; font-size:16px; }
+.summaryInModal{
+  padding:8px 0 0;
+}
+
+.summaryFoot{
+  padding:6px 2px 0;
+  font-size:16px;
+}
 
 .formInModal{
   display:grid;
@@ -450,6 +468,7 @@ input{
   padding:0 12px;
   font-size:16px;
 }
+
 textarea{
   width:100%;
   border:1px solid #ddd;
@@ -488,11 +507,12 @@ textarea{
   display:inline-block;
 }
 
-.copy{ margin-top:8px; }
+.copy{
+  margin-top:8px;
+}
 
 /* === МОБІЛЬНА ВЕРСІЯ ХЕДЕРА — ФІНАЛЬНИЙ ОВЕРРАЙД === */
 @media (max-width:640px){
-  /* Хедер завжди зверху, на всю ширину */
   .siteHeader{
     position:fixed !important;
     top:0 !important;
@@ -501,7 +521,6 @@ textarea{
     z-index:1000 !important;
   }
 
-  /* Робимо стовпчик: спочатку лого, потім під ним іконки */
   .siteHeader__inner{
     flex-direction:column !important;
     align-items:center !important;
@@ -512,16 +531,15 @@ textarea{
     max-width:360px;
   }
 
-  /* ІКОНКИ – під логотипом, по центру */
-    .headerIcons{
+  .headerIcons{
     position:static !important;
     transform:none !important;
     margin-top:8px !important;
-    width:100% !important;              /* на всю ширину строки */
+    width:100% !important;
     display:flex !important;
-    justify-content:flex-end !important;/* притискаємо вправо */
+    justify-content:flex-end !important;
     align-items:center !important;
-    padding-right:16px;                 /* невеликий відступ від краю */
+    padding-right:16px;
   }
 
   .igFixed,
