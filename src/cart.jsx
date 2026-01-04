@@ -241,12 +241,11 @@ export function CartModal() {
               <div className="modalFoot">
                 <div className="sum">
                   Всього: <b>{fmt(total)}</b>
-                  {belowMin && (
-                    <div className="sumHint">
-                      Мінімальне замовлення — {fmt(MIN_ORDER)}. Додайте ще на{" "}
-                      {fmt(MIN_ORDER - total)}.
-                    </div>
-                  )}
+                {belowMin && (
+  <div className="sumHint">
+    Мінімальне замовлення — {fmt(MIN_ORDER)}.
+  </div>
+)}
                 </div>
                 <div className="actions">
                   <button className="btn ghost" onClick={close}>
