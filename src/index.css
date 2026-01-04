@@ -83,7 +83,7 @@ body{
 }
 
 .igFixed{
-  right:56px; /* трішки лівіше від корзини */
+  right:56px;
 }
 
 .cartFixed{
@@ -175,7 +175,7 @@ body{
   font-weight:600;
   text-transform:uppercase;
   letter-spacing:0.06em;
-  min-height: 48px;
+  min-height:48px;
   display:flex;
   align-items:flex-end;
 }
@@ -261,9 +261,7 @@ body{
   white-space:nowrap;
 }
 
-.buyBtn:hover{
-  opacity:.9;
-}
+.buyBtn:hover{ opacity:.9; }
 
 /* ===== МОДАЛКА ===== */
 .modalOverlay{
@@ -303,7 +301,7 @@ body{
   font-size:26px;
   font-family:"Lora","SF Pro Display",serif;
   font-weight:600;
-  text-transform: uppercase;
+  text-transform:uppercase;
 }
 
 .iconBtn{
@@ -340,6 +338,7 @@ body{
   color:#6b7280;
 }
 
+/* рядки в кошику та резюме */
 .cartRow,
 .summaryRow{
   display:grid;
@@ -361,9 +360,7 @@ body{
   background:#fafafa;
 }
 
-.cTitle{
-  font-weight:800;
-}
+.cTitle{ font-weight:800; }
 
 .qtyRow{
   display:inline-flex;
@@ -386,9 +383,7 @@ body{
   padding:0 4px 0 6px;
 }
 
-.rowX{
-  justify-self:end;
-}
+.rowX{ justify-self:end; }
 
 .modalFoot{
   display:flex;
@@ -399,14 +394,15 @@ body{
   border-top:1px solid var(--border);
 }
 
-.sum{
-  font-size:18px;
+.sum{ font-size:18px; }
+
+.sumHint{
+  margin-top:4px;
+  font-size:13px;
+  color:#b91c1c;
 }
 
-.actions{
-  display:flex;
-  gap:10px;
-}
+.actions{ display:flex; gap:10px; }
 
 .btn{
   height:44px;
@@ -417,6 +413,11 @@ body{
   color:#fff;
   cursor:pointer;
   font-weight:800;
+}
+
+.btn[disabled]{
+  opacity:.6;
+  cursor:not-allowed;
 }
 
 .btn.ghost{
@@ -432,14 +433,8 @@ body{
 }
 
 /* ===== ОФОРМЛЕННЯ ФОРМИ ===== */
-.summaryInModal{
-  padding:8px 0 0;
-}
-
-.summaryFoot{
-  padding:6px 2px 0;
-  font-size:16px;
-}
+.summaryInModal{ padding:8px 0 0; }
+.summaryFoot{ padding:6px 2px 0; font-size:16px; }
 
 .formInModal{
   display:grid;
@@ -507,11 +502,9 @@ textarea{
   display:inline-block;
 }
 
-.copy{
-  margin-top:8px;
-}
+.copy{ margin-top:8px; }
 
-/* === МОБІЛЬНА ВЕРСІЯ ХЕДЕРА — ФІНАЛЬНИЙ ОВЕРРАЙД === */
+/* === МОБІЛЬНИЙ ХЕДЕР === */
 @media (max-width:640px){
   .siteHeader{
     position:fixed !important;

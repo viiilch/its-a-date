@@ -3,6 +3,9 @@ import { createContext, useContext, useMemo, useState } from "react";
 
 const CartCtx = createContext(null);
 
+// Мінімальна сума замовлення
+const MIN_ORDER = 300; // якщо захочеш 350 — просто змінюй тут
+
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [isOpen, setOpen] = useState(false);
@@ -100,7 +103,6 @@ function CartModal() {
     total,
     changeQty,
     removeItem,
-    clear, // якщо колись захочеш "очистити кошик"
     isOpen,
     close,
     showCheckout,
@@ -111,9 +113,17 @@ function CartModal() {
 
   if (!isOpen) return null;
 
+  const belowMin = total < MIN_ORDER;
+
   async function submit(e) {
     e.preventDefault();
     if (!cart.length || submitting) return;
+
+    // перестраховка на мінімальну суму
+    if (total < MIN_ORDER) {
+      alert(`Мінімальне замовлення — ${MIN_ORDER} грн.`);
+      return;
+    }
 
     const fd = new FormData(e.currentTarget);
     const customer = {
@@ -121,7 +131,7 @@ function CartModal() {
       lastName: (fd.get("lastName") || "").trim(),
       phone: (fd.get("phone") || "").trim(),
       np: (fd.get("np") || "").trim(),
-      comment: (fd.get("comment") || "").trim(), // ✅ нове поле
+      comment: (fd.get("comment") || "").trim(), // необовʼязковий коментар
     };
 
     const safeCart = cart.map((it) => ({
@@ -221,7 +231,7 @@ function CartModal() {
                 ))}
               </ul>
 
-              {/* ✅ ТЕКСТ ЗІ ЗІРОЧКОЮ ПІД ТОВАРАМИ */}
+              {/* текст про доставку в кошику */}
               <p className="cartNote">
                 * Замовлення відправляємо протягом 2–4 робочих днів з моменту
                 оплати. Десерт готується вручну та крафтово саме під вашу
@@ -231,6 +241,12 @@ function CartModal() {
               <div className="modalFoot">
                 <div className="sum">
                   Всього: <b>{fmt(total)}</b>
+                  {belowMin && (
+                    <div className="sumHint">
+                      Мінімальне замовлення — {fmt(MIN_ORDER)}. Додайте ще на{" "}
+                      {fmt(MIN_ORDER - total)}.
+                    </div>
+                  )}
                 </div>
                 <div className="actions">
                   <button className="btn ghost" onClick={close}>
@@ -238,9 +254,14 @@ function CartModal() {
                   </button>
                   <button
                     className="btn primary"
-                    onClick={() => setShowCheckout(true)}
+                    onClick={() => {
+                      if (!belowMin) setShowCheckout(true);
+                    }}
+                    disabled={belowMin}
                   >
-                    Оформити
+                    {belowMin
+                      ? `Мінімальне замовлення — ${MIN_ORDER} грн`
+                      : "Оформити"}
                   </button>
                 </div>
               </div>
@@ -275,6 +296,13 @@ function CartModal() {
               <div className="summaryFoot">
                 Всього: <b>{fmt(total)}</b>
               </div>
+
+              {/* той самий текст про доставку і тут, в оформленні */}
+              <p className="cartNote">
+                * Замовлення відправляємо протягом 2–4 робочих днів з моменту
+                оплати. Десерт готується вручну та крафтово саме під вашу
+                відправку.
+              </p>
             </div>
 
             <form className="formInModal" onSubmit={submit}>
@@ -319,7 +347,6 @@ function CartModal() {
                 />
               </div>
 
-              {/* ✅ НОВЕ НЕОБОВʼЯЗКОВЕ ПОЛЕ "КОМЕНТАР" */}
               <div>
                 <label htmlFor="comment">
                   Коментар до замовлення (необовʼязково)
