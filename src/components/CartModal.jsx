@@ -1,96 +1,295 @@
-// src/components/CartModal.jsx
-import { useCart } from "../cart.jsx";
-import { useNavigate } from "react-router-dom";
+// src/CartModal.jsx
+import { useState } from "react";
+import { useCart } from "./cart";
 
-function qtySrc(imgPath = "") {
-  // Показуємо фото навіть якщо шлях без початкового слеша або з "public/"
-  if (!imgPath) return "";
-  if (imgPath.startsWith("http")) return imgPath;
-  const p = imgPath.replace(/^public\//, ""); // public/ -> /
-  return p.startsWith("/") ? p : `/${p}`;
-}
+// мінімальна сума замовлення
+const MIN_ORDER = 300;
+
+const fmt = (n) => `${n} грн`;
+const fix = (p) =>
+  !p ? "" : p.startsWith("/img/") ? p : p.replace(/^public\//, "/");
 
 export default function CartModal() {
-  const { cart, changeQty, removeItem, total, isOpen, closeCart } = useCart();
-  const nav = useNavigate();
+  const {
+    cart,
+    total,
+    changeQty,
+    removeItem,
+    isOpen,
+    close,
+    showCheckout,
+    setShowCheckout,
+  } = useCart();
+
+  const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
+  async function submit(e) {
+    e.preventDefault();
+    if (!cart.length || submitting) return;
+
+    // перевірка мінімальної суми ще раз перед оплатою
+    if (total < MIN_ORDER) {
+      alert(`Мінімальне замовлення — ${MIN_ORDER} грн.`);
+      return;
+    }
+
+    const fd = new FormData(e.currentTarget);
+    const customer = {
+      firstName: (fd.get("firstName") || "").trim(),
+      lastName: (fd.get("lastName") || "").trim(),
+      phone: (fd.get("phone") || "").trim(),
+      np: (fd.get("np") || "").trim(),
+      comment: (fd.get("comment") || "").trim(), // необов'язковий коментар
+    };
+
+    const safeCart = cart.map((it) => ({
+      id: it.id,
+      title: it.title,
+      price: it.price,
+      qty: it.qty,
+      img: it.img || "",
+    }));
+
+    try {
+      setSubmitting(true);
+      const resp = await fetch("/api/create-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart: safeCart, customer }),
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok || !data.checkoutUrl) {
+        console.error("MonoPay error:", data);
+        alert(
+          "Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram."
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      window.location.href = data.checkoutUrl;
+    } catch (err) {
+      console.error(err);
+      alert("Помилка мережі. Будь ласка, спробуйте ще раз.");
+      setSubmitting(false);
+    }
+  }
+
+  const belowMin = total < MIN_ORDER;
+
   return (
-    <div className="cartOverlay" onClick={closeCart}>
-      <div className="cartModal" onClick={(e) => e.stopPropagation()}>
-        {/* Шапка */}
-        <div className="cartHead">
-          <h3>Кошик</h3>
-          <button className="cartX" onClick={closeCart} aria-label="Закрити">×</button>
+    <div className="modalOverlay" onClick={close}>
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modalHead">
+          <h3>{showCheckout ? "Оформлення" : "Кошик"}</h3>
+          <button className="iconBtn" onClick={close} aria-label="Закрити">
+            ×
+          </button>
         </div>
 
-        {/* Список */}
-        <div className="cartList">
-          {cart.length === 0 ? (
-  <div className="cartEmpty">
-    <p>Порожньо. Додайте щось смачне 🙂</p>
-    <button className="btnGhost" onClick={close}>Повернутись до каталогу</button>
-  </div>
-) : (
-  <>
-    {/* решта коду залишається */}
-  </>
-)}
+        {!showCheckout ? (
+          // ---------- РЕЖИМ КОШИКА ----------
+          cart.length === 0 ? (
+            <div className="cartEmpty">
+              <p>Порожньо. Додайте щось смачне 🙂</p>
+              <button className="btn ghost" onClick={close}>
+                Повернутись до каталогу
+              </button>
+            </div>
+          ) : (
+            <>
+              <ul className="cartList">
+                {cart.map((it) => (
+                  <li className="cartRow" key={it.id}>
+                    <img className="thumb" src={fix(it.img)} alt={it.title} />
 
-          {cart.map((it) => (
-            <div className="cartRow" key={it.id}>
-              <div className="cartThumbWrap">
-                <img
-                  className="cartThumb"
-                  src={qtySrc(it.img)}
-                  alt={it.title}
-                  onError={(e)=>{e.currentTarget.style.opacity=".2"}}
+                    <div className="cTitle">{it.title}</div>
+
+                    <div className="qtyRow">
+                      <button
+                        className="qtyBtn"
+                        onClick={() => changeQty(it.id, -1)}
+                      >
+                        -
+                      </button>
+                      <span className="qty">{it.qty}</span>
+                      <button
+                        className="qtyBtn"
+                        onClick={() => changeQty(it.id, +1)}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <div className="cPrice">{fmt(it.price * it.qty)}</div>
+
+                    <button
+                      className="iconBtn rowX"
+                      onClick={() => removeItem(it.id)}
+                      aria-label="Видалити"
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              {/* текст про терміни відправки під товарами */}
+              <p className="cartNote">
+                * Замовлення відправляємо протягом 2–4 робочих днів з моменту
+                оплати. Десерт готується вручну та крафтово саме під вашу
+                відправку.
+              </p>
+
+              <div className="modalFoot">
+                <div className="sum">
+                  Всього: <b>{fmt(total)}</b>
+                  {belowMin && (
+                    <div className="sumHint">
+                      Мінімальне замовлення — {fmt(MIN_ORDER)}. Додайте ще на{" "}
+                      {fmt(MIN_ORDER - total)}.
+                    </div>
+                  )}
+                </div>
+                <div className="actions">
+                  <button className="btn ghost" onClick={close}>
+                    Продовжити покупки
+                  </button>
+                  <button
+                    className="btn primary"
+                    onClick={() => {
+                      if (!belowMin) setShowCheckout(true);
+                    }}
+                    disabled={belowMin}
+                  >
+                    {belowMin
+                      ? `Мінімальне замовлення — ${MIN_ORDER} грн`
+                      : "Оформити"}
+                  </button>
+                </div>
+              </div>
+            </>
+          )
+        ) : (
+          // ---------- РЕЖИМ ОФОРМЛЕННЯ ----------
+          <>
+            <div className="summaryInModal">
+              {cart.map((it) => (
+                <div className="summaryRow" key={it.id}>
+                  <img className="thumb" src={fix(it.img)} alt={it.title} />
+                  <div className="cTitle">{it.title}</div>
+                  <div className="qtyRow">
+                    <button
+                      className="qtyBtn"
+                      onClick={() => changeQty(it.id, -1)}
+                    >
+                      -
+                    </button>
+                    <span className="qty">{it.qty}</span>
+                    <button
+                      className="qtyBtn"
+                      onClick={() => changeQty(it.id, +1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="cPrice">{fmt(it.price * it.qty)}</div>
+                </div>
+              ))}
+              <div className="summaryFoot">
+                Всього: <b>{fmt(total)}</b>
+              </div>
+            </div>
+
+            <form className="formInModal" onSubmit={submit}>
+              <div className="grid2">
+                <div>
+                  <label htmlFor="firstName">Ім’я</label>
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    required
+                    placeholder="Ім’я отримувача"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName">Прізвище</label>
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    required
+                    placeholder="Прізвище"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="phone">Телефон</label>
+                <input
+                  id="phone"
+                  name="phone"
+                  required
+                  placeholder="+380XXXXXXXXX"
                 />
               </div>
 
-              <div className="cartTitle">
-                <div className="cartName">{it.title}</div>
-                {it.desc ? <div className="cartDesc">{it.desc}</div> : null}
+              <div>
+                <label htmlFor="np">Місто / Відділення Нової Пошти</label>
+                <input
+                  id="np"
+                  name="np"
+                  required
+                  placeholder="Київ, відділення №..."
+                />
               </div>
 
-              <div className="cartQty">
-                <button aria-label="Менше" onClick={() => changeQty(it.id, -1)}>-</button>
-                <span>{it.qty}</span>
-                <button aria-label="Більше" onClick={() => changeQty(it.id, +1)}>+</button>
+              <div>
+                <label htmlFor="comment">
+                  Коментар до замовлення (необовʼязково)
+                </label>
+                <textarea
+                  id="comment"
+                  name="comment"
+                  rows={3}
+                  placeholder="Напишіть побажання до замовлення, упаковки тощо"
+                />
               </div>
 
-              <div className="cartPrice">{it.price * it.qty} грн</div>
-
-              <button
-                className="cartRemove"
-                aria-label="Прибрати позицію"
-                onClick={() => removeItem(it.id)}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Футер */}
-        <div className="cartFoot">
-          <div className="cartSum">
-            Всього:&nbsp;<strong>{total} грн</strong>
-          </div>
-          <div className="cartActions">
-            <button className="btn ghost" onClick={closeCart}>Продовжити покупки</button>
-            <button
-              className="btn"
-              onClick={() => {
-                closeCart();
-                nav("/checkout");
-              }}
-            >
-              Оформити
-            </button>
-          </div>
-        </div>
+              <div className="modalFoot">
+                <div className="sum">
+                  Всього: <b>{fmt(total)}</b>
+                </div>
+                <div className="actions">
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    onClick={() => setShowCheckout(false)}
+                  >
+                    Назад до кошика
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn primary"
+                    disabled={submitting}
+                  >
+                    {submitting
+                      ? "Переходимо до оплати..."
+                      : "Підтвердити та оплатити"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
