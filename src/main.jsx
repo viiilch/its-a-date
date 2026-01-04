@@ -7,6 +7,9 @@ import "./index.css";
 const INSTAGRAM_URL = "https://www.instagram.com/kyivdinnerclub/";
 const B2B_URL = "https://www.instagram.com/itsadate_b2b/";
 
+// 🔢 Мінімальна сума замовлення
+const MIN_ORDER = 300;
+
 /* ===== ТОВАРИ (BIG + TO GO) ===== */
 const PRODUCTS = [
   {
@@ -83,7 +86,7 @@ const fmt = (n) => `${n} грн`;
 function App() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [stage, setStage] = useState("cart");
+  const [stage, setStage] = useState("cart"); // "cart" або "checkout"
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -115,16 +118,31 @@ function App() {
   function removeItem(id) {
     setCart((prev) => prev.filter((it) => it.id !== id));
   }
+
   function clearCart() {
     setCart([]);
   }
 
-  const total = useMemo(() => cart.reduce((s, it) => s + it.price * it.qty, 0), [cart]);
-  const count = useMemo(() => cart.reduce((s, it) => s + it.qty, 0), [cart]);
+  const total = useMemo(
+    () => cart.reduce((s, it) => s + it.price * it.qty, 0),
+    [cart]
+  );
+  const count = useMemo(
+    () => cart.reduce((s, it) => s + it.qty, 0),
+    [cart]
+  );
+
+  const belowMin = total < MIN_ORDER;
 
   async function submit(e) {
     e.preventDefault();
     if (!cart.length || submitting) return;
+
+    // 🔒 Додаткова перевірка мінімальної суми на випадок "хакерів"
+    if (belowMin) {
+      alert(`Мінімальне замовлення — ${MIN_ORDER} грн.`);
+      return;
+    }
 
     const fd = new FormData(e.currentTarget);
     const customer = {
@@ -132,6 +150,7 @@ function App() {
       lastName: (fd.get("lastName") || "").trim(),
       phone: (fd.get("phone") || "").trim(),
       np: (fd.get("np") || "").trim(),
+      comment: (fd.get("comment") || "").trim(), // ✅ нове поле
     };
 
     const safeCart = cart.map((it) => ({
@@ -153,7 +172,9 @@ function App() {
 
       if (!resp.ok || !data.checkoutUrl) {
         console.error("MonoPay error:", data);
-        alert("Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram.");
+        alert(
+          "Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram."
+        );
         setSubmitting(false);
         return;
       }
@@ -199,7 +220,15 @@ function App() {
             cart.length === 0 ? (
               <div className="cartEmpty">
                 <p>Порожньо. Додайте щось смачне 🙂</p>
-                <button className="btn ghost" onClick={() => setCartOpen(false)}>
+                <p className="cartNote">
+                  * Замовлення відправляємо протягом 2–4 робочих днів з моменту
+                  оплати. Десерт готується вручну та крафтово саме під вашу
+                  відправку.
+                </p>
+                <button
+                  className="btn ghost"
+                  onClick={() => setCartOpen(false)}
+                >
                   Повернутись до каталогу
                 </button>
               </div>
@@ -239,16 +268,40 @@ function App() {
                   ))}
                 </ul>
 
+                {/* ⭐️ Текст про відправку під товарами */}
+                <p className="cartNote">
+                  * Замовлення відправляємо протягом 2–4 робочих днів з моменту
+                  оплати. Десерт готується вручну та крафтово саме під вашу
+                  відправку.
+                </p>
+
                 <div className="modalFoot">
                   <div className="sum">
                     Всього: <b>{fmt(total)}</b>
+                    {belowMin && (
+                      <div className="sumHint">
+                        Мінімальне замовлення — {fmt(MIN_ORDER)}. Додайте ще на{" "}
+                        {fmt(MIN_ORDER - total)}.
+                      </div>
+                    )}
                   </div>
                   <div className="actions">
-                    <button className="btn ghost" onClick={() => setCartOpen(false)}>
+                    <button
+                      className="btn ghost"
+                      onClick={() => setCartOpen(false)}
+                    >
                       Продовжити покупки
                     </button>
-                    <button className="btn primary" onClick={() => setStage("checkout")}>
-                      Оформити
+                    <button
+                      className="btn primary"
+                      disabled={belowMin}
+                      onClick={() => {
+                        if (!belowMin) setStage("checkout");
+                      }}
+                    >
+                      {belowMin
+                        ? `Мінімальне замовлення — ${MIN_ORDER} грн`
+                        : "Оформити"}
                     </button>
                   </div>
                 </div>
@@ -290,22 +343,55 @@ function App() {
                 <div className="grid2">
                   <div>
                     <label htmlFor="firstName">Ім’я</label>
-                    <input id="firstName" name="firstName" required placeholder="Ім’я отримувача" />
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      required
+                      placeholder="Ім’я отримувача"
+                    />
                   </div>
                   <div>
                     <label htmlFor="lastName">Прізвище</label>
-                    <input id="lastName" name="lastName" required placeholder="Прізвище" />
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      required
+                      placeholder="Прізвище"
+                    />
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="phone">Телефон</label>
-                  <input id="phone" name="phone" required placeholder="+380XXXXXXXXX" />
+                  <input
+                    id="phone"
+                    name="phone"
+                    required
+                    placeholder="+380XXXXXXXXX"
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="np">Місто / Відділення Нової Пошти</label>
-                  <input id="np" name="np" required placeholder="Київ, відділення №..." />
+                  <input
+                    id="np"
+                    name="np"
+                    required
+                    placeholder="Київ, відділення №..."
+                  />
+                </div>
+
+                {/* 📝 Коментар – необовʼязково */}
+                <div>
+                  <label htmlFor="comment">
+                    Коментар до замовлення (необовʼязково)
+                  </label>
+                  <textarea
+                    id="comment"
+                    name="comment"
+                    rows={3}
+                    placeholder="Напишіть побажання до замовлення, упаковки тощо"
+                  />
                 </div>
 
                 <div className="modalFoot">
@@ -320,8 +406,14 @@ function App() {
                     >
                       Назад до кошика
                     </button>
-                    <button type="submit" className="btn primary" disabled={submitting}>
-                      {submitting ? "Переходимо до оплати..." : "Підтвердити та оплатити"}
+                    <button
+                      type="submit"
+                      className="btn primary"
+                      disabled={submitting}
+                    >
+                      {submitting
+                        ? "Переходимо до оплати..."
+                        : "Підтвердити та оплатити"}
                     </button>
                   </div>
                 </div>
@@ -357,12 +449,10 @@ function Header({ count, onOpen }) {
               className="brandLogo"
             />
           </h1>
-          {/* без "by" */}
           <div className="subBrand">Kyiv Dinner Club</div>
         </div>
       </div>
 
-      {/* Іконка Instagram у правому верхньому куті */}
       <a
         className="igFixed"
         href={INSTAGRAM_URL}
@@ -373,12 +463,7 @@ function Header({ count, onOpen }) {
         <InstagramSvg />
       </a>
 
-      {/* Кошик – така ж "голенька" іконка, як Instagram */}
-      <button
-        className="cartFixed"
-        onClick={onOpen}
-        aria-label="Кошик"
-      >
+      <button className="cartFixed" onClick={onOpen} aria-label="Кошик">
         <CartSvg />
         {!!count && <span className="cartBadge">{count}</span>}
       </button>
@@ -528,7 +613,12 @@ function Catalog({ products, onBuy }) {
 function Modal({ children, onClose }) {
   return (
     <div className="modalOverlay" onClick={onClose}>
-      <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
         {children}
       </div>
     </div>

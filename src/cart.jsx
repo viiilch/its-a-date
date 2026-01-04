@@ -4,7 +4,7 @@ import { createContext, useContext, useMemo, useState } from "react";
 const CartCtx = createContext(null);
 
 // Мінімальна сума замовлення
-const MIN_ORDER = 300; // якщо захочеш 350 — просто змінюй тут
+const MIN_ORDER = 300;
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
@@ -97,7 +97,8 @@ const fmt = (n) => `${n} грн`;
 const fix = (p) =>
   !p ? "" : p.startsWith("/img/") ? p : p.replace(/^public\//, "/");
 
-function CartModal() {
+export function CartModal() {
+  console.log("CART FROM cart.jsx");
   const {
     cart,
     total,
@@ -119,8 +120,7 @@ function CartModal() {
     e.preventDefault();
     if (!cart.length || submitting) return;
 
-    // перестраховка на мінімальну суму
-    if (total < MIN_ORDER) {
+    if (belowMin) {
       alert(`Мінімальне замовлення — ${MIN_ORDER} грн.`);
       return;
     }
@@ -131,7 +131,7 @@ function CartModal() {
       lastName: (fd.get("lastName") || "").trim(),
       phone: (fd.get("phone") || "").trim(),
       np: (fd.get("np") || "").trim(),
-      comment: (fd.get("comment") || "").trim(), // необовʼязковий коментар
+      comment: (fd.get("comment") || "").trim(), // коментар (необовʼязково)
     };
 
     const safeCart = cart.map((it) => ({
@@ -184,11 +184,11 @@ function CartModal() {
           </button>
         </div>
 
+        {/* ---- режим КОШИКА ---- */}
         {!showCheckout ? (
-          // ---------- РЕЖИМ КОШИКА ----------
           cart.length === 0 ? (
             <div className="cartEmpty">
-              <p>Порожньо. Додайте щось смачне 🙂</p>
+             <p>Порожньо (CART.JSX). Додайте щось смачне 🙂</p>
               <button className="btn ghost" onClick={close}>
                 Повернутись до каталогу
               </button>
@@ -231,7 +231,7 @@ function CartModal() {
                 ))}
               </ul>
 
-              {/* текст про доставку в кошику */}
+              {/* Текст про доставку під товарами */}
               <p className="cartNote">
                 * Замовлення відправляємо протягом 2–4 робочих днів з моменту
                 оплати. Десерт готується вручну та крафтово саме під вашу
@@ -268,7 +268,7 @@ function CartModal() {
             </>
           )
         ) : (
-          // ---------- РЕЖИМ ОФОРМЛЕННЯ ----------
+          /* ---- режим ОФОРМЛЕННЯ ---- */
           <>
             <div className="summaryInModal">
               {cart.map((it) => (
@@ -296,13 +296,6 @@ function CartModal() {
               <div className="summaryFoot">
                 Всього: <b>{fmt(total)}</b>
               </div>
-
-              {/* той самий текст про доставку і тут, в оформленні */}
-              <p className="cartNote">
-                * Замовлення відправляємо протягом 2–4 робочих днів з моменту
-                оплати. Десерт готується вручну та крафтово саме під вашу
-                відправку.
-              </p>
             </div>
 
             <form className="formInModal" onSubmit={submit}>
