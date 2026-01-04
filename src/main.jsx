@@ -299,7 +299,6 @@ function App() {
                     {belowMin && (
                       <div className="sumHint">
                         Мінімальне замовлення — {fmt(MIN_ORDER)}.
-                        {fmt(MIN_ORDER - total)}.
                       </div>
                     )}
                   </div>
