@@ -5,9 +5,8 @@ import "./index.css";
 
 /* ===== НАЛАШТУВАННЯ ===== */
 const INSTAGRAM_URL = "https://www.instagram.com/kyivdinnerclub/";
-const B2B_URL = "https://www.instagram.com/itsadate_b2b/";
 
-// 🔢 Мінімальна сума замовлення
+// Мінімальна сума замовлення
 const MIN_ORDER = 300;
 
 /* ===== ТОВАРИ (BIG + TO GO) ===== */
@@ -86,8 +85,11 @@ const fmt = (n) => `${n} грн`;
 function App() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [stage, setStage] = useState("cart"); // "cart" або "checkout"
+  const [stage, setStage] = useState("cart"); // cart | checkout
   const [submitting, setSubmitting] = useState(false);
+
+  // чи ми на сторінці подяки
+  const isSuccessPage = window.location.pathname === "/order-success";
 
   useEffect(() => {
     if (cartOpen) document.body.classList.add("modal-open");
@@ -110,17 +112,15 @@ function App() {
   function changeQty(id, d) {
     setCart((prev) =>
       prev.map((it) =>
-        it.id === id ? { ...it, qty: Math.max(1, Math.min(99, it.qty + d)) } : it
+        it.id === id
+          ? { ...it, qty: Math.max(1, Math.min(99, it.qty + d)) }
+          : it
       )
     );
   }
 
   function removeItem(id) {
     setCart((prev) => prev.filter((it) => it.id !== id));
-  }
-
-  function clearCart() {
-    setCart([]);
   }
 
   const total = useMemo(
@@ -132,14 +132,12 @@ function App() {
     [cart]
   );
 
-  const belowMin = total < MIN_ORDER;
-
   async function submit(e) {
     e.preventDefault();
     if (!cart.length || submitting) return;
 
-    // 🔒 Додаткова перевірка мінімальної суми на випадок "хакерів"
-    if (belowMin) {
+    // перевірка мінімального замовлення
+    if (total < MIN_ORDER) {
       alert(`Мінімальне замовлення — ${MIN_ORDER} грн.`);
       return;
     }
@@ -150,7 +148,7 @@ function App() {
       lastName: (fd.get("lastName") || "").trim(),
       phone: (fd.get("phone") || "").trim(),
       np: (fd.get("np") || "").trim(),
-      comment: (fd.get("comment") || "").trim(), // ✅ нове поле
+      comment: (fd.get("comment") || "").trim(),
     };
 
     const safeCart = cart.map((it) => ({
@@ -160,6 +158,23 @@ function App() {
       qty: it.qty,
       img: it.img || "",
     }));
+
+    // збережемо замовлення на боці клієнта (для сторінки /order-success)
+    try {
+      const payloadForClient = {
+        cart: safeCart,
+        customer,
+        total,
+        createdAt: Date.now(),
+        smsSent: false,
+      };
+      localStorage.setItem(
+        "itsadate:lastOrder",
+        JSON.stringify(payloadForClient)
+      );
+    } catch (e) {
+      console.warn("Не вдалося зберегти lastOrder", e);
+    }
 
     try {
       setSubmitting(true);
@@ -187,15 +202,21 @@ function App() {
     }
   }
 
+  const belowMin = total < MIN_ORDER;
+
   return (
     <>
       <Header count={count} onOpen={() => setCartOpen(true)} />
 
       <main className="container">
-        <Catalog products={PRODUCTS} onBuy={addItem} />
+        {isSuccessPage ? (
+          <SuccessPage />
+        ) : (
+          <Catalog products={PRODUCTS} onBuy={addItem} />
+        )}
       </main>
 
-      {cartOpen && (
+      {!isSuccessPage && cartOpen && (
         <Modal
           onClose={() => {
             setCartOpen(false);
@@ -220,11 +241,6 @@ function App() {
             cart.length === 0 ? (
               <div className="cartEmpty">
                 <p>Порожньо. Додайте щось смачне 🙂</p>
-                <p className="cartNote">
-                  * Замовлення відправляємо протягом 2–4 робочих днів з моменту
-                  оплати. Десерт готується вручну та крафтово саме під вашу
-                  відправку.
-                </p>
                 <button
                   className="btn ghost"
                   onClick={() => setCartOpen(false)}
@@ -256,7 +272,9 @@ function App() {
                           +
                         </button>
                       </div>
-                      <div className="cPrice">{fmt(it.price * it.qty)}</div>
+                      <div className="cPrice">
+                        {fmt(it.price * it.qty)}
+                      </div>
                       <button
                         className="iconBtn rowX"
                         onClick={() => removeItem(it.id)}
@@ -268,7 +286,7 @@ function App() {
                   ))}
                 </ul>
 
-                {/* ⭐️ Текст про відправку під товарами */}
+                {/* текст під товарами */}
                 <p className="cartNote">
                   * Замовлення відправляємо протягом 2–4 робочих днів з моменту
                   оплати. Десерт готується вручну та крафтово саме під вашу
@@ -280,7 +298,7 @@ function App() {
                     Всього: <b>{fmt(total)}</b>
                     {belowMin && (
                       <div className="sumHint">
-                        Мінімальне замовлення — {fmt(MIN_ORDER)}. Додайте ще на{" "}
+                        Мінімальне замовлення — {fmt(MIN_ORDER)}.
                         {fmt(MIN_ORDER - total)}.
                       </div>
                     )}
@@ -294,10 +312,10 @@ function App() {
                     </button>
                     <button
                       className="btn primary"
-                      disabled={belowMin}
                       onClick={() => {
                         if (!belowMin) setStage("checkout");
                       }}
+                      disabled={belowMin}
                     >
                       {belowMin
                         ? `Мінімальне замовлення — ${MIN_ORDER} грн`
@@ -331,7 +349,9 @@ function App() {
                         +
                       </button>
                     </div>
-                    <div className="cPrice">{fmt(it.price * it.qty)}</div>
+                    <div className="cPrice">
+                      {fmt(it.price * it.qty)}
+                    </div>
                   </div>
                 ))}
                 <div className="summaryFoot">
@@ -381,7 +401,6 @@ function App() {
                   />
                 </div>
 
-                {/* 📝 Коментар – необовʼязково */}
                 <div>
                   <label htmlFor="comment">
                     Коментар до замовлення (необовʼязково)
@@ -433,6 +452,111 @@ function App() {
         <div className="copy">© 2025 IT’S A DATE by Kyiv Dinner Club</div>
       </footer>
     </>
+  );
+}
+
+/* ================= СТОРІНКА ПІСЛЯ ОПЛАТИ ================= */
+function SuccessPage() {
+  const [order, setOrder] = useState(null);
+
+  // читаємо останнє замовлення з localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("itsadate:lastOrder");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      setOrder(parsed);
+    } catch (e) {
+      console.warn("Не вдалося прочитати lastOrder", e);
+    }
+  }, []);
+
+  // відправляємо SMS ОДИН РАЗ
+  useEffect(() => {
+    if (!order) return;
+    if (order.smsSent) return;
+    if (!order.customer?.phone) return;
+
+    const send = async () => {
+      try {
+        await fetch("/api/send-sms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: order.customer.phone,
+            text: `Ваше замовлення IT'S A DATE на суму ${order.total} грн прийнято. Ми відправимо його протягом 2–4 робочих днів Новою Поштою 🤍`,
+          }),
+        });
+
+        const updated = { ...order, smsSent: true };
+        setOrder(updated);
+        localStorage.setItem(
+          "itsadate:lastOrder",
+          JSON.stringify(updated)
+        );
+      } catch (e) {
+        console.error("Помилка відправки SMS", e);
+      }
+    };
+
+    send();
+  }, [order]);
+
+  if (!order) {
+    return (
+      <section className="orderSuccess">
+        <h2>Дякуємо за оплату!</h2>
+        <p>
+          Ваше замовлення прийнято в обробку. Якщо є питання — напишіть нам в
+          Instagram @kyivdinnerclub.
+        </p>
+      </section>
+    );
+  }
+
+  const { cart, customer, total } = order;
+
+  return (
+    <section className="orderSuccess">
+      <h2>Дякуємо за оплату! Замовлення прийнято 🤍</h2>
+      <p>
+        Ми вже готуємо ваш десерт. Деталі замовлення нижче, копія є у нас в
+        системі.
+      </p>
+
+      <h3>Що ви замовили:</h3>
+      <ul className="cartList">
+        {cart.map((it) => (
+          <li className="cartRow" key={it.id}>
+            {it.img && <img className="thumb" src={it.img} alt={it.title} />}
+            <div className="cTitle">{it.title}</div>
+            <div className="qtyRow">
+              <span className="qty">{it.qty} шт</span>
+            </div>
+            <div className="cPrice">{fmt(it.price * it.qty)}</div>
+          </li>
+        ))}
+      </ul>
+      <div className="summaryFoot">
+        Всього: <b>{fmt(total)}</b>
+      </div>
+
+      <h3>Дані для відправки:</h3>
+      <p>
+        {customer.firstName} {customer.lastName}
+      </p>
+      <p>Телефон: {customer.phone}</p>
+      <p>Нова Пошта: {customer.np}</p>
+      {customer.comment && <p>Коментар: {customer.comment}</p>}
+
+      <button
+        className="btn primary"
+        style={{ marginTop: "16px" }}
+        onClick={() => (window.location.href = "/")}
+      >
+        Повернутись до каталогу
+      </button>
+    </section>
   );
 }
 
@@ -516,7 +640,10 @@ function Catalog({ products, onBuy }) {
   const [formatMap, setFormatMap] = useState({});
 
   const setQty = (id, f) =>
-    setQtyMap((m) => ({ ...m, [id]: Math.max(1, Math.min(99, f(m[id] || 1))) }));
+    setQtyMap((m) => ({
+      ...m,
+      [id]: Math.max(1, Math.min(99, f(m[id] || 1))),
+    }));
 
   const setFormat = (id, fmtId) =>
     setFormatMap((m) => ({ ...m, [id]: fmtId }));
@@ -561,7 +688,9 @@ function Catalog({ products, onBuy }) {
               <button
                 type="button"
                 className={
-                  selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"
+                  selectedFormat === "big"
+                    ? "fmtChoice fmtChoice--active"
+                    : "fmtChoice"
                 }
                 onClick={() => setFormat(p.id, "big")}
               >
@@ -571,7 +700,9 @@ function Catalog({ products, onBuy }) {
               <button
                 type="button"
                 className={
-                  selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"
+                  selectedFormat === "togo"
+                    ? "fmtChoice fmtChoice--active"
+                    : "fmtChoice"
                 }
                 onClick={() => setFormat(p.id, "togo")}
               >
