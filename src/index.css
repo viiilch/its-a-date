@@ -158,7 +158,10 @@ body{
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  aspect-ratio: 3 / 4;
+
+  /* було aspect-ratio: 3 / 4; */
+  aspect-ratio: 1 / 1;     /* ✅ квадрат — найкраще вирівнює різні фото */
+  padding:14px;            /* ✅ щоб стікери не прилипали до країв */
 }
 
 .imgWrap img{
@@ -175,9 +178,13 @@ body{
   font-weight:600;
   text-transform:uppercase;
   letter-spacing:0.06em;
-  min-height:48px;
-  display:flex;
-  align-items:flex-end;
+
+  /* ✅ 2 рядки максимум */
+  min-height:56px;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
 }
 
 .cardDesc{
@@ -185,7 +192,13 @@ body{
   color:var(--muted);
   font-size:14px;
   line-height:1.4;
-  min-height:60px;
+
+  /* ✅ 2 рядки максимум */
+  min-height:40px;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
 }
 
 /* ===== BIG / TO GO ===== */
