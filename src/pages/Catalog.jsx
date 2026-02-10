@@ -1,5 +1,5 @@
 // src/pages/Catalog.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import products from "../products.js";
 import { useCart } from "../cart.jsx";
 
@@ -17,16 +17,21 @@ function Card({ p }) {
   const { addItem, open } = useCart();
 
   const [qty, setQty] = useState(1);
+
+  // ✅ TO GO є тільки якщо в продукті є toGoPrice
+  const hasToGo = typeof p.toGoPrice === "number";
+
   const [format, setFormat] = useState("big"); // "big" | "to-go"
+
+  // ✅ якщо товар без TO GO — не даємо залипнути на to-go
+  useEffect(() => {
+    if (!hasToGo && format === "to-go") setFormat("big");
+  }, [hasToGo, format]);
 
   const isToGo = format === "to-go";
 
-  // Якщо є окрема ціна для TO GO — беремо її, інакше лишається стандартна
-  const unitPrice =
-    isToGo && typeof p.toGoPrice === "number" ? p.toGoPrice : p.price;
-
-  // Назва і id в кошику — різні для BIG / TO GO
-  const cartTitle = isToGo ? `${p.title} TO GO` : `${p.title} BIG`;
+  const unitPrice = isToGo ? p.toGoPrice : p.price;
+  const cartTitle = isToGo ? `${p.title} TO GO` : p.title;
   const cartId = isToGo ? `${p.id}-to-go` : `${p.id}-big`;
 
   return (
@@ -38,29 +43,26 @@ function Card({ p }) {
       <h3 className="cardTitle">{p.title}</h3>
       {p.desc && <p className="cardDesc">{p.desc}</p>}
 
-      {/* BIG / TO GO — текстовий перемикач у стилі заголовка */}
       <div className="formatRow">
         <button
           type="button"
-          className={
-            "fmtChoice" + (format === "big" ? " fmtChoice--active" : "")
-          }
+          className={"fmtChoice" + (format === "big" ? " fmtChoice--active" : "")}
           onClick={() => setFormat("big")}
         >
           BIG
         </button>
-        <button
-          type="button"
-          className={
-            "fmtChoice" + (format === "to-go" ? " fmtChoice--active" : "")
-          }
-          onClick={() => setFormat("to-go")}
-        >
-          TO GO
-        </button>
+
+        {hasToGo && (
+          <button
+            type="button"
+            className={"fmtChoice" + (format === "to-go" ? " fmtChoice--active" : "")}
+            onClick={() => setFormat("to-go")}
+          >
+            TO GO
+          </button>
+        )}
       </div>
 
-      {/* Низ картки: ціна | кількість | Купити */}
       <div className="cardFooter">
         <div className="price">{unitPrice} грн</div>
 
@@ -86,12 +88,7 @@ function Card({ p }) {
           className="buyBtn"
           onClick={() => {
             addItem(
-              {
-                ...p,
-                id: cartId,
-                title: cartTitle,
-                price: unitPrice,
-              },
+              { ...p, id: cartId, title: cartTitle, price: unitPrice },
               qty
             );
             open();
