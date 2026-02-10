@@ -12,6 +12,16 @@ const MIN_ORDER = 300;
 /* ===== ТОВАРИ (BIG + TO GO) ===== */
 const PRODUCTS = [
   {
+  id: "stickerpack",
+  title: "СТІКЕРПАК ВІД KYIV DINNER CLUB",
+  price: 350,
+  img: "/img/stikerpak.jpg",
+  desc: "Колекція стікерів про ваше і наше життя 🙂👋🪷 6 випуклих і 8 звичайних стікерів",
+  formats: {
+    big: { label: "BIG", price: 350 },
+  },
+},
+  {
     id: "dark",
     title: "Dark Chocolate Dates",
     price: 300,
