@@ -671,7 +671,8 @@ function Catalog({ products, onBuy }) {
         const handleBuy = () => {
           const fmtId = selectedFormat;
           const isToGo = fmtId === "togo";
-          const cartId = `${p.id}-${fmtId}`;
+          const cartId =
+  fmtId === "togo" ? `${p.id}-togo` : (p.badge ? p.id : `${p.id}-big`);
           const title = isToGo ? `${p.title} TO GO` : p.title;
 
           const payload = {
@@ -692,35 +693,43 @@ function Catalog({ products, onBuy }) {
               <img src={p.img} alt={p.title} />
             </div>
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
-            {p.desc && <p className="cardDesc">{p.desc}</p>}
+            {p.desc && (
+  <p className={"cardDesc" + (p.id === "stickerpack" ? " cardDesc--preline" : "")}>
+    {p.desc}
+  </p>
+)}
 
-            <div className="formatRow">
-  <button
-    type="button"
-    className={
-      selectedFormat === "big"
-        ? "fmtChoice fmtChoice--active"
-        : "fmtChoice"
-    }
-    onClick={() => setFormat(p.id, "big")}
-  >
-    BIG
-  </button>
-
-  {!!p.formats?.togo && (
+            {p.badge ? (
+  <div className="sizeRow">{p.badge}</div>
+) : (
+  <div className="formatRow">
     <button
       type="button"
       className={
-        selectedFormat === "togo"
+        selectedFormat === "big"
           ? "fmtChoice fmtChoice--active"
           : "fmtChoice"
       }
-      onClick={() => setFormat(p.id, "togo")}
+      onClick={() => setFormat(p.id, "big")}
     >
-      TO GO
+      BIG
     </button>
-  )}
-</div>
+
+    {!!p.formats?.togo && (
+      <button
+        type="button"
+        className={
+          selectedFormat === "togo"
+            ? "fmtChoice fmtChoice--active"
+            : "fmtChoice"
+        }
+        onClick={() => setFormat(p.id, "togo")}
+      >
+        TO GO
+      </button>
+    )}
+  </div>
+)}
 
             <div className="cardFooter">
               <div className="price">{fmt(price)}</div>
