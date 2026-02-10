@@ -16,7 +16,9 @@ const PRODUCTS = [
   title: "СТІКЕРПАК ВІД KYIV DINNER CLUB",
   price: 350,
   img: "/img/stikerpak.jpg",
-  desc: "Колекція наліпок про ваше і наше життя 🙂👋🪷\n6 випуклих і 8 звичайних стікерів",
+  desc: "Колекція наліпок про ваше і наше життя",
+descEmojis: "🙂👋🪷",
+desc2: "6 випуклих і 8 звичайних стікерів",
   badge: "A6",
   formats: {
     big: { label: "BIG", price: 350 },
@@ -693,9 +695,11 @@ function Catalog({ products, onBuy }) {
               <img src={p.img} alt={p.title} />
             </div>
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
-            {p.desc && (
-  <p className={"cardDesc" + (p.id === "stickerpack" ? " cardDesc--preline" : "")}>
+            {(p.desc || p.desc2) && (
+  <p className="cardDesc">
     {p.desc}
+    {p.descEmojis && <span className="noBreak"> {p.descEmojis}</span>}
+    {p.desc2 && <span className="descLine2">{p.desc2}</span>}
   </p>
 )}
 

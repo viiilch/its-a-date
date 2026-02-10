@@ -200,6 +200,8 @@ body{
   -webkit-line-clamp:2;
   overflow:hidden;
 }
+.noBreak { white-space: nowrap; }
+.descLine2 { display: block; }
 
 /* ===== BIG / TO GO ===== */
 .formatRow{
@@ -622,4 +624,9 @@ textarea{
   display:block;
   -webkit-line-clamp: unset;
   overflow: visible;
+}
+.noBreak { white-space: nowrap; }
+
+.descLine2{
+  display:block;      /* другий рядок окремо */
 }
