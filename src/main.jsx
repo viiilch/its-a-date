@@ -16,7 +16,7 @@ const PRODUCTS = [
   title: "СТІКЕРПАК ВІД KYIV DINNER CLUB",
   price: 350,
   img: "/img/stikerpak.jpg",
-  desc: "Колекція стікерів про ваше і наше життя 🙂👋🪷\n6 випуклих і 8 звичайних стікерів",
+  desc: "Колекція наліпок про ваше і наше життя 🙂👋🪷\n6 випуклих і 8 звичайних стікерів",
   badge: "A6",
   formats: {
     big: { label: "BIG", price: 350 },
