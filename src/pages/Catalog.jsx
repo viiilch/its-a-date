@@ -1,18 +1,3 @@
-// src/pages/Catalog.jsx
-import { useEffect, useState } from "react";
-import products from "../products.js";
-import { useCart } from "../cart.jsx";
-
-export default function Catalog() {
-  return (
-    <section className="grid">
-      {products.map((p) => (
-        <Card key={p.id} p={p} />
-      ))}
-    </section>
-  );
-}
-
 function Card({ p }) {
   const { addItem, open } = useCart();
 
@@ -32,7 +17,13 @@ function Card({ p }) {
 
   const unitPrice = isToGo ? p.toGoPrice : p.price;
   const cartTitle = isToGo ? `${p.title} TO GO` : p.title;
-  const cartId = isToGo ? `${p.id}-to-go` : `${p.id}-big`;
+
+  // ✅ для товарів без TO GO (стікерпак) — id без "-big"
+  const cartId = isToGo
+    ? `${p.id}-to-go`
+    : hasToGo
+      ? `${p.id}-big`
+      : p.id;
 
   return (
     <article className="card">
@@ -43,25 +34,34 @@ function Card({ p }) {
       <h3 className="cardTitle">{p.title}</h3>
       {p.desc && <p className="cardDesc">{p.desc}</p>}
 
-      <div className="formatRow">
-        <button
-          type="button"
-          className={"fmtChoice" + (format === "big" ? " fmtChoice--active" : "")}
-          onClick={() => setFormat("big")}
-        >
-          BIG
-        </button>
-
-        {hasToGo && (
+      {/* ✅ або показуємо розмір (для стікерпаку), або BIG/TO GO (для фініків) */}
+      {p.sizeLabel ? (
+        <div className="sizeRow">{p.sizeLabel}</div>
+      ) : (
+        <div className="formatRow">
           <button
             type="button"
-            className={"fmtChoice" + (format === "to-go" ? " fmtChoice--active" : "")}
-            onClick={() => setFormat("to-go")}
+            className={
+              "fmtChoice" + (format === "big" ? " fmtChoice--active" : "")
+            }
+            onClick={() => setFormat("big")}
           >
-            TO GO
+            BIG
           </button>
-        )}
-      </div>
+
+          {hasToGo && (
+            <button
+              type="button"
+              className={
+                "fmtChoice" + (format === "to-go" ? " fmtChoice--active" : "")
+              }
+              onClick={() => setFormat("to-go")}
+            >
+              TO GO
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="cardFooter">
         <div className="price">{unitPrice} грн</div>
