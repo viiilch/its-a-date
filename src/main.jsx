@@ -696,16 +696,14 @@ function Catalog({ products, onBuy }) {
             </div>
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
             {p.id === "stickerpack" ? (
-  <p className="cardDesc">
-    <span className="noBreak">
-      {p.desc}{" "}{p.descEmojis}
-    </span>
-    <span className="descLine2">{p.desc2}</span>
+  <p className="cardDesc cardDesc--sticker">
+    {p.desc}
+    {p.descEmojis && <span className="noBreak"> {p.descEmojis}</span>}
+    {p.desc2 && <span className="descLine2">{p.desc2}</span>}
   </p>
 ) : (
   p.desc && <p className="cardDesc">{p.desc}</p>
 )}
-
             {p.badge ? (
   <div className="sizeRow">{p.badge}</div>
 ) : (
