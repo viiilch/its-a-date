@@ -620,10 +620,7 @@ textarea{
   font-display:swap;
 }
 .cardDesc--preline{
-  white-space: pre-line;
-  display:block;
-  -webkit-line-clamp: unset;
-  overflow: visible;
+  white-space: normal; /* НЕ pre-line */
 }
 .noBreak { white-space: nowrap; }
 

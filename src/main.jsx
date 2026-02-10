@@ -695,12 +695,15 @@ function Catalog({ products, onBuy }) {
               <img src={p.img} alt={p.title} />
             </div>
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
-            {(p.desc || p.desc2) && (
+            {p.id === "stickerpack" ? (
   <p className="cardDesc">
-    {p.desc}
-    {p.descEmojis && <span className="noBreak"> {p.descEmojis}</span>}
-    {p.desc2 && <span className="descLine2">{p.desc2}</span>}
+    <span className="noBreak">
+      {p.desc}{" "}{p.descEmojis}
+    </span>
+    <span className="descLine2">{p.desc2}</span>
   </p>
+) : (
+  p.desc && <p className="cardDesc">{p.desc}</p>
 )}
 
             {p.badge ? (
