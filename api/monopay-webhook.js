@@ -213,15 +213,22 @@ export default async function handler(req, res) {
       np: order.np || "",
     };
 
-    let cart = order.cart_json || [];
-    if (typeof cart === "string") {
-      try {
-        cart = JSON.parse(cart);
-      } catch {
-        cart = [];
-      }
-    }
+   let cart = [];
+let customerFromJson = {};
 
+let rawCart = order.cart_json || [];
+if (typeof rawCart === "string") {
+  try { rawCart = JSON.parse(rawCart); } catch { rawCart = []; }
+}
+
+// старий формат: cart_json = [товари]
+// новий формат: cart_json = { cart: [...], customer: {...} }
+if (Array.isArray(rawCart)) {
+  cart = rawCart;
+} else if (rawCart && typeof rawCart === "object") {
+  cart = Array.isArray(rawCart.cart) ? rawCart.cart : [];
+  customerFromJson = rawCart.customer && typeof rawCart.customer === "object" ? rawCart.customer : {};
+}
     const totalUAH = (order.total_cents || 0) / 100;
 
     const emailText = buildEmailText({
@@ -258,6 +265,38 @@ export default async function handler(req, res) {
       emailError = String(e?.message || e);
       console.error("EMAIL ERROR (webhook):", emailError);
     }
+    // --- Email клієнту (підтвердження) ---
+try {
+  const customerEmail = String(customerFromJson.email || "").trim();
+  if (customerEmail) {
+    const transport = createTransport();
+
+    const clientText = [
+      `Дякуємо за замовлення в IT'S A DATE 🤍`,
+      ``,
+      `Ваше замовлення ${reference} успішно оплачене.`,
+      `Відправимо його протягом 4–5 робочих днів Новою Поштою.`,
+      ``,
+      `Склад замовлення:`,
+      ...cart.map((it) => `• ${it.title} — ${it.qty} шт`),
+      ``,
+      `Сума: ${totalUAH} грн`,
+      ``,
+      `Якщо маєте питання — напишіть нам в Instagram @kyivdinnerclub.`,
+    ].join("\n");
+
+    await transport.sendMail({
+      from: ORDER_EMAIL_FROM,
+      to: customerEmail,
+      subject: `IT'S A DATE — підтвердження замовлення ${reference}`,
+      text: clientText,
+    });
+
+    console.log("Client email sent to:", customerEmail);
+  }
+} catch (e) {
+  console.error("CLIENT EMAIL ERROR:", String(e?.message || e));
+}
 
     // --- Telegram ---
     try {

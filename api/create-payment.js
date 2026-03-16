@@ -136,7 +136,7 @@ export default async function handler(req, res) {
           (customer?.phone || "").trim(),
           (customer?.np || "").trim(),
           amount,
-          JSON.stringify(cart),
+          JSON.stringify({ cart, customer }),
         ]
       );
       console.log("Order saved to DB:", orderId);

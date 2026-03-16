@@ -91,6 +91,12 @@ desc2: "6 випуклих і 8 звичайних стікерів",
     },
   },
 ];
+const GIFT_TOGO_MIXED = {
+  id: "gift-mixed-togo",
+  title: "Mixed Chocolate Dates TO GO (ПОДАРУНОК)",
+  price: 0,
+  img: "/img/mixed.png",
+};
 
 const fmt = (n) => `${n} грн`;
 
@@ -144,6 +150,20 @@ function App() {
     () => cart.reduce((s, it) => s + it.qty, 0),
     [cart]
   );
+  useEffect(() => {
+  const hasSticker = cart.some((x) => x.id === "stickerpack");
+  const hasAnyBig = cart.some((x) => x.id.endsWith("-big"));
+  const hasGift = cart.some((x) => x.id === "gift-mixed-togo");
+
+  if (hasSticker && hasAnyBig && !hasGift) {
+    addItem({ ...GIFT_TOGO_MIXED }, 1);
+  }
+
+  if ((!hasSticker || !hasAnyBig) && hasGift) {
+    removeItem("gift-mixed-togo");
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [cart]);
 
   async function submit(e) {
     e.preventDefault();
@@ -157,12 +177,13 @@ function App() {
 
     const fd = new FormData(e.currentTarget);
     const customer = {
-      firstName: (fd.get("firstName") || "").trim(),
-      lastName: (fd.get("lastName") || "").trim(),
-      phone: (fd.get("phone") || "").trim(),
-      np: (fd.get("np") || "").trim(),
-      comment: (fd.get("comment") || "").trim(),
-    };
+  firstName: (fd.get("firstName") || "").trim(),
+  lastName: (fd.get("lastName") || "").trim(),
+  phone: (fd.get("phone") || "").trim(),
+  email: (fd.get("email") || "").trim(),
+  np: (fd.get("np") || "").trim(),
+  comment: (fd.get("comment") || "").trim(),
+};
 
     const safeCart = cart.map((it) => ({
       id: it.id,
@@ -402,6 +423,16 @@ function App() {
                     placeholder="+380XXXXXXXXX"
                   />
                 </div>
+                <div>
+  <label htmlFor="email">Email (для підтвердження)</label>
+  <input
+    id="email"
+    name="email"
+    type="email"
+    required
+    placeholder="name@email.com"
+  />
+</div>
 
                 <div>
                   <label htmlFor="np">Місто / Відділення Нової Пошти</label>
