@@ -543,6 +543,13 @@ textarea{
     width:100% !important;
     z-index:1000 !important;
   }
+  @media (max-width:640px){
+  /* щоб довгі слова/назви не розпирали рядок */
+  .cTitle { word-break: break-word; }
+  
+  /* щоб textarea/inputs не вилазили */
+  input, textarea { max-width: 100%; }
+}
 
   .siteHeader__inner{
     flex-direction:column !important;
@@ -708,3 +715,7 @@ textarea{
 }
 .upsellText{ font-size:14px; color:#111; }
 .upsellBtn{ height:36px; }
+/* ===== HARD STOP horizontal scroll ===== */
+html, body { overflow-x: hidden; }
+.modalOverlay { overflow-x: hidden; }
+.modal { overscroll-behavior: contain; }
