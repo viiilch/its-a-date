@@ -32,7 +32,13 @@ function Card({ p }) {
       </div>
 
       <h3 className="cardTitle">{p.title}</h3>
-      {p.desc && <p className="cardDesc">{p.desc}</p>}
+      {(p.desc || p.desc2) && (
+  <p className="cardDesc">
+    {p.desc}{" "}
+    {p.descEmojis && <span className="noBreak">{p.descEmojis}</span>}
+    {p.desc2 && <span className="descLine2">{p.desc2}</span>}
+  </p>
+)}
 
       {/* ✅ або показуємо розмір (для стікерпаку), або BIG/TO GO (для фініків) */}
       {p.sizeLabel ? (

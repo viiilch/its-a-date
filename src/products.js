@@ -4,8 +4,8 @@ export default [
   title: "СТІКЕРПАК ВІД KYIV DINNER CLUB",
   price: 350,
   img: "/img/stikerpak.jpg",
-  sizeLabel: "15 × 21 см",
-  desc: "Колекція стікерів про ваше і наше життя 🙂👋🪷\n6 випуклих і 8 звичайних стікерів.",
+  sizeLabel: "A6",
+  desc: "Колекція наліпок про ваше і наше життя 🙂👋🪷\n6 випуклих і 8 звичайних стікерів.",
   // ✅ тут НЕМАЄ toGoPrice, тому TO GO не буде
 },
 

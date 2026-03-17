@@ -5,35 +5,28 @@ import "./index.css";
 
 /* ===== НАЛАШТУВАННЯ ===== */
 const INSTAGRAM_URL = "https://www.instagram.com/kyivdinnerclub/";
-
-// Мінімальна сума замовлення
 const MIN_ORDER = 300;
 
 /* ===== ТОВАРИ (BIG + TO GO) ===== */
 const PRODUCTS = [
- {
-  id: "stickerpack",
-  title: "СТІКЕРПАК ВІД KYIV DINNER CLUB",
-  price: 350,
-  img: "/img/stikerpak.jpg",
-  desc: "Колекція наліпок про ваше і наше життя",
-descEmojis: "🙂👋🪷",
-desc2: "6 випуклих і 8 звичайних стікерів",
-  badge: "A6",
-  formats: {
-    big: { label: "BIG", price: 350 },
+  {
+    id: "stickerpack",
+    title: "СТІКЕРПАК ВІД KYIV DINNER CLUB",
+    price: 350,
+    img: "/img/stikerpak.jpg",
+    desc: "Колекція наліпок про ваше і наше життя",
+    descEmojis: "🙂👋🪷",
+    desc2: "6 випуклих і 8 звичайних стікерів",
+    badge: "A6",
+    formats: { big: { label: "BIG", price: 350 } },
   },
-},
   {
     id: "dark",
     title: "Dark Chocolate Dates",
     price: 300,
     img: "/img/dark.png",
     desc: "Фініки без кісточки, темний шоколад, арахісова паста, мальдонська сіль",
-    formats: {
-      big: { label: "BIG", price: 300 },
-      togo: { label: "TO GO", price: 110 },
-    },
+    formats: { big: { label: "BIG", price: 300 }, togo: { label: "TO GO", price: 110 } },
   },
   {
     id: "milk",
@@ -41,10 +34,7 @@ desc2: "6 випуклих і 8 звичайних стікерів",
     price: 300,
     img: "/img/milk.png",
     desc: "Фініки без кісточки, молочний шоколад, арахісова паста, мальдонська сіль",
-    formats: {
-      big: { label: "BIG", price: 300 },
-      togo: { label: "TO GO", price: 110 },
-    },
+    formats: { big: { label: "BIG", price: 300 }, togo: { label: "TO GO", price: 110 } },
   },
   {
     id: "white-pistachio",
@@ -52,10 +42,7 @@ desc2: "6 випуклих і 8 звичайних стікерів",
     price: 375,
     img: "/img/white-pistachio.png",
     desc: "Фініки без кісточки, білий шоколад, фісташкова паста, вершки",
-    formats: {
-      big: { label: "BIG", price: 375 },
-      togo: { label: "TO GO", price: 140 },
-    },
+    formats: { big: { label: "BIG", price: 375 }, togo: { label: "TO GO", price: 140 } },
   },
   {
     id: "caramel",
@@ -63,10 +50,7 @@ desc2: "6 випуклих і 8 звичайних стікерів",
     price: 350,
     img: "/img/caramel.png",
     desc: "Карамельний шоколад, праліне з грецького горіха, волоський горіх",
-    formats: {
-      big: { label: "BIG", price: 350 },
-      togo: { label: "TO GO", price: 125 },
-    },
+    formats: { big: { label: "BIG", price: 350 }, togo: { label: "TO GO", price: 125 } },
   },
   {
     id: "matcha-raspberry",
@@ -74,10 +58,7 @@ desc2: "6 випуклих і 8 звичайних стікерів",
     price: 375,
     img: "/img/matcha-raspberry.png",
     desc: "Фініки без кісточки, ганаш з малиновим пюре, білий шоколад з матча",
-    formats: {
-      big: { label: "BIG", price: 375 },
-      togo: { label: "TO GO", price: 140 },
-    },
+    formats: { big: { label: "BIG", price: 375 }, togo: { label: "TO GO", price: 140 } },
   },
   {
     id: "mixed",
@@ -85,18 +66,17 @@ desc2: "6 випуклих і 8 звичайних стікерів",
     price: 300,
     img: "/img/mixed.png",
     desc: "Мікс молочного й темного шоколаду, арахісова паста, мальдонська сіль",
-    formats: {
-      big: { label: "BIG", price: 300 },
-      togo: { label: "TO GO", price: 110 },
-    },
+    formats: { big: { label: "BIG", price: 300 }, togo: { label: "TO GO", price: 110 } },
   },
 ];
+
 const GIFT_TOGO_MIXED = {
   id: "gift-mixed-togo",
   title: "Mixed Chocolate Dates TO GO (ПОДАРУНОК)",
   price: 0,
   img: "/img/mixed.png",
 };
+
 const POSTCARD = {
   id: "postcard",
   title: "Листівка (вкладання в посилку)",
@@ -113,7 +93,6 @@ function App() {
   const [stage, setStage] = useState("cart"); // cart | checkout
   const [submitting, setSubmitting] = useState(false);
 
-  // чи ми на сторінці подяки
   const isSuccessPage = window.location.pathname === "/order-success";
 
   useEffect(() => {
@@ -134,56 +113,58 @@ function App() {
     setStage("cart");
   }
 
-  function changeQty(id, d) {
-  setCart((prev) =>
-    prev
-      .map((it) => {
-        if (it.id !== id) return it;
-        const q = it.qty + d;
-        return { ...it, qty: Math.min(99, q) };
-      })
-      .filter((it) => it.qty > 0) // ✅ qty 0 = видалити
-  );
-}
-
   function removeItem(id) {
     setCart((prev) => prev.filter((it) => it.id !== id));
   }
 
-  const total = useMemo(
-    () => cart.reduce((s, it) => s + it.price * it.qty, 0),
-    [cart]
-  );
-  const count = useMemo(
-    () => cart.reduce((s, it) => s + it.qty, 0),
-    [cart]
-  );
-  useEffect(() => {
-  const hasSticker = cart.some((x) => x.id === "stickerpack");
-  const hasAnyBig = cart.some((x) => x.id.endsWith("-big"));
-  const hasGift = cart.some((x) => x.id === "gift-mixed-togo");
-
-  if (hasSticker && hasAnyBig && !hasGift) {
-    addItem({ ...GIFT_TOGO_MIXED }, 1);
+  function changeQty(id, d) {
+    setCart((prev) =>
+      prev
+        .map((it) => {
+          if (it.id !== id) return it;
+          const q = Math.max(0, Math.min(99, (it.qty || 0) + d));
+          return { ...it, qty: q };
+        })
+        .filter((it) => (it.qty || 0) > 0)
+    );
   }
 
-  if ((!hasSticker || !hasAnyBig) && hasGift) {
-    removeItem("gift-mixed-togo");
-  }
   function setPostcardText(text) {
-  const t = String(text || "").slice(0, 200); // ✅ ліміт 200
-  setCart((prev) =>
-    prev.map((it) => (it.id === "postcard" ? { ...it, postcardText: t } : it))
+    const t = String(text || "").slice(0, 200);
+    setCart((prev) =>
+      prev.map((it) => (it.id === "postcard" ? { ...it, postcardText: t } : it))
+    );
+  }
+
+  // ✅ ПОДАРУНОК: стікерпак + будь-яка BIG -> додаємо gift-mixed-togo
+  useEffect(() => {
+    const hasSticker = cart.some((x) => x.id === "stickerpack");
+    const hasAnyBig = cart.some((x) => String(x.id || "").endsWith("-big"));
+    const hasGift = cart.some((x) => x.id === "gift-mixed-togo");
+
+    const shouldHaveGift = hasSticker && hasAnyBig;
+
+    if (shouldHaveGift && !hasGift) {
+      // додаємо тихо (без open cart)
+      setCart((prev) => [...prev, { ...GIFT_TOGO_MIXED, qty: 1 }]);
+    }
+
+    if (!shouldHaveGift && hasGift) {
+      setCart((prev) => prev.filter((x) => x.id !== "gift-mixed-togo"));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart]);
+
+  const total = useMemo(
+    () => cart.reduce((s, it) => s + Number(it.price || 0) * Number(it.qty || 0), 0),
+    [cart]
   );
-}
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [cart]);
+  const count = useMemo(() => cart.reduce((s, it) => s + (it.qty || 0), 0), [cart]);
 
   async function submit(e) {
     e.preventDefault();
     if (!cart.length || submitting) return;
 
-    // перевірка мінімального замовлення
     if (total < MIN_ORDER) {
       alert(`Мінімальне замовлення — ${MIN_ORDER} грн.`);
       return;
@@ -191,24 +172,23 @@ function App() {
 
     const fd = new FormData(e.currentTarget);
     const customer = {
-  firstName: (fd.get("firstName") || "").trim(),
-  lastName: (fd.get("lastName") || "").trim(),
-  phone: (fd.get("phone") || "").trim(),
-  email: (fd.get("email") || "").trim(),
-  np: (fd.get("np") || "").trim(),
-  comment: (fd.get("comment") || "").trim(),
-};
+      firstName: (fd.get("firstName") || "").trim(),
+      lastName: (fd.get("lastName") || "").trim(),
+      phone: (fd.get("phone") || "").trim(),
+      email: (fd.get("email") || "").trim(),
+      np: (fd.get("np") || "").trim(),
+      comment: (fd.get("comment") || "").trim(),
+    };
 
     const safeCart = cart.map((it) => ({
-  id: it.id,
-  title: it.title,
-  price: it.price,
-  qty: it.qty,
-  img: it.img || "",
-  postcardText: it.postcardText || "",
-}));
+      id: it.id,
+      title: it.title,
+      price: it.price,
+      qty: it.qty,
+      img: it.img || "",
+      postcardText: it.postcardText || "",
+    }));
 
-    // збережемо замовлення на боці клієнта (для сторінки /order-success)
     try {
       const payloadForClient = {
         cart: safeCart,
@@ -217,13 +197,8 @@ function App() {
         createdAt: Date.now(),
         smsSent: false,
       };
-      localStorage.setItem(
-        "itsadate:lastOrder",
-        JSON.stringify(payloadForClient)
-      );
-    } catch (e) {
-      console.warn("Не вдалося зберегти lastOrder", e);
-    }
+      localStorage.setItem("itsadate:lastOrder", JSON.stringify(payloadForClient));
+    } catch {}
 
     try {
       setSubmitting(true);
@@ -235,34 +210,29 @@ function App() {
       const data = await resp.json();
 
       if (!resp.ok || !data.checkoutUrl) {
-        console.error("MonoPay error:", data);
-        alert(
-          "Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram."
-        );
+        alert("Помилка створення оплати. Спробуйте ще раз або напишіть нам в Instagram.");
         setSubmitting(false);
         return;
       }
 
       window.location.href = data.checkoutUrl;
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("Помилка мережі. Будь ласка, спробуйте ще раз.");
       setSubmitting(false);
     }
   }
 
   const belowMin = total < MIN_ORDER;
+  const hasStickerInCart = cart.some((x) => x.id === "stickerpack");
+  const hasPostcard = cart.some((x) => x.id === "postcard");
+  const postcardItem = cart.find((x) => x.id === "postcard");
 
   return (
     <>
       <Header count={count} onOpen={() => setCartOpen(true)} />
 
       <main className="container">
-        {isSuccessPage ? (
-          <SuccessPage />
-        ) : (
-          <Catalog products={PRODUCTS} onBuy={addItem} />
-        )}
+        {isSuccessPage ? <SuccessPage /> : <Catalog products={PRODUCTS} onBuy={addItem} />}
       </main>
 
       {!isSuccessPage && cartOpen && (
@@ -290,72 +260,122 @@ function App() {
             cart.length === 0 ? (
               <div className="cartEmpty">
                 <p>Порожньо. Додайте щось смачне 🙂</p>
-                <button
-                  className="btn ghost"
-                  onClick={() => setCartOpen(false)}
-                >
+                <button className="btn ghost" onClick={() => setCartOpen(false)}>
                   Повернутись до каталогу
                 </button>
               </div>
             ) : (
               <>
                 <ul className="cartList">
-                  {cart.map((it) => (
-                    <li className="cartRow" key={it.id}>
-                      <img className="thumb" src={it.img} alt={it.title} />
-                      <div className="cTitle">{it.title}</div>
-                      <div className="qtyRow">
-                        <button
-                          className="qtyBtn"
-                          onClick={() => changeQty(it.id, -1)}
-                          aria-label="Менше"
-                        >
-                          –
-                        </button>
-                        <span className="qty">{it.qty}</span>
-                        <button
-                          className="qtyBtn"
-                          onClick={() => changeQty(it.id, 1)}
-                          aria-label="Більше"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <div className="cPrice">
-                        {fmt(it.price * it.qty)}
-                      </div>
-                      <button
-                        className="iconBtn rowX"
-                        onClick={() => removeItem(it.id)}
-                        aria-label="Видалити"
-                      >
-                        ×
-                      </button>
-                    </li>
-                  ))}
+                  {cart.map((it) => {
+                    const isGift = it.id === "gift-mixed-togo";
+                    return (
+                      <li className="cartRow" key={it.id}>
+                        {it.img ? <img className="thumb" src={it.img} alt={it.title} /> : <div className="thumb" />}
+                        <div className="cTitle">{it.title}</div>
+
+                        <div className="qtyRow">
+                          {isGift ? (
+                            <span className="qty">1 шт</span>
+                          ) : (
+                            <>
+                              <button
+                                className="qtyBtn"
+                                onClick={() => changeQty(it.id, -1)}
+                                aria-label="Менше"
+                              >
+                                –
+                              </button>
+                              <span className="qty">{it.qty}</span>
+                              <button
+                                className="qtyBtn"
+                                onClick={() => changeQty(it.id, 1)}
+                                aria-label="Більше"
+                              >
+                                +
+                              </button>
+                            </>
+                          )}
+                        </div>
+
+                        <div className="cPrice">{fmt((it.price || 0) * (it.qty || 0))}</div>
+
+                        {!isGift ? (
+                          <button className="iconBtn rowX" onClick={() => removeItem(it.id)} aria-label="Видалити">
+                            ×
+                          </button>
+                        ) : (
+                          <div />
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
 
-                {/* текст під товарами */}
+                {/* ✅ Апсел стікерпаку */}
+                {!hasStickerInCart && (
+                  <div className="cartExtras">
+                    <div className="addonRowLine">
+                      <div>
+                        <b>Додати стікерпак</b> — {fmt(350)}
+                      </div>
+                      <button
+                        className="btn ghost"
+                        type="button"
+                        onClick={() => addItem({ ...PRODUCTS[0] }, 1)}
+                      >
+                        Додати
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ✅ Листівка */}
+                <div className="cartExtras">
+                  <label className="addonRow">
+                    <input
+                      type="checkbox"
+                      checked={hasPostcard}
+                      onChange={(e) => {
+                        if (e.target.checked) addItem({ ...POSTCARD }, 1);
+                        else removeItem("postcard");
+                      }}
+                    />
+                    <span>
+                      Додати листівку за <b>{fmt(POSTCARD.price)}</b>
+                    </span>
+                  </label>
+
+                  {hasPostcard && (
+                    <div className="addonField">
+                      <label htmlFor="postcardText">Текст для листівки (до 200 символів)</label>
+                      <textarea
+                        id="postcardText"
+                        rows={3}
+                        maxLength={200}
+                        placeholder="Наприклад: Для тебе 🤍"
+                        value={postcardItem?.postcardText || ""}
+                        onChange={(e) => setPostcardText(e.target.value)}
+                      />
+                      <div className="addonHint">
+                        {(postcardItem?.postcardText || "").length}/200
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <p className="cartNote">
-                  * Замовлення відправляємо протягом 4–5 робочих днів з моменту
-                  оплати. Десерт готується вручну та крафтово саме під вашу
-                  відправку.
+                  * Замовлення відправляємо протягом 4–5 робочих днів з моменту оплати.
+                  Десерт готується вручну та крафтово саме під вашу відправку.
                 </p>
 
                 <div className="modalFoot">
                   <div className="sum">
                     Всього: <b>{fmt(total)}</b>
-                    {belowMin && (
-                      <div className="sumHint">
-                        Мінімальне замовлення — {fmt(MIN_ORDER)}.
-                      </div>
-                    )}
+                    {belowMin && <div className="sumHint">Мінімальне замовлення — {fmt(MIN_ORDER)}.</div>}
                   </div>
                   <div className="actions">
-                    <button
-                      className="btn ghost"
-                      onClick={() => setCartOpen(false)}
-                    >
+                    <button className="btn ghost" onClick={() => setCartOpen(false)}>
                       Продовжити покупки
                     </button>
                     <button
@@ -365,9 +385,7 @@ function App() {
                       }}
                       disabled={belowMin}
                     >
-                      {belowMin
-                        ? `Мінімальне замовлення — ${MIN_ORDER} грн`
-                        : "Оформити"}
+                      {belowMin ? `Мінімальне замовлення — ${MIN_ORDER} грн` : "Оформити"}
                     </button>
                   </div>
                 </div>
@@ -378,28 +396,12 @@ function App() {
               <div className="summaryInModal">
                 {cart.map((it) => (
                   <div className="summaryRow" key={it.id}>
-                    <img className="thumb" src={it.img} alt={it.title} />
+                    {it.img ? <img className="thumb" src={it.img} alt={it.title} /> : <div className="thumb" />}
                     <div className="cTitle">{it.title}</div>
                     <div className="qtyRow">
-                      <button
-                        className="qtyBtn"
-                        onClick={() => changeQty(it.id, -1)}
-                        aria-label="Менше"
-                      >
-                        –
-                      </button>
-                      <span className="qty">{it.qty}</span>
-                      <button
-                        className="qtyBtn"
-                        onClick={() => changeQty(it.id, 1)}
-                        aria-label="Більше"
-                      >
-                        +
-                      </button>
+                      <span className="qty">{it.qty} шт</span>
                     </div>
-                    <div className="cPrice">
-                      {fmt(it.price * it.qty)}
-                    </div>
+                    <div className="cPrice">{fmt((it.price || 0) * (it.qty || 0))}</div>
                   </div>
                 ))}
                 <div className="summaryFoot">
@@ -411,64 +413,32 @@ function App() {
                 <div className="grid2">
                   <div>
                     <label htmlFor="firstName">Ім’я</label>
-                    <input
-                      id="firstName"
-                      name="firstName"
-                      required
-                      placeholder="Ім’я отримувача"
-                    />
+                    <input id="firstName" name="firstName" required placeholder="Ім’я отримувача" />
                   </div>
                   <div>
                     <label htmlFor="lastName">Прізвище</label>
-                    <input
-                      id="lastName"
-                      name="lastName"
-                      required
-                      placeholder="Прізвище"
-                    />
+                    <input id="lastName" name="lastName" required placeholder="Прізвище" />
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="phone">Телефон</label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    required
-                    placeholder="+380XXXXXXXXX"
-                  />
+                  <input id="phone" name="phone" required placeholder="+380XXXXXXXXX" />
                 </div>
+
                 <div>
-  <label htmlFor="email">Email (для підтвердження)</label>
-  <input
-    id="email"
-    name="email"
-    type="email"
-    required
-    placeholder="name@email.com"
-  />
-</div>
+                  <label htmlFor="email">Email (для підтвердження)</label>
+                  <input id="email" name="email" type="email" required placeholder="name@email.com" />
+                </div>
 
                 <div>
                   <label htmlFor="np">Місто / Відділення Нової Пошти</label>
-                  <input
-                    id="np"
-                    name="np"
-                    required
-                    placeholder="Київ, відділення №..."
-                  />
+                  <input id="np" name="np" required placeholder="Київ, відділення №..." />
                 </div>
 
                 <div>
-                  <label htmlFor="comment">
-                    Коментар до замовлення (необовʼязково)
-                  </label>
-                  <textarea
-                    id="comment"
-                    name="comment"
-                    rows={3}
-                    placeholder="Напишіть побажання до замовлення, упаковки тощо"
-                  />
+                  <label htmlFor="comment">Коментар до замовлення (необовʼязково)</label>
+                  <textarea id="comment" name="comment" rows={3} placeholder="Побажання до замовлення, упаковки тощо" />
                 </div>
 
                 <div className="modalFoot">
@@ -476,21 +446,11 @@ function App() {
                     Всього: <b>{fmt(total)}</b>
                   </div>
                   <div className="actions">
-                    <button
-                      type="button"
-                      className="btn ghost"
-                      onClick={() => setStage("cart")}
-                    >
+                    <button type="button" className="btn ghost" onClick={() => setStage("cart")}>
                       Назад до кошика
                     </button>
-                    <button
-                      type="submit"
-                      className="btn primary"
-                      disabled={submitting}
-                    >
-                      {submitting
-                        ? "Переходимо до оплати..."
-                        : "Підтвердити та оплатити"}
+                    <button type="submit" className="btn primary" disabled={submitting}>
+                      {submitting ? "Переходимо до оплати..." : "Підтвердити та оплатити"}
                     </button>
                   </div>
                 </div>
@@ -517,57 +477,19 @@ function App() {
 function SuccessPage() {
   const [order, setOrder] = useState(null);
 
-  // читаємо останнє замовлення з localStorage
   useEffect(() => {
     try {
       const raw = localStorage.getItem("itsadate:lastOrder");
       if (!raw) return;
-      const parsed = JSON.parse(raw);
-      setOrder(parsed);
-    } catch (e) {
-      console.warn("Не вдалося прочитати lastOrder", e);
-    }
+      setOrder(JSON.parse(raw));
+    } catch {}
   }, []);
-
-  // відправляємо SMS ОДИН РАЗ
-  useEffect(() => {
-    if (!order) return;
-    if (order.smsSent) return;
-    if (!order.customer?.phone) return;
-
-    const send = async () => {
-      try {
-        await fetch("/api/send-sms", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to: order.customer.phone,
-            text: `Ваше замовлення IT'S A DATE на суму ${order.total} грн прийнято. Ми відправимо його протягом 2–4 робочих днів Новою Поштою 🤍`,
-          }),
-        });
-
-        const updated = { ...order, smsSent: true };
-        setOrder(updated);
-        localStorage.setItem(
-          "itsadate:lastOrder",
-          JSON.stringify(updated)
-        );
-      } catch (e) {
-        console.error("Помилка відправки SMS", e);
-      }
-    };
-
-    send();
-  }, [order]);
 
   if (!order) {
     return (
       <section className="orderSuccess">
         <h2>Дякуємо за оплату!</h2>
-        <p>
-          Ваше замовлення прийнято в обробку. Якщо є питання — напишіть нам в
-          Instagram @kyivdinnerclub.
-        </p>
+        <p>Ваше замовлення прийнято в обробку. Якщо є питання — напишіть нам в Instagram @kyivdinnerclub.</p>
       </section>
     );
   }
@@ -577,63 +499,22 @@ function SuccessPage() {
   return (
     <section className="orderSuccess">
       <h2>Дякуємо за оплату! Замовлення прийнято 🤍</h2>
-      <p>
-        Ми вже готуємо ваш десерт. Деталі замовлення нижче, копія є у нас в
-        системі.
-      </p>
+      <p>Ми вже готуємо ваш десерт. Деталі замовлення нижче.</p>
 
       <h3>Що ви замовили:</h3>
       <ul className="cartList">
         {cart.map((it) => (
           <li className="cartRow" key={it.id}>
-            {it.img && <img className="thumb" src={it.img} alt={it.title} />}
+            {it.img ? <img className="thumb" src={it.img} alt={it.title} /> : <div className="thumb" />}
             <div className="cTitle">{it.title}</div>
             <div className="qtyRow">
               <span className="qty">{it.qty} шт</span>
             </div>
-            <div className="cPrice">{fmt(it.price * it.qty)}</div>
+            <div className="cPrice">{fmt((it.price || 0) * (it.qty || 0))}</div>
           </li>
         ))}
       </ul>
-      {(() => {
-  const hasPostcard = cart.some((x) => x.id === "postcard");
-  const postcardItem = cart.find((x) => x.id === "postcard");
 
-  return (
-    <div className="cartExtras">
-      <label className="addonRow">
-        <input
-          type="checkbox"
-          checked={hasPostcard}
-          onChange={(e) => {
-            if (e.target.checked) addItem({ ...POSTCARD }, 1);
-            else removeItem("postcard");
-          }}
-        />
-        <span>
-          Додати листівку за <b>{fmt(POSTCARD.price)}</b>
-        </span>
-      </label>
-
-      {hasPostcard && (
-        <div className="addonField">
-          <label htmlFor="postcardText">Текст для листівки (до 200 символів)</label>
-          <textarea
-            id="postcardText"
-            rows={3}
-            maxLength={200}
-            placeholder="Наприклад: Для тебе 🤍"
-            value={postcardItem?.postcardText || ""}
-            onChange={(e) => setPostcardText(e.target.value)}
-          />
-          <div className="addonHint">
-            {(postcardItem?.postcardText || "").length}/200
-          </div>
-        </div>
-      )}
-    </div>
-  );
-})()}
       <div className="summaryFoot">
         Всього: <b>{fmt(total)}</b>
       </div>
@@ -646,11 +527,7 @@ function SuccessPage() {
       <p>Нова Пошта: {customer.np}</p>
       {customer.comment && <p>Коментар: {customer.comment}</p>}
 
-      <button
-        className="btn primary"
-        style={{ marginTop: "16px" }}
-        onClick={() => (window.location.href = "/")}
-      >
+      <button className="btn primary" style={{ marginTop: "16px" }} onClick={() => (window.location.href = "/")}>
         Повернутись до каталогу
       </button>
     </section>
@@ -664,23 +541,13 @@ function Header({ count, onOpen }) {
       <div className="siteHeader__inner">
         <div className="brandWrap">
           <h1 className="brand">
-            <img
-              src="/img/its-a-date-logo.svg"
-              alt="IT’S A DATE!"
-              className="brandLogo"
-            />
+            <img src="/img/its-a-date-logo.svg" alt="IT’S A DATE!" className="brandLogo" />
           </h1>
           <div className="subBrand">Kyiv Dinner Club</div>
         </div>
       </div>
 
-      <a
-        className="igFixed"
-        href={INSTAGRAM_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Instagram"
-      >
+      <a className="igFixed" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
         <InstagramSvg />
       </a>
 
@@ -694,15 +561,7 @@ function Header({ count, onOpen }) {
 
 /* ================= ІКОНКИ ================= */
 const CartSvg = ({ size = 28 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    role="img"
-    aria-label="Кошик"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Кошик">
     <path
       d="M6 6h14l-1.6 7.2a2 2 0 0 1-2 1.6H9.1a2 2 0 0 1-2-1.5L5.2 3.8H3"
       stroke="#111"
@@ -716,15 +575,7 @@ const CartSvg = ({ size = 28 }) => (
 );
 
 const InstagramSvg = ({ size = 28 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    role="img"
-    aria-label="Instagram"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Instagram">
     <rect x="3" y="3" width="18" height="18" rx="5" stroke="#111" strokeWidth="1.8" />
     <circle cx="12" cy="12" r="3.8" stroke="#111" strokeWidth="1.8" />
     <circle cx="17.3" cy="6.7" r="1.2" fill="#111" />
@@ -742,8 +593,7 @@ function Catalog({ products, onBuy }) {
       [id]: Math.max(1, Math.min(99, f(m[id] || 1))),
     }));
 
-  const setFormat = (id, fmtId) =>
-    setFormatMap((m) => ({ ...m, [id]: fmtId }));
+  const setFormat = (id, fmtId) => setFormatMap((m) => ({ ...m, [id]: fmtId }));
 
   return (
     <section className="grid">
@@ -757,21 +607,10 @@ function Catalog({ products, onBuy }) {
 
         const handleBuy = () => {
           const fmtId = selectedFormat;
-          const isToGo = fmtId === "togo";
-          const cartId =
-  fmtId === "togo" ? `${p.id}-togo` : (p.badge ? p.id : `${p.id}-big`);
-          const title = isToGo ? `${p.title} TO GO` : p.title;
+          const cartId = fmtId === "togo" ? `${p.id}-togo` : p.badge ? p.id : `${p.id}-big`;
+          const title = fmtId === "togo" ? `${p.title} TO GO` : p.title;
 
-          const payload = {
-            ...p,
-            id: cartId,
-            baseId: p.id,
-            variant: fmtId,
-            title,
-            price,
-          };
-
-          onBuy(payload, qty);
+          onBuy({ ...p, id: cartId, baseId: p.id, variant: fmtId, title, price }, qty);
         };
 
         return (
@@ -779,67 +618,56 @@ function Catalog({ products, onBuy }) {
             <div className="imgWrap">
               <img src={p.img} alt={p.title} />
             </div>
-            <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
-            {p.id === "stickerpack" ? (
-  <p className="cardDesc cardDesc--sticker">
-    {p.desc}
-    {p.descEmojis && <span className="noBreak"> {p.descEmojis}</span>}
-    {p.desc2 && <span className="descLine2">{p.desc2}</span>}
-  </p>
-) : (
-  p.desc && <p className="cardDesc">{p.desc}</p>
-)}
-            {p.badge ? (
-  <div className="sizeRow">{p.badge}</div>
-) : (
-  <div className="formatRow">
-    <button
-      type="button"
-      className={
-        selectedFormat === "big"
-          ? "fmtChoice fmtChoice--active"
-          : "fmtChoice"
-      }
-      onClick={() => setFormat(p.id, "big")}
-    >
-      BIG
-    </button>
 
-    {!!p.formats?.togo && (
-      <button
-        type="button"
-        className={
-          selectedFormat === "togo"
-            ? "fmtChoice fmtChoice--active"
-            : "fmtChoice"
-        }
-        onClick={() => setFormat(p.id, "togo")}
-      >
-        TO GO
-      </button>
-    )}
-  </div>
-)}
+            <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
+
+            {p.id === "stickerpack" ? (
+              <p className="cardDesc cardDesc--sticker">
+                {p.desc}
+                {p.descEmojis && <span className="noBreak"> {p.descEmojis}</span>}
+                {p.desc2 && <span className="descLine2">{p.desc2}</span>}
+              </p>
+            ) : (
+              p.desc && <p className="cardDesc">{p.desc}</p>
+            )}
+
+            {p.badge ? (
+              <div className="sizeRow">{p.badge}</div>
+            ) : (
+              <div className="formatRow">
+                <button
+                  type="button"
+                  className={selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
+                  onClick={() => setFormat(p.id, "big")}
+                >
+                  BIG
+                </button>
+
+                {!!p.formats?.togo && (
+                  <button
+                    type="button"
+                    className={selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
+                    onClick={() => setFormat(p.id, "togo")}
+                  >
+                    TO GO
+                  </button>
+                )}
+              </div>
+            )}
 
             <div className="cardFooter">
               <div className="price">{fmt(price)}</div>
+
               <div className="qtyGroup">
-                <button
-                  className="qtyBtn"
-                  onClick={() => setQty(p.id, (n) => n - 1)}
-                  aria-label="Менше"
-                >
+                <button className="qtyBtn" onClick={() => setQty(p.id, (n) => n - 1)} aria-label="Менше">
                   –
                 </button>
                 <span className="qtyVal">{qty}</span>
-                <button
-                  className="qtyBtn"
-                  onClick={() => setQty(p.id, (n) => n + 1)}
-                  aria-label="Більше"
-                >
+                <button className="qtyBtn" onClick={() => setQty(p.id, (n) => n + 1)} aria-label="Більше">
                   +
                 </button>
               </div>
+
               <button className="buyBtn" onClick={handleBuy}>
                 Додати в кошик
               </button>
@@ -855,12 +683,7 @@ function Catalog({ products, onBuy }) {
 function Modal({ children, onClose }) {
   return (
     <div className="modalOverlay" onClick={onClose}>
-      <div
-        className="modal"
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>
