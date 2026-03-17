@@ -732,3 +732,49 @@ textarea{
 html, body { overflow-x: hidden; }
 .modalOverlay { overflow-x: hidden; }
 .modal { overscroll-behavior: contain; }
+/* ===== Cart upsell line (addonRowLine): text + button on one row ===== */
+.addonRowLine{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.addonRowLine > div{
+  flex:1;
+  min-width:0;
+}
+
+.addonRowLine .btn{
+  height:36px;
+  padding:0 14px;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+/* ===== FIX: card footer on small screens (button not overflow) ===== */
+@media (max-width: 640px) {
+  .cardFooter{
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "price qty"
+      "btn btn";
+    gap: 10px;
+  }
+
+  .price{ grid-area: price; }
+  .qtyGroup{
+    grid-area: qty;
+    justify-content: flex-end;
+  }
+
+  .buyBtn{
+    grid-area: btn;
+    width: 100%;
+    justify-self: stretch;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+}
