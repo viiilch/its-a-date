@@ -535,6 +535,7 @@ textarea{
 .copy{ margin-top:8px; }
 
 /* === МОБІЛЬНИЙ ХЕДЕР === */
+/* === МОБІЛЬНИЙ ХЕДЕР === */
 @media (max-width:640px){
   .siteHeader{
     position:fixed !important;
@@ -543,13 +544,12 @@ textarea{
     width:100% !important;
     z-index:1000 !important;
   }
-  @media (max-width:640px){
+
   /* щоб довгі слова/назви не розпирали рядок */
   .cTitle { word-break: break-word; }
-  
+
   /* щоб textarea/inputs не вилазили */
   input, textarea { max-width: 100%; }
-}
 
   .siteHeader__inner{
     flex-direction:column !important;
