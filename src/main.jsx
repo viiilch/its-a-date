@@ -101,16 +101,19 @@ function App() {
     return () => document.body.classList.remove("modal-open");
   }, [cartOpen]);
 
-  function addItem(p, qty = 1) {
+  function addItem(p, qty = 1, { silent = false } = {}) {
     setCart((prev) => {
       const i = prev.findIndex((x) => x.id === p.id);
       if (i === -1) return [...prev, { ...p, qty }];
       const copy = [...prev];
-      copy[i] = { ...copy[i], qty: Math.min(99, copy[i].qty + qty) };
+      copy[i] = { ...copy[i], qty: Math.min(99, (copy[i].qty || 0) + qty) };
       return copy;
     });
-    setCartOpen(true);
-    setStage("cart");
+
+    if (!silent) {
+      setCartOpen(true);
+      setStage("cart");
+    }
   }
 
   function removeItem(id) {
@@ -125,7 +128,7 @@ function App() {
           const q = Math.max(0, Math.min(99, (it.qty || 0) + d));
           return { ...it, qty: q };
         })
-        .filter((it) => (it.qty || 0) > 0)
+        .filter((it) => (it.qty || 0) > 0) // ✅ qty 0 -> видалити
     );
   }
 
@@ -136,7 +139,7 @@ function App() {
     );
   }
 
-  // ✅ ПОДАРУНОК: стікерпак + будь-яка BIG -> додаємо gift-mixed-togo
+  // ✅ ПОДАРУНОК: стікерпак + будь-яка BIG -> gift-mixed-togo
   useEffect(() => {
     const hasSticker = cart.some((x) => x.id === "stickerpack");
     const hasAnyBig = cart.some((x) => String(x.id || "").endsWith("-big"));
@@ -145,12 +148,11 @@ function App() {
     const shouldHaveGift = hasSticker && hasAnyBig;
 
     if (shouldHaveGift && !hasGift) {
-      // додаємо тихо (без open cart)
-      setCart((prev) => [...prev, { ...GIFT_TOGO_MIXED, qty: 1 }]);
+      addItem({ ...GIFT_TOGO_MIXED }, 1, { silent: true });
     }
 
     if (!shouldHaveGift && hasGift) {
-      setCart((prev) => prev.filter((x) => x.id !== "gift-mixed-togo"));
+      removeItem("gift-mixed-togo");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart]);
@@ -160,6 +162,11 @@ function App() {
     [cart]
   );
   const count = useMemo(() => cart.reduce((s, it) => s + (it.qty || 0), 0), [cart]);
+
+  const belowMin = total < MIN_ORDER;
+  const hasStickerInCart = cart.some((x) => x.id === "stickerpack");
+  const hasPostcard = cart.some((x) => x.id === "postcard");
+  const postcardItem = cart.find((x) => x.id === "postcard");
 
   async function submit(e) {
     e.preventDefault();
@@ -190,14 +197,15 @@ function App() {
     }));
 
     try {
-      const payloadForClient = {
-        cart: safeCart,
-        customer,
-        total,
-        createdAt: Date.now(),
-        smsSent: false,
-      };
-      localStorage.setItem("itsadate:lastOrder", JSON.stringify(payloadForClient));
+      localStorage.setItem(
+        "itsadate:lastOrder",
+        JSON.stringify({
+          cart: safeCart,
+          customer,
+          total,
+          createdAt: Date.now(),
+        })
+      );
     } catch {}
 
     try {
@@ -221,11 +229,6 @@ function App() {
       setSubmitting(false);
     }
   }
-
-  const belowMin = total < MIN_ORDER;
-  const hasStickerInCart = cart.some((x) => x.id === "stickerpack");
-  const hasPostcard = cart.some((x) => x.id === "postcard");
-  const postcardItem = cart.find((x) => x.id === "postcard");
 
   return (
     <>
@@ -269,9 +272,15 @@ function App() {
                 <ul className="cartList">
                   {cart.map((it) => {
                     const isGift = it.id === "gift-mixed-togo";
+
                     return (
                       <li className="cartRow" key={it.id}>
-                        {it.img ? <img className="thumb" src={it.img} alt={it.title} /> : <div className="thumb" />}
+                        {it.img ? (
+                          <img className="thumb" src={it.img} alt={it.title} />
+                        ) : (
+                          <div className="thumb" />
+                        )}
+
                         <div className="cTitle">{it.title}</div>
 
                         <div className="qtyRow">
@@ -279,19 +288,11 @@ function App() {
                             <span className="qty">1 шт</span>
                           ) : (
                             <>
-                              <button
-                                className="qtyBtn"
-                                onClick={() => changeQty(it.id, -1)}
-                                aria-label="Менше"
-                              >
+                              <button className="qtyBtn" onClick={() => changeQty(it.id, -1)} aria-label="Менше">
                                 –
                               </button>
                               <span className="qty">{it.qty}</span>
-                              <button
-                                className="qtyBtn"
-                                onClick={() => changeQty(it.id, 1)}
-                                aria-label="Більше"
-                              >
+                              <button className="qtyBtn" onClick={() => changeQty(it.id, 1)} aria-label="Більше">
                                 +
                               </button>
                             </>
@@ -300,30 +301,24 @@ function App() {
 
                         <div className="cPrice">{fmt((it.price || 0) * (it.qty || 0))}</div>
 
-                        {!isGift ? (
+                        {!isGift && (
                           <button className="iconBtn rowX" onClick={() => removeItem(it.id)} aria-label="Видалити">
                             ×
                           </button>
-                        ) : (
-                          <div />
                         )}
                       </li>
                     );
                   })}
                 </ul>
 
-                {/* ✅ Апсел стікерпаку */}
+                {/* ✅ Апсел стікерпаку (калі яго яшчэ няма) */}
                 {!hasStickerInCart && (
                   <div className="cartExtras">
                     <div className="addonRowLine">
                       <div>
                         <b>Додати стікерпак</b> — {fmt(350)}
                       </div>
-                      <button
-                        className="btn ghost"
-                        type="button"
-                        onClick={() => addItem({ ...PRODUCTS[0] }, 1)}
-                      >
+                      <button className="btn ghost addonBtn" type="button" onClick={() => addItem({ ...PRODUCTS[0] }, 1)}>
                         Додати
                       </button>
                     </div>
@@ -357,16 +352,13 @@ function App() {
                         value={postcardItem?.postcardText || ""}
                         onChange={(e) => setPostcardText(e.target.value)}
                       />
-                      <div className="addonHint">
-                        {(postcardItem?.postcardText || "").length}/200
-                      </div>
+                      <div className="addonHint">{(postcardItem?.postcardText || "").length}/200</div>
                     </div>
                   )}
                 </div>
 
                 <p className="cartNote">
-                  * Замовлення відправляємо протягом 4–5 робочих днів з моменту оплати.
-                  Десерт готується вручну та крафтово саме під вашу відправку.
+                  * Замовлення відправляємо протягом 4–5 робочих днів з моменту оплати. Десерт готується вручну та крафтово саме під вашу відправку.
                 </p>
 
                 <div className="modalFoot">
@@ -378,13 +370,7 @@ function App() {
                     <button className="btn ghost" onClick={() => setCartOpen(false)}>
                       Продовжити покупки
                     </button>
-                    <button
-                      className="btn primary"
-                      onClick={() => {
-                        if (!belowMin) setStage("checkout");
-                      }}
-                      disabled={belowMin}
-                    >
+                    <button className="btn primary" onClick={() => !belowMin && setStage("checkout")} disabled={belowMin}>
                       {belowMin ? `Мінімальне замовлення — ${MIN_ORDER} грн` : "Оформити"}
                     </button>
                   </div>
@@ -499,7 +485,7 @@ function SuccessPage() {
   return (
     <section className="orderSuccess">
       <h2>Дякуємо за оплату! Замовлення прийнято 🤍</h2>
-      <p>Ми вже готуємо ваш десерт. Деталі замовлення нижче.</p>
+      <p>Ми вже готуємо ваш десерт. Деталі замовлення ніжэй.</p>
 
       <h3>Що ви замовили:</h3>
       <ul className="cartList">

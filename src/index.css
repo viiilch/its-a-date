@@ -41,10 +41,7 @@ body{
   position:relative;
 }
 
-.brandWrap{
-  text-align:center;
-}
-
+.brandWrap{ text-align:center; }
 .brand{ margin:0; }
 
 .brandLogo{
@@ -62,12 +59,7 @@ body{
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
 }
 
-/* B2B — просто сховаємо, якщо раптом десь лишилось */
-.b2bFixed{
-  display:none !important;
-}
-
-/* ПРАВИЙ ВЕРХНІЙ КУТОК: instagram + cart */
+/* ПРАВИЙ ВЕРХНІЙ КУТОК */
 .igFixed,
 .cartFixed{
   position:absolute;
@@ -82,20 +74,11 @@ body{
   cursor:pointer;
 }
 
-.igFixed{
-  right:56px;
-}
+.igFixed{ right:56px; }
+.cartFixed{ right:20px; }
 
-.cartFixed{
-  right:20px;
-}
-
-/* всередині — тільки svg, без квадратів */
 .igFixed svg,
-.cartFixed svg{
-  width:28px;
-  height:28px;
-}
+.cartFixed svg{ width:28px; height:28px; }
 
 .cartBadge{
   position:absolute;
@@ -113,12 +96,7 @@ body{
   padding:0 4px;
 }
 
-.igFixed:hover,
-.cartFixed:hover{
-  opacity:0.85;
-}
-
-/* ===== КОНТЕНТ / КАТАЛОГ ===== */
+/* ===== КОНТЕНТ ===== */
 .container{
   max-width:1120px;
   margin:0 auto;
@@ -139,7 +117,7 @@ body{
   .grid{ grid-template-columns:1fr; }
 }
 
-/* ===== КАРТКА ТОВАРУ ===== */
+/* ===== КАРТКА ===== */
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -158,10 +136,8 @@ body{
   align-items:center;
   justify-content:center;
   overflow:hidden;
-
-  /* було aspect-ratio: 3 / 4; */
-  aspect-ratio: 1 / 1;     /* ✅ квадрат — найкраще вирівнює різні фото */
-  padding:14px;            /* ✅ щоб стікери не прилипали до країв */
+  aspect-ratio: 1 / 1;
+  padding:14px;
 }
 
 .imgWrap img{
@@ -179,7 +155,6 @@ body{
   text-transform:uppercase;
   letter-spacing:0.06em;
 
-  /* ✅ 2 рядки максимум */
   min-height:56px;
   display:-webkit-box;
   -webkit-box-orient:vertical;
@@ -193,20 +168,20 @@ body{
   font-size:14px;
   line-height:1.4;
 
-  /* ✅ 2 рядки максимум */
   min-height:40px;
   display:-webkit-box;
   -webkit-box-orient:vertical;
   -webkit-line-clamp:2;
   overflow:hidden;
 }
-/* тільки для стікерпаку */
+
 .cardDesc--sticker{
   font-size:13px;
   line-height:1.35;
 }
+
 .noBreak { white-space: nowrap; }
-.descLine2 { display: block; }
+.descLine2 { display:block; }
 
 /* ===== BIG / TO GO ===== */
 .formatRow{
@@ -215,6 +190,7 @@ body{
   margin-top:10px;
   margin-bottom:4px;
 }
+
 .sizeRow{
   display:flex;
   gap:24px;
@@ -236,14 +212,12 @@ body{
   cursor:pointer;
 }
 
-.fmtChoice--active{
-  color:#000;
-}
+.fmtChoice--active{ color:#000; }
 
 /* ===== НИЗ КАРТКИ ===== */
 .cardFooter{
   display:grid;
-  grid-template-columns:min-content 1fr auto;
+  grid-template-columns:min-content 1fr minmax(0, max-content);
   align-items:center;
   gap:16px;
   margin-top:auto;
@@ -278,16 +252,20 @@ body{
   font-weight:700;
 }
 
+/* ✅ ГЛАЎНЫ ФІКС КНОПКІ */
 .buyBtn{
   justify-self:end;
   height:32px;
-  padding:0 26px;
+  padding:0 14px;
   border-radius:10px;
   border:1px solid #111;
   background:#111;
   color:#fff;
   font-weight:900;
   cursor:pointer;
+
+  max-width:100%;
+  min-width:0;
   white-space:nowrap;
 }
 
@@ -347,11 +325,8 @@ body{
   cursor:pointer;
 }
 
-/* Кошик у модалці */
-.cartEmpty{
-  text-align:center;
-  padding:24px 12px;
-}
+/* Кошик */
+.cartEmpty{ text-align:center; padding:24px 12px; }
 
 .cartList{
   list-style:none;
@@ -368,7 +343,7 @@ body{
   color:#6b7280;
 }
 
-/* рядки в кошику та резюме */
+/* рядки в кошику */
 .cartRow,
 .summaryRow{
   display:grid;
@@ -390,7 +365,7 @@ body{
   background:#fff;
 }
 
-.cTitle{ font-weight:800; }
+.cTitle{ font-weight:800; word-break: break-word; }
 
 .qtyRow{
   display:inline-flex;
@@ -425,13 +400,7 @@ body{
 }
 
 .sum{ font-size:18px; }
-
-.sumHint{
-  margin-top:4px;
-  font-size:13px;
-  color:#b91c1c;
-}
-
+.sumHint{ margin-top:4px; font-size:13px; color:#b91c1c; }
 .actions{ display:flex; gap:10px; }
 
 .btn{
@@ -445,10 +414,7 @@ body{
   font-weight:800;
 }
 
-.btn[disabled]{
-  opacity:.6;
-  cursor:not-allowed;
-}
+.btn[disabled]{ opacity:.6; cursor:not-allowed; }
 
 .btn.ghost{
   background:#fff;
@@ -456,13 +422,7 @@ body{
   border:1px solid #ddd;
 }
 
-.btn.primary{
-  background:#111;
-  color:#fff;
-  border:1px solid #111;
-}
-
-/* ===== ОФОРМЛЕННЯ ФОРМИ ===== */
+/* ===== ОФОРМЛЕННЯ ===== */
 .summaryInModal{ padding:8px 0 0; }
 .summaryFoot{ padding:6px 2px 0; font-size:16px; }
 
@@ -478,12 +438,7 @@ body{
   gap:12px;
 }
 
-label{
-  display:block;
-  margin-bottom:6px;
-  font-weight:800;
-  font-size:14px;
-}
+label{ display:block; margin-bottom:6px; font-weight:800; font-size:14px; }
 
 input{
   width:100%;
@@ -492,6 +447,7 @@ input{
   border-radius:10px;
   padding:0 12px;
   font-size:16px;
+  max-width:100%;
 }
 
 textarea{
@@ -503,6 +459,7 @@ textarea{
   font-family:"SF Pro Display",-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Arial,sans-serif;
   min-height:80px;
   resize:vertical;
+  max-width:100%;
 }
 
 /* ===== ФУТЕР ===== */
@@ -526,162 +483,10 @@ textarea{
   flex-wrap:wrap;
 }
 
-.payIcon{
-  height:24px;
-  width:auto;
-  display:inline-block;
-}
-
+.payIcon{ height:24px; width:auto; display:inline-block; }
 .copy{ margin-top:8px; }
 
-/* === МОБІЛЬНИЙ ХЕДЕР === */
-/* === МОБІЛЬНИЙ ХЕДЕР === */
-@media (max-width:640px){
-  .siteHeader{
-    position:fixed !important;
-    top:0 !important;
-    left:0 !important;
-    width:100% !important;
-    z-index:1000 !important;
-  }
-
-  /* щоб довгі слова/назви не розпирали рядок */
-  .cTitle { word-break: break-word; }
-
-  /* щоб textarea/inputs не вилазили */
-  input, textarea { max-width: 100%; }
-
-  .siteHeader__inner{
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:center !important;
-  }
-
-  .brandLogo{
-    max-width:360px;
-  }
-
-  .headerIcons{
-    position:static !important;
-    transform:none !important;
-    margin-top:8px !important;
-    width:100% !important;
-    display:flex !important;
-    justify-content:flex-end !important;
-    align-items:center !important;
-    padding-right:16px;
-  }
-
-  .igFixed,
-  .cartFixed{
-    position:static !important;
-  }
-
-  .igFixed + .cartFixed{
-    margin-left:24px !important;
-  }
-}
-
-/* ===== ЛОКАЛЬНІ ШРИФТИ ===== */
-@font-face{
-  font-family:"Hagrid";
-  src:url("/fonts/Hagrid-Heavy-trial.otf") format("opentype");
-  font-weight:900;
-  font-style:normal;
-  font-display:swap;
-}
-
-@font-face{
-  font-family:"Hagrid";
-  src:url("/fonts/Hagrid-Extrabold-trial.otf") format("opentype");
-  font-weight:800;
-  font-style:normal;
-  font-display:swap;
-}
-
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
-  font-weight:400;
-  font-style:normal;
-  font-display:swap;
-}
-
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
-  font-weight:500;
-  font-style:normal;
-  font-display:swap;
-}
-
-@font-face{
-  font-family:"SF Pro Display";
-  src:url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
-  font-weight:700;
-  font-style:normal;
-  font-display:swap;
-}
-
-/* Kyiv Dinner Club рукописний */
-@font-face{
-  font-family:"KyivDinnerClub";
-  src:url("/fonts/KyivDinnerClub.otf") format("opentype");
-  font-weight:400;
-  font-style:normal;
-  font-display:swap;
-}
-
-.noBreak { white-space: nowrap; }
-.descLine2 { display: block; }
-
-.cardDesc--sticker{
-  font-size:13px;
-  line-height:1.35;
-}
-/* ===== MOBILE CART FIX (no horizontal scroll) ===== */
-@media (max-width:640px){
-
-  /* щоб не з’являвся боковий скрол у модалці */
-  .modal{ overflow-x: hidden; }
-
-  /* робимо рядок кошика компактним: 2 колонки, 3 рядки */
-  .cartRow,
-  .summaryRow{
-    position:relative;
-    grid-template-columns:64px 1fr;
-    grid-template-areas:
-      "img title"
-      "img qty"
-      "img price";
-    gap:10px;
-    padding:12px 44px 12px 12px; /* справа місце під × */
-  }
-
-  .thumb{ grid-area: img; width:64px; height:64px; }
-
-  .cTitle{ grid-area: title; }
-
-  .qtyRow{ 
-    grid-area: qty; 
-    justify-content:flex-start;
-    min-width:0;
-  }
-
-  .cPrice{
-    grid-area: price;
-    text-align:left;
-    padding:0;
-  }
-
-  /* × завжди видно зверху справа */
-  .rowX{
-    position:absolute;
-    top:10px;
-    right:10px;
-  }
-}
-/* ===== CART EXTRAS (postcard + upsell) ===== */
+/* ===== CART EXTRAS ===== */
 .cartExtras{
   margin: 10px 2px 10px;
   padding: 10px 12px;
@@ -697,42 +502,12 @@ textarea{
   font-size:14px;
   color:#111;
 }
+
 .addonRow input{ width:16px; height:16px; }
 
 .addonField{ margin-top:10px; }
 .addonHint{ font-size:12px; color:#6b7280; margin-top:6px; }
 
-.upsellBox{
-  margin: 10px 2px 10px;
-  padding: 12px;
-  border:1px solid var(--border);
-  border-radius:14px;
-  background:#fff;
-
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-
-.upsellText{
-  font-size:14px;
-  color:#111;
-  flex: 1;            /* ✅ текст займає весь простір */
-  line-height: 1.3;
-}
-
-.upsellBtn{
-  height:36px;
-  padding: 0 14px;
-  white-space: nowrap; /* ✅ щоб “Додати” не переносилось */
-  flex: 0 0 auto;      /* ✅ кнопка не стискається */
-}
-/* ===== HARD STOP horizontal scroll ===== */
-html, body { overflow-x: hidden; }
-.modalOverlay { overflow-x: hidden; }
-.modal { overscroll-behavior: contain; }
-/* ===== Cart upsell line (addonRowLine): text + button on one row ===== */
 .addonRowLine{
   display:flex;
   align-items:center;
@@ -740,41 +515,129 @@ html, body { overflow-x: hidden; }
   gap:12px;
 }
 
-.addonRowLine > div{
-  flex:1;
-  min-width:0;
-}
+.addonRowLine > div{ flex:1; min-width:0; }
 
-.addonRowLine .btn{
+.addonBtn{
   height:36px;
   padding:0 14px;
   white-space:nowrap;
-  flex:0 0 auto;
 }
-/* ===== FIX: card footer on small screens (button not overflow) ===== */
-@media (max-width: 640px) {
+
+/* ===== MOBILE ===== */
+@media (max-width:640px){
+  .siteHeader{
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    width:100% !important;
+    z-index:1000 !important;
+  }
+
+  .siteHeader__inner{
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+
+  .brandLogo{ max-width:360px; }
+
+  .igFixed,
+  .cartFixed{ position:static !important; }
+
+  .modal{ overflow-x:hidden; }
+
+  /* cart row: no horizontal scroll */
+  .cartRow,
+  .summaryRow{
+    position:relative;
+    grid-template-columns:64px 1fr;
+    grid-template-areas:
+      "img title"
+      "img qty"
+      "img price";
+    gap:10px;
+    padding:12px 44px 12px 12px;
+  }
+
+  .thumb{ grid-area: img; width:64px; height:64px; }
+  .cTitle{ grid-area: title; }
+  .qtyRow{ grid-area: qty; justify-content:flex-start; min-width:0; }
+  .cPrice{ grid-area: price; text-align:left; padding:0; }
+
+  .rowX{
+    position:absolute;
+    top:10px;
+    right:10px;
+  }
+
+  /* ✅ BUTTON FIX on mobile: move to 2nd line and full width */
   .cardFooter{
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "price qty"
       "btn btn";
-    gap: 10px;
+    gap:10px;
   }
 
   .price{ grid-area: price; }
-  .qtyGroup{
-    grid-area: qty;
-    justify-content: flex-end;
-  }
+  .qtyGroup{ grid-area: qty; justify-content:flex-end; }
 
   .buyBtn{
     grid-area: btn;
-    width: 100%;
-    justify-self: stretch;
-    height: 40px;
-    padding: 0 12px;
-    font-size: 14px;
-    border-radius: 12px;
-    white-space: nowrap;
+    width:100%;
+    justify-self:stretch;
+    min-width:0;
+    height:40px;
+    padding:0 12px;
+    font-size:14px;
+    border-radius:12px;
   }
+}
+
+/* hard stop for horizontal scroll */
+html, body { overflow-x:hidden; }
+.modalOverlay { overflow-x:hidden; }
+
+/* ===== ЛОКАЛЬНІ ШРИФТИ ===== */
+@font-face{
+  font-family:"Hagrid";
+  src:url("/fonts/Hagrid-Heavy-trial.otf") format("opentype");
+  font-weight:900;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"Hagrid";
+  src:url("/fonts/Hagrid-Extrabold-trial.otf") format("opentype");
+  font-weight:800;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
+  font-weight:500;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SF Pro Display";
+  src:url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"KyivDinnerClub";
+  src:url("/fonts/KyivDinnerClub.otf") format("opentype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
 }
