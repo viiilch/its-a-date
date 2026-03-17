@@ -544,26 +544,31 @@ textarea{
 
 /* ===== MOBILE FIXES ===== */
 @media (max-width:640px){
+
+  /* ✅ НЕ робимо іконки static — хай лишаються справа зверху */
   .siteHeader{
-    position:fixed !important;
-    top:0 !important;
-    left:0 !important;
-    width:100% !important;
-    z-index:1000 !important;
+    position: sticky;              /* було fixed — через це часто все наїжджає */
+    top: 0;
+    z-index: 1000;
+    padding: 16px 12px 10px;       /* компактніше */
   }
 
-  .siteHeader__inner{
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:center !important;
-  }
+  .brandLogo{ max-width: 320px; }
 
-  .brandLogo{ max-width:360px; }
-
+  /* іконки як на десктопі — справа зверху */
   .igFixed,
-  .cartFixed{ position:static !important; }
+  .cartFixed{
+    position: absolute !important;
+    top: 16px !important;
+    background: transparent;
+  }
+  .igFixed{ right: 56px !important; }
+  .cartFixed{ right: 16px !important; }
 
-  /* cart row: no horizontal scroll */
+  /* ✅ модалка: щоб не було горизонтального скролу */
+  .modal{ overflow-x:hidden; max-height: 92vh; }
+
+  /* ✅ cart/checkout row: без горизонтального скролу */
   .cartRow,
   .summaryRow{
     position:relative;
@@ -577,7 +582,7 @@ textarea{
   }
 
   .thumb{ grid-area: img; width:64px; height:64px; }
-  .cTitle{ grid-area: title; }
+  .cTitle{ grid-area: title; word-break: break-word; }
   .qtyRow{ grid-area: qty; justify-content:flex-start; min-width:0; }
   .cPrice{ grid-area: price; text-align:left; padding:0; }
 
@@ -587,7 +592,22 @@ textarea{
     right:10px;
   }
 
-  /* ✅ КНОПКА "Додати в кошик" на 2-й рядок і на всю ширину */
+  /* ✅ кнопки внизу модалки: в колонку, щоб нічого не наїжджало */
+  .modalFoot{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .actions{
+    width:100%;
+    display:flex;
+    gap:10px;
+  }
+  .actions .btn{
+    flex:1;
+  }
+
+  /* ✅ кнопка "Додати в кошик" в картці: на 2-й рядок і на всю ширину */
   .cardFooter{
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
