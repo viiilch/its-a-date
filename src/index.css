@@ -1,3 +1,5 @@
+/* src/index.css */
+
 /* ===== ШРИФТИ З GOOGLE ===== */
 @import url("https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&display=swap");
 
@@ -13,6 +15,7 @@
 /* ===== БАЗА ===== */
 * { box-sizing:border-box; }
 html,body,#root { height:100%; }
+html, body { overflow-x:hidden; }
 
 body{
   margin:0;
@@ -59,7 +62,7 @@ body{
   font-family:"KyivDinnerClub","SF Pro Display",cursive;
 }
 
-/* ПРАВИЙ ВЕРХНІЙ КУТОК */
+/* ПРАВИЙ ВЕРХНІЙ КУТОК: instagram + cart */
 .igFixed,
 .cartFixed{
   position:absolute;
@@ -96,7 +99,7 @@ body{
   padding:0 4px;
 }
 
-/* ===== КОНТЕНТ ===== */
+/* ===== КОНТЕНТ / КАТАЛОГ ===== */
 .container{
   max-width:1120px;
   margin:0 auto;
@@ -117,7 +120,7 @@ body{
   .grid{ grid-template-columns:1fr; }
 }
 
-/* ===== КАРТКА ===== */
+/* ===== КАРТКА ТОВАРУ ===== */
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -252,7 +255,7 @@ body{
   font-weight:700;
 }
 
-/* ✅ ГЛАЎНЫ ФІКС КНОПКІ */
+/* ✅ ФІКС: текст по центру кнопки */
 .buyBtn{
   justify-self:end;
   height:32px;
@@ -263,6 +266,11 @@ body{
   color:#fff;
   font-weight:900;
   cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
 
   max-width:100%;
   min-width:0;
@@ -280,6 +288,7 @@ body{
   align-items:center;
   justify-content:center;
   z-index:3000;
+  overflow-x:hidden;
 }
 
 .modal{
@@ -287,6 +296,7 @@ body{
   max-width:92vw;
   max-height:88vh;
   overflow:auto;
+  overflow-x:hidden;
   background:#fff;
   border-radius:16px;
   border:1px solid var(--border);
@@ -325,7 +335,7 @@ body{
   cursor:pointer;
 }
 
-/* Кошик */
+/* Кошик у модалці */
 .cartEmpty{ text-align:center; padding:24px 12px; }
 
 .cartList{
@@ -343,7 +353,7 @@ body{
   color:#6b7280;
 }
 
-/* рядки в кошику */
+/* рядки в кошику та резюме */
 .cartRow,
 .summaryRow{
   display:grid;
@@ -365,7 +375,10 @@ body{
   background:#fff;
 }
 
-.cTitle{ font-weight:800; word-break: break-word; }
+.cTitle{
+  font-weight:800;
+  word-break: break-word;
+}
 
 .qtyRow{
   display:inline-flex;
@@ -400,7 +413,13 @@ body{
 }
 
 .sum{ font-size:18px; }
-.sumHint{ margin-top:4px; font-size:13px; color:#b91c1c; }
+
+.sumHint{
+  margin-top:4px;
+  font-size:13px;
+  color:#b91c1c;
+}
+
 .actions{ display:flex; gap:10px; }
 
 .btn{
@@ -422,7 +441,7 @@ body{
   border:1px solid #ddd;
 }
 
-/* ===== ОФОРМЛЕННЯ ===== */
+/* ===== ОФОРМЛЕННЯ ФОРМИ ===== */
 .summaryInModal{ padding:8px 0 0; }
 .summaryFoot{ padding:6px 2px 0; font-size:16px; }
 
@@ -462,31 +481,7 @@ textarea{
   max-width:100%;
 }
 
-/* ===== ФУТЕР ===== */
-.footer{
-  max-width:1120px;
-  margin:32px auto 24px;
-  padding:0 16px;
-  text-align:center;
-  color:#888;
-  font-size:14px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.payRow{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:18px;
-  flex-wrap:wrap;
-}
-
-.payIcon{ height:24px; width:auto; display:inline-block; }
-.copy{ margin-top:8px; }
-
-/* ===== CART EXTRAS ===== */
+/* ===== CART EXTRAS (postcard + upsell) ===== */
 .cartExtras{
   margin: 10px 2px 10px;
   padding: 10px 12px;
@@ -523,7 +518,31 @@ textarea{
   white-space:nowrap;
 }
 
-/* ===== MOBILE ===== */
+/* ===== ФУТЕР ===== */
+.footer{
+  max-width:1120px;
+  margin:32px auto 24px;
+  padding:0 16px;
+  text-align:center;
+  color:#888;
+  font-size:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.payRow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.payIcon{ height:24px; width:auto; display:inline-block; }
+.copy{ margin-top:8px; }
+
+/* ===== MOBILE FIXES ===== */
 @media (max-width:640px){
   .siteHeader{
     position:fixed !important;
@@ -543,8 +562,6 @@ textarea{
 
   .igFixed,
   .cartFixed{ position:static !important; }
-
-  .modal{ overflow-x:hidden; }
 
   /* cart row: no horizontal scroll */
   .cartRow,
@@ -570,7 +587,7 @@ textarea{
     right:10px;
   }
 
-  /* ✅ BUTTON FIX on mobile: move to 2nd line and full width */
+  /* ✅ КНОПКА "Додати в кошик" на 2-й рядок і на всю ширину */
   .cardFooter{
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
@@ -586,17 +603,12 @@ textarea{
     grid-area: btn;
     width:100%;
     justify-self:stretch;
-    min-width:0;
     height:40px;
     padding:0 12px;
     font-size:14px;
     border-radius:12px;
   }
 }
-
-/* hard stop for horizontal scroll */
-html, body { overflow-x:hidden; }
-.modalOverlay { overflow-x:hidden; }
 
 /* ===== ЛОКАЛЬНІ ШРИФТИ ===== */
 @font-face{
