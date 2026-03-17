@@ -707,14 +707,27 @@ textarea{
   padding: 12px;
   border:1px solid var(--border);
   border-radius:14px;
+  background:#fff;
+
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:12px;
-  background:#fff;
 }
-.upsellText{ font-size:14px; color:#111; }
-.upsellBtn{ height:36px; }
+
+.upsellText{
+  font-size:14px;
+  color:#111;
+  flex: 1;            /* ✅ текст займає весь простір */
+  line-height: 1.3;
+}
+
+.upsellBtn{
+  height:36px;
+  padding: 0 14px;
+  white-space: nowrap; /* ✅ щоб “Додати” не переносилось */
+  flex: 0 0 auto;      /* ✅ кнопка не стискається */
+}
 /* ===== HARD STOP horizontal scroll ===== */
 html, body { overflow-x: hidden; }
 .modalOverlay { overflow-x: hidden; }
