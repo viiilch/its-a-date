@@ -97,6 +97,12 @@ const GIFT_TOGO_MIXED = {
   price: 0,
   img: "/img/mixed.png",
 };
+const POSTCARD = {
+  id: "postcard",
+  title: "Листівка (вкладання в посилку)",
+  price: 30,
+  img: "",
+};
 
 const fmt = (n) => `${n} грн`;
 
@@ -129,14 +135,16 @@ function App() {
   }
 
   function changeQty(id, d) {
-    setCart((prev) =>
-      prev.map((it) =>
-        it.id === id
-          ? { ...it, qty: Math.max(1, Math.min(99, it.qty + d)) }
-          : it
-      )
-    );
-  }
+  setCart((prev) =>
+    prev
+      .map((it) => {
+        if (it.id !== id) return it;
+        const q = it.qty + d;
+        return { ...it, qty: Math.min(99, q) };
+      })
+      .filter((it) => it.qty > 0) // ✅ qty 0 = видалити
+  );
+}
 
   function removeItem(id) {
     setCart((prev) => prev.filter((it) => it.id !== id));
@@ -162,6 +170,12 @@ function App() {
   if ((!hasSticker || !hasAnyBig) && hasGift) {
     removeItem("gift-mixed-togo");
   }
+  function setPostcardText(text) {
+  const t = String(text || "").slice(0, 200); // ✅ ліміт 200
+  setCart((prev) =>
+    prev.map((it) => (it.id === "postcard" ? { ...it, postcardText: t } : it))
+  );
+}
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [cart]);
 
@@ -186,12 +200,13 @@ function App() {
 };
 
     const safeCart = cart.map((it) => ({
-      id: it.id,
-      title: it.title,
-      price: it.price,
-      qty: it.qty,
-      img: it.img || "",
-    }));
+  id: it.id,
+  title: it.title,
+  price: it.price,
+  qty: it.qty,
+  img: it.img || "",
+  postcardText: it.postcardText || "",
+}));
 
     // збережемо замовлення на боці клієнта (для сторінки /order-success)
     try {
@@ -580,6 +595,45 @@ function SuccessPage() {
           </li>
         ))}
       </ul>
+      {(() => {
+  const hasPostcard = cart.some((x) => x.id === "postcard");
+  const postcardItem = cart.find((x) => x.id === "postcard");
+
+  return (
+    <div className="cartExtras">
+      <label className="addonRow">
+        <input
+          type="checkbox"
+          checked={hasPostcard}
+          onChange={(e) => {
+            if (e.target.checked) addItem({ ...POSTCARD }, 1);
+            else removeItem("postcard");
+          }}
+        />
+        <span>
+          Додати листівку за <b>{fmt(POSTCARD.price)}</b>
+        </span>
+      </label>
+
+      {hasPostcard && (
+        <div className="addonField">
+          <label htmlFor="postcardText">Текст для листівки (до 200 символів)</label>
+          <textarea
+            id="postcardText"
+            rows={3}
+            maxLength={200}
+            placeholder="Наприклад: Для тебе 🤍"
+            value={postcardItem?.postcardText || ""}
+            onChange={(e) => setPostcardText(e.target.value)}
+          />
+          <div className="addonHint">
+            {(postcardItem?.postcardText || "").length}/200
+          </div>
+        </div>
+      )}
+    </div>
+  );
+})()}
       <div className="summaryFoot">
         Всього: <b>{fmt(total)}</b>
       </div>
@@ -787,7 +841,7 @@ function Catalog({ products, onBuy }) {
                 </button>
               </div>
               <button className="buyBtn" onClick={handleBuy}>
-                Купити
+                Додати в кошик
               </button>
             </div>
           </article>

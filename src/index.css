@@ -632,3 +632,79 @@ textarea{
   font-size:13px;
   line-height:1.35;
 }
+/* ===== MOBILE CART FIX (no horizontal scroll) ===== */
+@media (max-width:640px){
+
+  /* щоб не з’являвся боковий скрол у модалці */
+  .modal{ overflow-x: hidden; }
+
+  /* робимо рядок кошика компактним: 2 колонки, 3 рядки */
+  .cartRow,
+  .summaryRow{
+    position:relative;
+    grid-template-columns:64px 1fr;
+    grid-template-areas:
+      "img title"
+      "img qty"
+      "img price";
+    gap:10px;
+    padding:12px 44px 12px 12px; /* справа місце під × */
+  }
+
+  .thumb{ grid-area: img; width:64px; height:64px; }
+
+  .cTitle{ grid-area: title; }
+
+  .qtyRow{ 
+    grid-area: qty; 
+    justify-content:flex-start;
+    min-width:0;
+  }
+
+  .cPrice{
+    grid-area: price;
+    text-align:left;
+    padding:0;
+  }
+
+  /* × завжди видно зверху справа */
+  .rowX{
+    position:absolute;
+    top:10px;
+    right:10px;
+  }
+}
+/* ===== CART EXTRAS (postcard + upsell) ===== */
+.cartExtras{
+  margin: 10px 2px 10px;
+  padding: 10px 12px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#fff;
+}
+
+.addonRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  font-size:14px;
+  color:#111;
+}
+.addonRow input{ width:16px; height:16px; }
+
+.addonField{ margin-top:10px; }
+.addonHint{ font-size:12px; color:#6b7280; margin-top:6px; }
+
+.upsellBox{
+  margin: 10px 2px 10px;
+  padding: 12px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:#fff;
+}
+.upsellText{ font-size:14px; color:#111; }
+.upsellBtn{ height:36px; }
