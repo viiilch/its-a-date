@@ -23,7 +23,7 @@ export async function sendTelegramMessage(text) {
         text,
         // тепер ми кажемо Telegram, що це Markdown,
         // а не HTML — під *жирний* це підходить
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
       }),
     });
 
