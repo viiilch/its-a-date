@@ -712,12 +712,11 @@ textarea{
     margin-top: 6px;
   }
 }
-.productVideo{
+.productVideo,
+.fallbackSticker{
   width:100%;
   height:100%;
-  object-fit:contain;
   display:block;
-
-  /* щоб по кліку не з’являлась “кнопка Play” і не відкривався плеєр */
-  pointer-events:none;
+  object-fit:cover;     /* щоб не було білих полів */
+  border-radius:12px;
 }

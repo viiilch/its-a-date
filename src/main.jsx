@@ -691,27 +691,44 @@ function Catalog({ products, onBuy }) {
   {p.id === "stickerpack" ? (
     <video
       className="productVideo"
+      src="/video/stickerpack.mp4"
       autoPlay
       loop
       muted
       playsInline
       preload="auto"
+      poster="/img/stikerpak.jpg"
       controls={false}
       disablePictureInPicture
       controlsList="nodownload noplaybackrate noremoteplayback"
-      poster="/img/stikerpak.jpg"
-      onLoadedMetadata={(e) => {
+      onCanPlay={(e) => {
         const v = e.currentTarget;
-        v.muted = true;          // важливо для Safari
-        v.playsInline = true;    // важливо для iPhone
+        v.muted = true;
+        v.playsInline = true;
         const p = v.play();
         if (p && typeof p.catch === "function") p.catch(() => {});
       }}
-    >
-      <source src="/video/stickerpack.mp4" type="video/mp4" />
-    </video>
+      onError={(e) => {
+        // якщо відео не завантажилось — підміняємо на webp
+        const v = e.currentTarget;
+        v.style.display = "none";
+        const img = v.parentElement?.querySelector("img.fallbackSticker");
+        if (img) img.style.display = "block";
+      }}
+    />
   ) : (
     <img src={p.img} alt={p.title} />
+  )}
+
+  {/* fallback картинка тільки для stickerpack (схована, поки відео ок) */}
+  {p.id === "stickerpack" && (
+    <img
+      className="fallbackSticker"
+      src="/img/stickerpack.webp"
+      alt={p.title}
+      style={{ display: "none" }}
+      loading="lazy"
+    />
   )}
 </div>
 
