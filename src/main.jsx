@@ -689,19 +689,15 @@ function Catalog({ products, onBuy }) {
           <article className="card" key={p.id}>
             <div className="imgWrap">
   {p.id === "stickerpack" ? (
-  <video
-    className="productVideo"
-    autoPlay
-    loop
-    muted
-    playsInline
-    preload="metadata"
-  >
-    <source src="/video/stickerpack.mp4" type="video/mp4" />
-  </video>
-) : (
-  <img src={p.img} alt={p.title} />
-)}
+    <img
+      className="productVideo"
+      src="/img/stickerpack.webp"
+      alt={p.title}
+      loading="lazy"
+    />
+  ) : (
+    <img src={p.img} alt={p.title} />
+  )}
 </div>
 
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
