@@ -673,3 +673,36 @@ textarea{
   font-style:normal;
   font-display:swap;
 }
+/* ===== MOBILE: header icons not overlap logo ===== */
+@media (max-width: 640px){
+
+  .siteHeader{
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #fff;
+
+    /* ✅ робимо місце зверху під іконки */
+    padding: 64px 12px 12px;
+  }
+
+  /* ✅ іконки завжди зверху справа */
+  .igFixed,
+  .cartFixed{
+    position: absolute !important;
+    top: 14px !important;
+    z-index: 2000 !important;
+  }
+  .igFixed{ right: 56px !important; }
+  .cartFixed{ right: 16px !important; }
+
+  /* ✅ трохи зменшуємо лого на мобільному */
+  .brandLogo{
+    max-width: 330px;
+    width: 92vw;
+  }
+
+  .subBrand{
+    margin-top: 6px;
+  }
+}
