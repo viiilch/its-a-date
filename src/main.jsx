@@ -695,7 +695,18 @@ function Catalog({ products, onBuy }) {
       loop
       muted
       playsInline
-      preload="metadata"
+      preload="auto"
+      controls={false}
+      disablePictureInPicture
+      controlsList="nodownload noplaybackrate noremoteplayback"
+      poster="/img/stikerpak.jpg"
+      onLoadedMetadata={(e) => {
+        const v = e.currentTarget;
+        v.muted = true;          // важливо для Safari
+        v.playsInline = true;    // важливо для iPhone
+        const p = v.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }}
     >
       <source src="/video/stickerpack.mp4" type="video/mp4" />
     </video>
