@@ -55,14 +55,25 @@ function getReferenceFromBody(body = {}) {
 }
 
 // --- формуємо текст листа для ОПЛАЧЕНОГО замовлення ---
-function buildEmailText({ reference, customer, cart, totalUAH }) {
+function buildEmailText({ reference, customer, cart, totalUAH, orderComment }) {
   const lineStrings = cart.map((item, idx) => {
     const title = item.title || `Товар ${idx + 1}`;
     const price = Number(item.price || 0);
     const qty = Number(item.qty || 0);
     const sum = price * qty;
-    return `• ${title} — ${qty} x ${price} = ${sum} UAH`;
+
+    const postcardText = String(item.postcardText || "").trim();
+
+    // якщо є текст листівки — додаємо під товаром
+    return [
+      `• ${title} — ${qty} x ${price} = ${sum} UAH`,
+      postcardText ? `  Текст для листівки: ${postcardText}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
   });
+
+  const safeComment = String(orderComment || "").trim();
 
   return [
     `Нове ОПЛАЧЕНЕ замовлення з сайту It's a Date`,
@@ -73,6 +84,7 @@ function buildEmailText({ reference, customer, cart, totalUAH }) {
     `Ім'я: ${customer.firstName || ""} ${customer.lastName || ""}`,
     `Телефон: ${customer.phone || ""}`,
     customer.np ? `Нова Пошта: ${customer.np}` : "",
+    safeComment ? `Коментар до замовлення: ${safeComment}` : "",
     ``,
     `Товари:`,
     ...(lineStrings.length ? lineStrings : ["(порожній кошик)"]),
@@ -86,14 +98,24 @@ function buildEmailText({ reference, customer, cart, totalUAH }) {
 }
 
 // --- HTML для Telegram (parse_mode: HTML) ---
-function buildTelegramHtml({ reference, customer, cart, totalUAH }) {
+function buildTelegramHtml({ reference, customer, cart, totalUAH, orderComment }) {
   const lines = cart.map((item, idx) => {
     const title = escapeHtml(item.title || `Товар ${idx + 1}`);
     const price = Number(item.price || 0);
     const qty = Number(item.qty || 0);
     const sum = price * qty;
-    return `• ${title} — ${qty} x ${price} = ${sum} UAH`;
+
+    const postcardText = String(item.postcardText || "").trim();
+
+    return [
+      `• ${title} — ${qty} x ${price} = ${sum} UAH`,
+      postcardText ? `  <i>Текст для листівки:</i> ${escapeHtml(postcardText)}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
   });
+
+  const safeComment = escapeHtml(String(orderComment || "").trim());
 
   return [
     `<b>🧾 ОПЛАЧЕНЕ замовлення з сайту It's a Date</b>`,
@@ -101,11 +123,10 @@ function buildTelegramHtml({ reference, customer, cart, totalUAH }) {
     `<b>ID:</b> ${escapeHtml(reference)}`,
     ``,
     `<b>👤 Клієнт</b>`,
-    `Ім'я: ${escapeHtml(customer.firstName || "")} ${escapeHtml(
-      customer.lastName || ""
-    )}`,
+    `Ім'я: ${escapeHtml(customer.firstName || "")} ${escapeHtml(customer.lastName || "")}`,
     `Телефон: ${escapeHtml(customer.phone || "")}`,
     customer.np ? `Нова Пошта: ${escapeHtml(customer.np)}` : "",
+    safeComment ? `<b>Коментар:</b> ${safeComment}` : "",
     ``,
     `<b>📦 Товари</b>`,
     ...(lines.length ? lines : ["(порожній кошик)"]),
@@ -230,20 +251,23 @@ if (Array.isArray(rawCart)) {
   customerFromJson = rawCart.customer && typeof rawCart.customer === "object" ? rawCart.customer : {};
 }
     const totalUAH = (order.total_cents || 0) / 100;
+    const orderComment = String(customerFromJson.comment || "").trim();
 
     const emailText = buildEmailText({
-      reference,
-      customer,
-      cart,
-      totalUAH,
-    });
+  reference,
+  customer,
+  cart,
+  totalUAH,
+  orderComment,
+});
 
-    const telegramHtml = buildTelegramHtml({
-      reference,
-      customer,
-      cart,
-      totalUAH,
-    });
+const telegramHtml = buildTelegramHtml({
+  reference,
+  customer,
+  cart,
+  totalUAH,
+  orderComment,
+});
 
     let emailSent = false;
     let telegramSent = false;
