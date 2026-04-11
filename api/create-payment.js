@@ -59,7 +59,7 @@ export default async function handler(req, res) {
   webHookUrl: `${PUBLIC_BASE}/api/monopay-webhook`,
   merchantPaymInfo: {
     reference: orderId,
-    destination: `It's a Date — замовлення ${orderId}`,
+    destination: `IT'S A DATE! — замовлення ${orderId}`,
     comment: `Товарів: ${cart.length}`,
   },
   validity: 3600,

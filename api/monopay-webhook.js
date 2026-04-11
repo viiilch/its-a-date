@@ -76,7 +76,7 @@ function buildEmailText({ reference, customer, cart, totalUAH, orderComment }) {
   const safeComment = String(orderComment || "").trim();
 
   return [
-    `Нове ОПЛАЧЕНЕ замовлення з сайту It's a Date`,
+    `Нове ОПЛАЧЕНЕ замовлення з сайту IT'S A DATE!`,
     ``,
     `Reference / Order ID: ${reference}`,
     ``,
@@ -118,7 +118,7 @@ function buildTelegramHtml({ reference, customer, cart, totalUAH, orderComment }
   const safeComment = escapeHtml(String(orderComment || "").trim());
 
   return [
-    `<b>🧾 ОПЛАЧЕНЕ замовлення з сайту It's a Date</b>`,
+    `<b>🧾 ОПЛАЧЕНЕ замовлення з сайту IT'S A DATE!</b>`,
     ``,
     `<b>ID:</b> ${escapeHtml(reference)}`,
     ``,

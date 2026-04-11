@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     const toEmail = process.env.NOTIFY_EMAIL || process.env.ORDER_EMAIL;
 
     const text = `
-Нове замовлення з сайту ITS A DATE 💛
+Нове замовлення з сайту ITS A DATE! 💛
 
 Ім'я: ${name}
 Телефон: ${phone}
@@ -56,7 +56,7 @@ ${cart}
     `.trim();
 
     await transporter.sendMail({
-      from: `"ITS A DATE – замовлення" <${process.env.ORDER_EMAIL}>`,
+      from: `"ITS A DATE! – замовлення" <${process.env.ORDER_EMAIL}>`,
       to: toEmail,
       subject: "🛍️ Нове замовлення з сайту",
       text,
