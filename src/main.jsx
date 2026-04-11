@@ -362,7 +362,7 @@ function App() {
                 </div>
 
                 <p className="cartNote">
-                  * Замовлення відправляємо протягом 4–5 робочих днів з моменту оплати. Десерт готується вручну та
+                  * Замовлення відправляємо протягом 2–3 робочих днів з моменту оплати. Десерт готується вручну та
                   крафтово саме під вашу відправку.
                 </p>
 
@@ -411,12 +411,12 @@ function App() {
                 </div>
 
                 <div>
-                  <label htmlFor="email">Email (для підтвердження)</label>
+                  <label htmlFor="email">E-mail</label>
                   <input id="email" name="email" type="email" required placeholder="name@email.com" />
                 </div>
 
                 <div>
-                  <label htmlFor="np">Місто / Відділення Нової Пошти</label>
+                  <label htmlFor="np">Місто + Відділення/Поштомат (Нова Пошта)</label>
                   <input id="np" name="np" required placeholder="Київ, відділення №..." />
                 </div>
 
