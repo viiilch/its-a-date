@@ -774,14 +774,48 @@ function Catalog({ products, onBuy }) {
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
 
             {p.id === "stickerpack" ? (
-              <p className="cardDesc cardDesc--sticker">
-                {p.desc}
-                {p.descEmojis && <span className="noBreak"> {p.descEmojis}</span>}
-                {p.desc2 && <span className="descLine2">{p.desc2}</span>}
-              </p>
-            ) : (
-              p.desc && <p className="cardDesc">{p.desc}</p>
-            )}
+  <>
+    <video
+      className="productVideo"
+      autoPlay
+      loop
+      muted
+      playsInline
+      defaultMuted
+      preload="auto"
+      controls={false}
+      disablePictureInPicture
+      controlsList="nodownload noplaybackrate noremoteplayback"
+      poster="/img/stikerpak.jpg"
+      onCanPlay={(e) => {
+        // важливо: autoplay інколи не стартує сам — підштовхуємо
+        const v = e.currentTarget;
+        v.muted = true;
+        v.defaultMuted = true;
+        const pr = v.play();
+        if (pr && typeof pr.catch === "function") pr.catch(() => {});
+      }}
+      onError={(e) => {
+        const v = e.currentTarget;
+        v.style.display = "none";
+        const img = v.parentElement?.querySelector("img.fallbackSticker");
+        if (img) img.style.display = "block";
+      }}
+    >
+      <source src="/video/stickerpack.mp4" type="video/mp4" />
+    </video>
+
+    <img
+      className="fallbackSticker"
+      src="/img/stickerpack.webp"
+      alt={p.title}
+      style={{ display: "none" }}
+      loading="lazy"
+    />
+  </>
+) : (
+  <img src={p.img} alt={p.title} />
+)}
 
             {p.badge ? (
               <div className="sizeRow">{p.badge}</div>
