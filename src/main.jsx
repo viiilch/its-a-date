@@ -699,38 +699,46 @@ function Catalog({ products, onBuy }) {
           <article className="card" key={p.id}>
             <div className="imgWrap">
               {p.id === "stickerpack" ? (
-                <>
-                  <video
-                    className="productVideo"
-                    src="/video/stickerpack.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    poster="/img/stikerpak.jpg"
-                    controls={false}
-                    disablePictureInPicture
-                    controlsList="nodownload noplaybackrate noremoteplayback"
-                    onCanPlay={(e) => {
-                      const v = e.currentTarget;
-                      v.muted = true;
-                      v.playsInline = true;
-                      const pr = v.play();
-                      if (pr && typeof pr.catch === "function") pr.catch(() => {});
-                    }}
-                    onError={(e) => {
-                      const v = e.currentTarget;
-                      v.style.display = "none";
-                      const img = v.parentElement?.querySelector("img.fallbackSticker");
-                      if (img) img.style.display = "block";
-                    }}
-                  />
-                  <img className="fallbackSticker" src="/img/stickerpack.webp" alt={p.title} style={{ display: "none" }} loading="lazy" />
-                </>
-              ) : (
-                <img src={p.img} alt={p.title} />
-              )}
+  <>
+    <video
+      className="productVideo"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      poster="/img/stikerpak.jpg"
+      controls={false}
+      disablePictureInPicture
+      controlsList="nodownload noplaybackrate noremoteplayback"
+      onLoadedData={(e) => {
+        const v = e.currentTarget;
+        v.muted = true;
+        v.playsInline = true;
+        const pr = v.play();
+        if (pr && typeof pr.catch === "function") pr.catch(() => {});
+      }}
+      onError={(e) => {
+        const v = e.currentTarget;
+        v.style.display = "none";
+        const img = v.parentElement?.querySelector("img.fallbackSticker");
+        if (img) img.style.display = "block";
+      }}
+    >
+      <source src="/video/stickerpack.mp4" type="video/mp4" />
+    </video>
+
+    <img
+      className="fallbackSticker"
+      src="/img/stickerpack.webp"
+      alt={p.title}
+      style={{ display: "none" }}
+      loading="lazy"
+    />
+  </>
+) : (
+  <img src={p.img} alt={p.title} />
+)}
             </div>
 
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
