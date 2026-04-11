@@ -129,7 +129,7 @@ export function CartModal() {
     const customer = {
       firstName: (fd.get("firstName") || "").trim(),
       lastName: (fd.get("lastName") || "").trim(),
-      phone: (fd.get("phone") || "").trim(),
+      phone: `380${normalizeUaPhone(fd.get("phone") || "")}`,
       np: (fd.get("np") || "").trim(),
       comment: (fd.get("comment") || "").trim(), // коментар (необовʼязково)
     };
@@ -233,7 +233,7 @@ export function CartModal() {
 
               {/* Текст про доставку під товарами */}
               <p className="cartNote">
-                * Замовлення відправляємо протягом 2–4 робочих днів з моменту
+                * Замовлення відправляємо протягом 2–3 робочих днів з моменту
                 оплати. Десерт готується вручну та крафтово саме під вашу
                 відправку.
               </p>
