@@ -831,28 +831,34 @@ function Catalog({ products, onBuy }) {
             )}
 
             {p.badge ? (
-              <div className="sizeRow">{p.badge}</div>
-            ) : (
-              <div className="formatRow">
-                <button
-                  type="button"
-                  className={selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
-                  onClick={() => setFormat(p.id, "big")}
-                >
-                  BIG
-                </button>
+  <div className="sizeRow">{p.badge}</div>
+) : (
+  <>
+    <div className="formatRow">
+      <button
+        type="button"
+        className={selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
+        onClick={() => setFormat(p.id, "big")}
+      >
+        BIG
+      </button>
 
-                {!!p.formats?.togo && (
-                  <button
-                    type="button"
-                    className={selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
-                    onClick={() => setFormat(p.id, "togo")}
-                  >
-                    TO GO
-                  </button>
-                )}
-              </div>
-            )}
+      {!!p.formats?.togo && (
+        <button
+          type="button"
+          className={selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
+          onClick={() => setFormat(p.id, "togo")}
+        >
+          TO GO
+        </button>
+      )}
+    </div>
+
+    <div className="formatWeight">
+      {selectedFormat === "togo" ? "≈ 60 г" : "≈ 250 г"}
+    </div>
+  </>
+)}
 
             <div className="cardFooter">
               <div className="price">{fmt(price)}</div>

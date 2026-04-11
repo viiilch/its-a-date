@@ -220,7 +220,14 @@ body{
   color:var(--muted);
   cursor:pointer;
 }
-
+.formatWeight{
+  margin-top:-2px;
+  margin-bottom:8px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+  font-weight:500;
+}
 .fmtChoice--active{ color:#000; }
 
 /* ===== НИЗ КАРТКИ ===== */
