@@ -85,16 +85,11 @@ const POSTCARD = {
 };
 
 const fmt = (n) => `${n} грн`;
+
 const normalizeUaPhone = (value = "") => {
-  // залишаємо тільки цифри
   let digits = String(value).replace(/\D/g, "");
-
-  // якщо людина вставила повний номер з 380 — відрізаємо префікс
   if (digits.startsWith("380")) digits = digits.slice(3);
-  // якщо вставили "0xxxxxxxxx" — відрізаємо 0
   if (digits.startsWith("0")) digits = digits.slice(1);
-
-  // максимум 9 цифр після +380
   return digits.slice(0, 9);
 };
 
@@ -102,6 +97,7 @@ const normalizeUaPhone = (value = "") => {
 function App() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [phone, setPhone] = useState("+380"); // ✅ префікс одразу в полі
   const [stage, setStage] = useState("cart"); // cart | checkout
   const [submitting, setSubmitting] = useState(false);
 
@@ -192,7 +188,7 @@ function App() {
     const customer = {
       firstName: (fd.get("firstName") || "").trim(),
       lastName: (fd.get("lastName") || "").trim(),
-      phone: `380${normalizeUaPhone(fd.get("phone") || "")}`,
+      phone: `+380${normalizeUaPhone(fd.get("phone") || "")}`, // ✅ завжди +380
       email: (fd.get("email") || "").trim(),
       np: (fd.get("np") || "").trim(),
       comment: (fd.get("comment") || "").trim(),
@@ -327,7 +323,6 @@ function App() {
                   ))}
                 </ul>
 
-                {/* ✅ Апсел стікерпаку */}
                 {!hasStickerInCart && (
                   <div className="cartExtras">
                     <div className="addonRowLine">
@@ -341,7 +336,6 @@ function App() {
                   </div>
                 )}
 
-                {/* ✅ Листівка */}
                 <div className="cartExtras">
                   <label className="addonRow">
                     <input
@@ -417,23 +411,35 @@ function App() {
                   </div>
                 </div>
 
+                {/* ✅ ОДНЕ ПОЛЕ: +380 вже всередині */}
                 <div>
-  <label htmlFor="phone">Телефон</label>
-  <div className="phoneField">
-    <span className="phonePrefix">+380</span>
-    <input
-      id="phone"
-      name="phone"
-      required
-      inputMode="numeric"
-      autoComplete="tel"
-      placeholder="XX XXX XX XX"
-      onInput={(e) => {
-        e.currentTarget.value = normalizeUaPhone(e.currentTarget.value);
-      }}
-    />
-  </div>
-</div>
+                  <label htmlFor="phone">Телефон</label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    required
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    value={phone}
+                    placeholder="+380XXXXXXXXX"
+                    onChange={(e) => {
+                      const raw = String(e.target.value || "");
+                      const digits = normalizeUaPhone(raw);
+                      setPhone(`+380${digits}`);
+                    }}
+                    onFocus={() => {
+                      if (!phone) setPhone("+380");
+                      if (phone === "+") setPhone("+380");
+                    }}
+                    onKeyDown={(e) => {
+                      // не даємо стерти "+380"
+                      if ((e.key === "Backspace" || e.key === "Delete") && phone.length <= 4) {
+                        e.preventDefault();
+                        setPhone("+380");
+                      }
+                    }}
+                  />
+                </div>
 
                 <div>
                   <label htmlFor="email">E-mail</label>
@@ -476,7 +482,7 @@ function App() {
           <img className="payIcon" src="/pay/visa.svg" alt="Visa" />
           <img className="payIcon" src="/pay/mastercard.svg" alt="Mastercard" />
         </div>
-        <div className="copy">© 2025 IT’S A DATE by Kyiv Dinner Club</div>
+        <div className="copy">© 2025 IT’S A DATE! by Kyiv Dinner Club</div>
       </footer>
     </>
   );
@@ -523,9 +529,7 @@ function SuccessPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-    } catch {
-      // навіть якщо API нема — ми все одно покажемо "дякую"
-    }
+    } catch {}
 
     try {
       const key = `itsadate:feedbackSent:${order?.createdAt || "noid"}`;
@@ -539,9 +543,7 @@ function SuccessPage() {
     return (
       <section className="orderSuccess">
         <h2>Дякуємо за оплату!</h2>
-        <p>
-          Ваше замовлення прийнято в обробку. Якщо є питання — напишіть нам в Instagram @kyivdinnerclub.
-        </p>
+        <p>Ваше замовлення прийнято в обробку. Якщо є питання — напишіть нам в Instagram @kyivdinnerclub.</p>
       </section>
     );
   }
@@ -593,12 +595,7 @@ function SuccessPage() {
               <label style={{ display: "block", marginBottom: 6, fontWeight: 800, fontSize: 14 }}>
                 Оцінка сайту (1–5)
               </label>
-              <input
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
-                placeholder="Наприклад: 5"
-                inputMode="numeric"
-              />
+              <input value={rating} onChange={(e) => setRating(e.target.value)} placeholder="Наприклад: 5" inputMode="numeric" />
             </div>
 
             <div>
@@ -612,12 +609,7 @@ function SuccessPage() {
               <label style={{ display: "block", marginBottom: 6, fontWeight: 800, fontSize: 14 }}>
                 Коментар (необовʼязково)
               </label>
-              <textarea
-                rows={3}
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Що покращити? Що було незручно?"
-              />
+              <textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Що покращити? Що було незручно?" />
             </div>
 
             <button className="btn primary" type="submit">
@@ -662,13 +654,7 @@ function Header({ count, onOpen }) {
 /* ================= ІКОНКИ ================= */
 const CartSvg = ({ size = 28 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Кошик">
-    <path
-      d="M6 6h14l-1.6 7.2a2 2 0 0 1-2 1.6H9.1a2 2 0 0 1-2-1.5L5.2 3.8H3"
-      stroke="#111"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <path d="M6 6h14l-1.6 7.2a2 2 0 0 1-2 1.6H9.1a2 2 0 0 1-2-1.5L5.2 3.8H3" stroke="#111" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     <circle cx="9.5" cy="19.5" r="1.5" fill="#111" />
     <circle cx="16.5" cy="19.5" r="1.5" fill="#111" />
   </svg>
@@ -706,56 +692,46 @@ function Catalog({ products, onBuy }) {
           const fmtId = selectedFormat;
           const cartId = fmtId === "togo" ? `${p.id}-togo` : p.badge ? p.id : `${p.id}-big`;
           const title = fmtId === "togo" ? `${p.title} TO GO` : p.title;
-
           onBuy({ ...p, id: cartId, baseId: p.id, variant: fmtId, title, price }, qty);
         };
 
         return (
           <article className="card" key={p.id}>
             <div className="imgWrap">
-  {p.id === "stickerpack" ? (
-    <video
-      className="productVideo"
-      src="/video/stickerpack.mp4"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="auto"
-      poster="/img/stikerpak.jpg"
-      controls={false}
-      disablePictureInPicture
-      controlsList="nodownload noplaybackrate noremoteplayback"
-      onCanPlay={(e) => {
-        const v = e.currentTarget;
-        v.muted = true;
-        v.playsInline = true;
-        const p = v.play();
-        if (p && typeof p.catch === "function") p.catch(() => {});
-      }}
-      onError={(e) => {
-        // якщо відео не завантажилось — підміняємо на webp
-        const v = e.currentTarget;
-        v.style.display = "none";
-        const img = v.parentElement?.querySelector("img.fallbackSticker");
-        if (img) img.style.display = "block";
-      }}
-    />
-  ) : (
-    <img src={p.img} alt={p.title} />
-  )}
-
-  {/* fallback картинка тільки для stickerpack (схована, поки відео ок) */}
-  {p.id === "stickerpack" && (
-    <img
-      className="fallbackSticker"
-      src="/img/stickerpack.webp"
-      alt={p.title}
-      style={{ display: "none" }}
-      loading="lazy"
-    />
-  )}
-</div>
+              {p.id === "stickerpack" ? (
+                <>
+                  <video
+                    className="productVideo"
+                    src="/video/stickerpack.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    poster="/img/stikerpak.jpg"
+                    controls={false}
+                    disablePictureInPicture
+                    controlsList="nodownload noplaybackrate noremoteplayback"
+                    onCanPlay={(e) => {
+                      const v = e.currentTarget;
+                      v.muted = true;
+                      v.playsInline = true;
+                      const pr = v.play();
+                      if (pr && typeof pr.catch === "function") pr.catch(() => {});
+                    }}
+                    onError={(e) => {
+                      const v = e.currentTarget;
+                      v.style.display = "none";
+                      const img = v.parentElement?.querySelector("img.fallbackSticker");
+                      if (img) img.style.display = "block";
+                    }}
+                  />
+                  <img className="fallbackSticker" src="/img/stickerpack.webp" alt={p.title} style={{ display: "none" }} loading="lazy" />
+                </>
+              ) : (
+                <img src={p.img} alt={p.title} />
+              )}
+            </div>
 
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
 
@@ -773,20 +749,11 @@ function Catalog({ products, onBuy }) {
               <div className="sizeRow">{p.badge}</div>
             ) : (
               <div className="formatRow">
-                <button
-                  type="button"
-                  className={selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
-                  onClick={() => setFormat(p.id, "big")}
-                >
+                <button type="button" className={selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"} onClick={() => setFormat(p.id, "big")}>
                   BIG
                 </button>
-
                 {!!p.formats?.togo && (
-                  <button
-                    type="button"
-                    className={selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
-                    onClick={() => setFormat(p.id, "togo")}
-                  >
+                  <button type="button" className={selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"} onClick={() => setFormat(p.id, "togo")}>
                     TO GO
                   </button>
                 )}
