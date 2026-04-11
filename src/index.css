@@ -763,3 +763,10 @@ textarea{
   display:block;
   object-fit:contain;
 }
+.productVideo,
+.fallbackSticker{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}

@@ -1,5 +1,5 @@
 // src/main.jsx
-import React, { StrictMode, useMemo, useState, useEffect } from "react";
+import React, { StrictMode, useMemo, useRef, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
@@ -93,11 +93,91 @@ const normalizeUaPhone = (value = "") => {
   return digits.slice(0, 9);
 };
 
+/* ===== СТІКЕРПАК: ВІДЕО З АВТОСТАРТОМ + FALLBACK ===== */
+function StickerpackMedia() {
+  const videoRef = useRef(null);
+  const [fallback, setFallback] = useState(false);
+  const startedRef = useRef(false);
+
+  const tryPlay = async () => {
+    const v = videoRef.current;
+    if (!v || fallback) return;
+
+    try {
+      // важливо для autoplay політик
+      v.muted = true;
+      v.playsInline = true;
+
+      const p = v.play();
+      if (p && typeof p.then === "function") await p;
+
+      startedRef.current = true;
+    } catch {
+      // autoplay може бути заблокований — ок, запустимо на першій взаємодії
+    }
+  };
+
+  useEffect(() => {
+    tryPlay();
+
+    const startOnFirstUserGesture = () => {
+      if (startedRef.current) return;
+      tryPlay();
+    };
+
+    // будь-яка перша взаємодія (скрол/мишка/клік/клавіша) — запускає відео
+    const events = ["pointerdown", "click", "touchstart", "keydown", "wheel", "mousemove"];
+    events.forEach((ev) => window.addEventListener(ev, startOnFirstUserGesture, { passive: true }));
+
+    return () => {
+      events.forEach((ev) => window.removeEventListener(ev, startOnFirstUserGesture));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fallback]);
+
+  return (
+    <>
+      {!fallback && (
+        <video
+          ref={videoRef}
+          className="productVideo"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster="/img/stikerpak.jpg"
+          controls={false}
+          disablePictureInPicture
+          controlsList="nodownload noplaybackrate noremoteplayback"
+          onCanPlay={() => {
+            // якщо браузер дозволяє autoplay — стартує одразу
+            tryPlay();
+          }}
+          onError={() => {
+            setFallback(true);
+          }}
+        >
+          <source src="/video/stickerpack.mp4" type="video/mp4" />
+        </video>
+      )}
+
+      <img
+        className="fallbackSticker"
+        src="/img/stickerpack.webp"
+        alt="СТІКЕРПАК ВІД KYIV DINNER CLUB"
+        loading="lazy"
+        style={{ display: fallback ? "block" : "none" }}
+      />
+    </>
+  );
+}
+
 /* ================= APP ================= */
 function App() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [phone, setPhone] = useState("+380"); // ✅ префікс одразу в полі
+  const [phone, setPhone] = useState("+380");
   const [stage, setStage] = useState("cart"); // cart | checkout
   const [submitting, setSubmitting] = useState(false);
 
@@ -155,12 +235,8 @@ function App() {
 
     const shouldHaveGift = hasSticker && hasAnyBig;
 
-    if (shouldHaveGift && !hasGift) {
-      addItem({ ...GIFT_TOGO_MIXED }, 1, { silent: true });
-    }
-    if (!shouldHaveGift && hasGift) {
-      removeItem("gift-mixed-togo");
-    }
+    if (shouldHaveGift && !hasGift) addItem({ ...GIFT_TOGO_MIXED }, 1, { silent: true });
+    if (!shouldHaveGift && hasGift) removeItem("gift-mixed-togo");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart]);
 
@@ -188,7 +264,7 @@ function App() {
     const customer = {
       firstName: (fd.get("firstName") || "").trim(),
       lastName: (fd.get("lastName") || "").trim(),
-      phone: `+380${normalizeUaPhone(fd.get("phone") || "")}`, // ✅ завжди +380
+      phone: `+380${normalizeUaPhone(fd.get("phone") || "")}`,
       email: (fd.get("email") || "").trim(),
       np: (fd.get("np") || "").trim(),
       comment: (fd.get("comment") || "").trim(),
@@ -208,12 +284,7 @@ function App() {
     try {
       localStorage.setItem(
         "itsadate:lastOrder",
-        JSON.stringify({
-          cart: safeCart,
-          customer,
-          total,
-          createdAt,
-        })
+        JSON.stringify({ cart: safeCart, customer, total, createdAt })
       );
     } catch {}
 
@@ -281,7 +352,9 @@ function App() {
     <>
       <Header count={count} onOpen={() => setCartOpen(true)} />
 
-      <main className="container">{isSuccessPage ? <SuccessPage /> : <Catalog products={PRODUCTS} onBuy={addItem} />}</main>
+      <main className="container">
+        {isSuccessPage ? <SuccessPage /> : <Catalog products={PRODUCTS} onBuy={addItem} />}
+      </main>
 
       {!isSuccessPage && cartOpen && (
         <Modal
@@ -368,8 +441,7 @@ function App() {
                 </div>
 
                 <p className="cartNote">
-                  * Замовлення відправляємо протягом 2–3 робочих днів з моменту оплати. Десерт готується вручну та
-                  крафтово саме під вашу відправку.
+                  * Замовлення відправляємо протягом 2–3 робочих днів з моменту оплати. Десерт готується вручну та крафтово саме під вашу відправку.
                 </p>
 
                 <div className="modalFoot">
@@ -411,7 +483,6 @@ function App() {
                   </div>
                 </div>
 
-                {/* ✅ ОДНЕ ПОЛЕ: +380 вже всередині */}
                 <div>
                   <label htmlFor="phone">Телефон</label>
                   <input
@@ -432,7 +503,6 @@ function App() {
                       if (phone === "+") setPhone("+380");
                     }}
                     onKeyDown={(e) => {
-                      // не даємо стерти "+380"
                       if ((e.key === "Backspace" || e.key === "Delete") && phone.length <= 4) {
                         e.preventDefault();
                         setPhone("+380");
@@ -488,7 +558,7 @@ function App() {
   );
 }
 
-/* ================= СТОРІНКА ПІСЛЯ ОПЛАТИ + ОПИТУВАННЯ ================= */
+/* ================= SUCCESS PAGE + ОПИТУВАННЯ ================= */
 function SuccessPage() {
   const [order, setOrder] = useState(null);
 
@@ -698,47 +768,7 @@ function Catalog({ products, onBuy }) {
         return (
           <article className="card" key={p.id}>
             <div className="imgWrap">
-              {p.id === "stickerpack" ? (
-  <>
-    <video
-      className="productVideo"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="auto"
-      poster="/img/stikerpak.jpg"
-      controls={false}
-      disablePictureInPicture
-      controlsList="nodownload noplaybackrate noremoteplayback"
-      onLoadedData={(e) => {
-        const v = e.currentTarget;
-        v.muted = true;
-        v.playsInline = true;
-        const pr = v.play();
-        if (pr && typeof pr.catch === "function") pr.catch(() => {});
-      }}
-      onError={(e) => {
-        const v = e.currentTarget;
-        v.style.display = "none";
-        const img = v.parentElement?.querySelector("img.fallbackSticker");
-        if (img) img.style.display = "block";
-      }}
-    >
-      <source src="/video/stickerpack.mp4" type="video/mp4" />
-    </video>
-
-    <img
-      className="fallbackSticker"
-      src="/img/stickerpack.webp"
-      alt={p.title}
-      style={{ display: "none" }}
-      loading="lazy"
-    />
-  </>
-) : (
-  <img src={p.img} alt={p.title} />
-)}
+              {p.id === "stickerpack" ? <StickerpackMedia /> : <img src={p.img} alt={p.title} />}
             </div>
 
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
