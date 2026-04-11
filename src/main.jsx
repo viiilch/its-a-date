@@ -755,7 +755,11 @@ function Catalog({ products, onBuy }) {
     <section className="grid">
       {products.map((p) => {
         const selectedFormat = formatMap[p.id] || "big";
-        const price = selectedFormat === "togo" ? p.formats?.togo?.price ?? p.price : p.formats?.big?.price ?? p.price;
+        const price =
+          selectedFormat === "togo"
+            ? p.formats?.togo?.price ?? p.price
+            : p.formats?.big?.price ?? p.price;
+
         const qty = qtyMap[p.id] || 1;
 
         const handleBuy = () => {
@@ -765,67 +769,85 @@ function Catalog({ products, onBuy }) {
           onBuy({ ...p, id: cartId, baseId: p.id, variant: fmtId, title, price }, qty);
         };
 
+        const isSticker = p.id === "stickerpack";
+
         return (
           <article className="card" key={p.id}>
             <div className="imgWrap">
-              {p.id === "stickerpack" ? <StickerpackMedia /> : <img src={p.img} alt={p.title} />}
+              {isSticker ? (
+                <>
+                  <video
+                    className="productMedia"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="metadata"
+                    poster="/img/stikerpak.jpg"
+                    controls={false}
+                    disablePictureInPicture
+                    controlsList="nodownload noplaybackrate noremoteplayback"
+                    onLoadedData={(e) => {
+                      const v = e.currentTarget;
+                      // важливо для Safari/desktop autoplay
+                      v.muted = true;
+                      v.playsInline = true;
+                      const pr = v.play();
+                      if (pr && typeof pr.catch === "function") pr.catch(() => {});
+                    }}
+                    onError={(e) => {
+                      const v = e.currentTarget;
+                      v.style.display = "none";
+                      const img = v.parentElement?.querySelector("img.fallbackSticker");
+                      if (img) img.style.display = "block";
+                    }}
+                  >
+                    <source src="/video/stickerpack.mp4" type="video/mp4" />
+                  </video>
+
+                  <img
+                    className="fallbackSticker productMedia"
+                    src="/img/stickerpack.webp"
+                    alt={p.title}
+                    style={{ display: "none" }}
+                    loading="lazy"
+                  />
+                </>
+              ) : (
+                <img className="productMedia" src={p.img} alt={p.title} loading="lazy" />
+              )}
             </div>
 
             <h3 className="cardTitle">{p.title.toUpperCase()}</h3>
 
-            {p.id === "stickerpack" ? (
-  <>
-    <video
-      className="productVideo"
-      autoPlay
-      loop
-      muted
-      playsInline
-      defaultMuted
-      preload="auto"
-      controls={false}
-      disablePictureInPicture
-      controlsList="nodownload noplaybackrate noremoteplayback"
-      poster="/img/stikerpak.jpg"
-      onCanPlay={(e) => {
-        // важливо: autoplay інколи не стартує сам — підштовхуємо
-        const v = e.currentTarget;
-        v.muted = true;
-        v.defaultMuted = true;
-        const pr = v.play();
-        if (pr && typeof pr.catch === "function") pr.catch(() => {});
-      }}
-      onError={(e) => {
-        const v = e.currentTarget;
-        v.style.display = "none";
-        const img = v.parentElement?.querySelector("img.fallbackSticker");
-        if (img) img.style.display = "block";
-      }}
-    >
-      <source src="/video/stickerpack.mp4" type="video/mp4" />
-    </video>
-
-    <img
-      className="fallbackSticker"
-      src="/img/stickerpack.webp"
-      alt={p.title}
-      style={{ display: "none" }}
-      loading="lazy"
-    />
-  </>
-) : (
-  <img src={p.img} alt={p.title} />
-)}
+            {isSticker ? (
+              <p className="cardDesc cardDesc--sticker">
+                {p.desc}
+                {p.descEmojis && <span className="noBreak"> {p.descEmojis}</span>}
+                {p.desc2 && <span className="descLine2">{p.desc2}</span>}
+              </p>
+            ) : (
+              p.desc && <p className="cardDesc">{p.desc}</p>
+            )}
 
             {p.badge ? (
               <div className="sizeRow">{p.badge}</div>
             ) : (
               <div className="formatRow">
-                <button type="button" className={selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"} onClick={() => setFormat(p.id, "big")}>
+                <button
+                  type="button"
+                  className={selectedFormat === "big" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
+                  onClick={() => setFormat(p.id, "big")}
+                >
                   BIG
                 </button>
+
                 {!!p.formats?.togo && (
-                  <button type="button" className={selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"} onClick={() => setFormat(p.id, "togo")}>
+                  <button
+                    type="button"
+                    className={selectedFormat === "togo" ? "fmtChoice fmtChoice--active" : "fmtChoice"}
+                    onClick={() => setFormat(p.id, "togo")}
+                  >
                     TO GO
                   </button>
                 )}

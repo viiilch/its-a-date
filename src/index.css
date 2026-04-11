@@ -770,3 +770,31 @@ textarea{
   object-fit:contain;
   display:block;
 }
+/* ===== STICKERPACK MEDIA FIX ===== */
+.imgWrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;   /* квадрат як у фото */
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f3f4f6;   /* щоб не було “порожньої білої ями” */
+}
+
+.productMedia {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* прибираємо випадкові відступи/inline-поведінку відео */
+.imgWrap video {
+  background: #000;
+}
+
+/* якщо браузер все одно показує overlay-play — робимо його менш помітним */
+.imgWrap video::-webkit-media-controls {
+  display: none !important;
+}
+.imgWrap video::-webkit-media-controls-panel {
+  display: none !important;
+}
