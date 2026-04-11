@@ -296,23 +296,25 @@ try {
     const transport = createTransport();
 
     const clientText = [
-      `Дякуємо за замовлення в IT'S A DATE 🤍`,
-      ``,
+      `Дякуємо за замовлення в IT'S A DATE! 🤍`,
+      `Ми вже отримали оплату та починаємо готувати ваше замовлення ✨`,
       `Ваше замовлення ${reference} успішно оплачене.`,
-      `Відправимо його протягом 4–5 робочих днів Новою Поштою.`,
+      `Відправимо його протягом 2–3 робочих днів Новою Поштою.`,
       ``,
       `Склад замовлення:`,
       ...cart.map((it) => `• ${it.title} — ${it.qty} шт`),
       ``,
       `Сума: ${totalUAH} грн`,
       ``,
-      `Якщо маєте питання — напишіть нам в Instagram @kyivdinnerclub.`,
+      `Дякуємо, що обираєте нас — ми це дуже цінуємо 🪷👋🙂
+
+Якщо виникнуть питання — ми завжди на зв’язку в Instagram @kyivdinnerclub`,
     ].join("\n");
 
     await transport.sendMail({
       from: ORDER_EMAIL_FROM,
       to: customerEmail,
-      subject: `IT'S A DATE — підтвердження замовлення ${reference}`,
+      subject: `IT'S A DATE! — підтвердження замовлення ${reference}`,
       text: clientText,
     });
 
