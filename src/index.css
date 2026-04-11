@@ -720,3 +720,25 @@ textarea{
   object-fit:cover;     /* щоб не було білих полів */
   border-radius:12px;
 }
+.phoneField{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.phonePrefix{
+  height:44px;
+  display:flex;
+  align-items:center;
+  padding:0 12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  background:#fff;
+  font-size:16px;
+  color:#111;
+  white-space:nowrap;
+}
+
+.phoneField input{
+  flex:1;
+}

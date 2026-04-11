@@ -85,6 +85,18 @@ const POSTCARD = {
 };
 
 const fmt = (n) => `${n} грн`;
+const normalizeUaPhone = (value = "") => {
+  // залишаємо тільки цифри
+  let digits = String(value).replace(/\D/g, "");
+
+  // якщо людина вставила повний номер з 380 — відрізаємо префікс
+  if (digits.startsWith("380")) digits = digits.slice(3);
+  // якщо вставили "0xxxxxxxxx" — відрізаємо 0
+  if (digits.startsWith("0")) digits = digits.slice(1);
+
+  // максимум 9 цифр після +380
+  return digits.slice(0, 9);
+};
 
 /* ================= APP ================= */
 function App() {
@@ -180,7 +192,7 @@ function App() {
     const customer = {
       firstName: (fd.get("firstName") || "").trim(),
       lastName: (fd.get("lastName") || "").trim(),
-      phone: (fd.get("phone") || "").trim(),
+      phone: `380${normalizeUaPhone(fd.get("phone") || "")}`,
       email: (fd.get("email") || "").trim(),
       np: (fd.get("np") || "").trim(),
       comment: (fd.get("comment") || "").trim(),
@@ -406,9 +418,22 @@ function App() {
                 </div>
 
                 <div>
-                  <label htmlFor="phone">Телефон</label>
-                  <input id="phone" name="phone" required placeholder="+380XXXXXXXXX" />
-                </div>
+  <label htmlFor="phone">Телефон</label>
+  <div className="phoneField">
+    <span className="phonePrefix">+380</span>
+    <input
+      id="phone"
+      name="phone"
+      required
+      inputMode="numeric"
+      autoComplete="tel"
+      placeholder="XX XXX XX XX"
+      onInput={(e) => {
+        e.currentTarget.value = normalizeUaPhone(e.currentTarget.value);
+      }}
+    />
+  </div>
+</div>
 
                 <div>
                   <label htmlFor="email">E-mail</label>
