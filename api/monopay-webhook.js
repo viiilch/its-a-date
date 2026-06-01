@@ -46,7 +46,7 @@ function escapeHtml(str = "") {
 // --- дістаємо reference з тіла вебхука ---
 function getReferenceFromBody(body = {}) {
   return (
-    body?.reference || // такий варіант у тебе вже був у листі
+    body?.reference ||
     body?.merchantPaymInfo?.reference ||
     body?.salePaymentData?.orderId ||
     body?.invoiceId ||
@@ -64,7 +64,6 @@ function buildEmailText({ reference, customer, cart, totalUAH, orderComment }) {
 
     const postcardText = String(item.postcardText || "").trim();
 
-    // якщо є текст листівки — додаємо під товаром
     return [
       `• ${title} — ${qty} x ${price} = ${sum} UAH`,
       postcardText ? `  Текст для листівки: ${postcardText}` : null,
@@ -83,6 +82,7 @@ function buildEmailText({ reference, customer, cart, totalUAH, orderComment }) {
     `Клієнт:`,
     `Ім'я: ${customer.firstName || ""} ${customer.lastName || ""}`,
     `Телефон: ${customer.phone || ""}`,
+    customer.email ? `Email: ${customer.email}` : "",
     customer.np ? `Нова Пошта: ${customer.np}` : "",
     safeComment ? `Коментар до замовлення: ${safeComment}` : "",
     ``,
@@ -125,6 +125,7 @@ function buildTelegramHtml({ reference, customer, cart, totalUAH, orderComment }
     `<b>👤 Клієнт</b>`,
     `Ім'я: ${escapeHtml(customer.firstName || "")} ${escapeHtml(customer.lastName || "")}`,
     `Телефон: ${escapeHtml(customer.phone || "")}`,
+    customer.email ? `Email: ${escapeHtml(customer.email)}` : "",
     customer.np ? `Нова Пошта: ${escapeHtml(customer.np)}` : "",
     safeComment ? `<b>Коментар:</b> ${safeComment}` : "",
     ``,
@@ -198,7 +199,6 @@ export default async function handler(req, res) {
 
     if (!order) {
       console.error("Order not found in DB for reference:", reference);
-      // fallback: нічого не шлемо, щоб не було кривого листа
       return res.status(200).json({
         ok: false,
         note: "Order not found in DB",
@@ -223,58 +223,67 @@ export default async function handler(req, res) {
       );
     } catch (dbErr) {
       console.error("DB ERROR (webhook update):", dbErr);
-      // все одно спробуємо відправити лист/телеграм
     }
 
-    // --- дані з БД ---
+    // --- дістаємо cart/customer з cart_json ---
+    let cart = [];
+    let customerFromJson = {};
+
+    let rawCart = order.cart_json || [];
+    if (typeof rawCart === "string") {
+      try {
+        rawCart = JSON.parse(rawCart);
+      } catch {
+        rawCart = [];
+      }
+    }
+
+    // старий формат: cart_json = [товари]
+    // новий формат: cart_json = { cart: [...], customer: {...} }
+    if (Array.isArray(rawCart)) {
+      cart = rawCart;
+    } else if (rawCart && typeof rawCart === "object") {
+      cart = Array.isArray(rawCart.cart) ? rawCart.cart : [];
+      customerFromJson =
+        rawCart.customer && typeof rawCart.customer === "object"
+          ? rawCart.customer
+          : {};
+    }
+
+    // --- дані клієнта ---
     const customer = {
       firstName: order.customer_first_name || "",
       lastName: order.customer_last_name || "",
       phone: order.phone || "",
+      email: customerFromJson.email || order.email || "",
       np: order.np || "",
     };
 
-   let cart = [];
-let customerFromJson = {};
-
-let rawCart = order.cart_json || [];
-if (typeof rawCart === "string") {
-  try { rawCart = JSON.parse(rawCart); } catch { rawCart = []; }
-}
-
-// старий формат: cart_json = [товари]
-// новий формат: cart_json = { cart: [...], customer: {...} }
-if (Array.isArray(rawCart)) {
-  cart = rawCart;
-} else if (rawCart && typeof rawCart === "object") {
-  cart = Array.isArray(rawCart.cart) ? rawCart.cart : [];
-  customerFromJson = rawCart.customer && typeof rawCart.customer === "object" ? rawCart.customer : {};
-}
     const totalUAH = (order.total_cents || 0) / 100;
     const orderComment = String(customerFromJson.comment || "").trim();
 
     const emailText = buildEmailText({
-  reference,
-  customer,
-  cart,
-  totalUAH,
-  orderComment,
-});
+      reference,
+      customer,
+      cart,
+      totalUAH,
+      orderComment,
+    });
 
-const telegramHtml = buildTelegramHtml({
-  reference,
-  customer,
-  cart,
-  totalUAH,
-  orderComment,
-});
+    const telegramHtml = buildTelegramHtml({
+      reference,
+      customer,
+      cart,
+      totalUAH,
+      orderComment,
+    });
 
     let emailSent = false;
     let telegramSent = false;
     let emailError = null;
     let telegramError = null;
 
-    // --- E-MAIL ---
+    // --- E-MAIL адміну ---
     try {
       const transport = createTransport();
       const info = await transport.sendMail({
@@ -289,40 +298,42 @@ const telegramHtml = buildTelegramHtml({
       emailError = String(e?.message || e);
       console.error("EMAIL ERROR (webhook):", emailError);
     }
+
     // --- Email клієнту (підтвердження) ---
-try {
-  const customerEmail = String(customerFromJson.email || "").trim();
-  if (customerEmail) {
-    const transport = createTransport();
+    try {
+      const customerEmail = String(customer.email || "").trim();
 
-    const clientText = [
-      `Дякуємо за замовлення в IT'S A DATE! 🤍`,
-      `Ми вже отримали оплату та починаємо готувати ваше замовлення ✨`,
-      `Ваше замовлення ${reference} успішно оплачене.`,
-      `Відправимо його протягом 2–3 робочих днів Новою Поштою.`,
-      ``,
-      `Склад замовлення:`,
-      ...cart.map((it) => `• ${it.title} — ${it.qty} шт`),
-      ``,
-      `Сума: ${totalUAH} грн`,
-      ``,
-      `Дякуємо, що обираєте нас — ми це дуже цінуємо 🪷👋🙂
+      if (customerEmail) {
+        const transport = createTransport();
 
-Якщо виникнуть питання — ми завжди на зв’язку в Instagram @kyivdinnerclub`,
-    ].join("\n");
+        const clientText = [
+          `Дякуємо за замовлення в IT'S A DATE! 🤍`,
+          `Ми вже отримали оплату та починаємо готувати ваше замовлення ✨`,
+          `Ваше замовлення ${reference} успішно оплачене.`,
+          `Відправимо його протягом 2–3 робочих днів Новою Поштою.`,
+          ``,
+          `Склад замовлення:`,
+          ...cart.map((it) => `• ${it.title} — ${it.qty} шт`),
+          ``,
+          `Сума: ${totalUAH} грн`,
+          ``,
+          `Дякуємо, що обираєте нас — ми це дуже цінуємо 🪷👋🙂`,
+          ``,
+          `Якщо виникнуть питання — ми завжди на зв’язку в Instagram @kyivdinnerclub`,
+        ].join("\n");
 
-    await transport.sendMail({
-      from: ORDER_EMAIL_FROM,
-      to: customerEmail,
-      subject: `IT'S A DATE! — підтвердження замовлення ${reference}`,
-      text: clientText,
-    });
+        await transport.sendMail({
+          from: ORDER_EMAIL_FROM,
+          to: customerEmail,
+          subject: `IT'S A DATE! — підтвердження замовлення ${reference}`,
+          text: clientText,
+        });
 
-    console.log("Client email sent to:", customerEmail);
-  }
-} catch (e) {
-  console.error("CLIENT EMAIL ERROR:", String(e?.message || e));
-}
+        console.log("Client email sent to:", customerEmail);
+      }
+    } catch (e) {
+      console.error("CLIENT EMAIL ERROR:", String(e?.message || e));
+    }
 
     // --- Telegram ---
     try {
