@@ -39,18 +39,18 @@ const PRODUCTS = [
   {
     id: "white-pistachio",
     title: "White Chocolate & Pistachio Dates",
-    price: 400,
+    price: 480,
     img: "/img/white-pistachio.png",
     desc: "Фініки без кісточки, білий шоколад, фісташкова паста, вершки",
-    formats: { big: { label: "BIG", price: 400 }, togo: { label: "TO GO", price: 150 } },
+    formats: { big: { label: "BIG", price: 480 }, togo: { label: "TO GO", price: 180 } },
   },
   {
     id: "caramel",
     title: "Caramel Chocolate & Walnut Dates",
-    price: 375,
+    price: 465,
     img: "/img/caramel.png",
     desc: "Карамельний шоколад, праліне з грецького горіха, волоський горіх",
-    formats: { big: { label: "BIG", price: 375 }, togo: { label: "TO GO", price: 135 } },
+    formats: { big: { label: "BIG", price: 465 }, togo: { label: "TO GO", price: 175 } },
   },
   {
     id: "matcha-raspberry",
@@ -63,10 +63,10 @@ const PRODUCTS = [
   {
     id: "mixed",
     title: "Mixed (Milk & Dark) Chocolate Dates",
-    price: 320,
+    price: 385,
     img: "/img/mixed.png",
     desc: "Мікс молочного й темного шоколаду, арахісова паста, мальдонська сіль",
-    formats: { big: { label: "BIG", price: 320 }, togo: { label: "TO GO", price: 120 } },
+    formats: { big: { label: "BIG", price: 385 }, togo: { label: "TO GO", price: 145 } },
   },
 ];
 
