@@ -23,18 +23,18 @@ const PRODUCTS = [
   {
     id: "dark",
     title: "Dark Chocolate Dates",
-    price: 320,
+    price: 385,
     img: "/img/dark.png",
     desc: "Фініки без кісточки, темний шоколад, арахісова паста, мальдонська сіль",
-    formats: { big: { label: "BIG", price: 320 }, togo: { label: "TO GO", price: 120 } },
+    formats: { big: { label: "BIG", price: 385 }, togo: { label: "TO GO", price: 145 } },
   },
   {
     id: "milk",
     title: "Milk Chocolate Dates",
-    price: 320,
+    price: 385,
     img: "/img/milk.png",
     desc: "Фініки без кісточки, молочний шоколад, арахісова паста, мальдонська сіль",
-    formats: { big: { label: "BIG", price: 320 }, togo: { label: "TO GO", price: 120 } },
+    formats: { big: { label: "BIG", price: 385 }, togo: { label: "TO GO", price: 145 } },
   },
   {
     id: "white-pistachio",
@@ -55,10 +55,10 @@ const PRODUCTS = [
   {
     id: "matcha-raspberry",
     title: "Matcha & Raspberry Dates",
-    price: 400,
+    price: 480,
     img: "/img/matcha-raspberry.png",
     desc: "Фініки без кісточки, ганаш з малиновим пюре, білий шоколад з матча",
-    formats: { big: { label: "BIG", price: 400 }, togo: { label: "TO GO", price: 150 } },
+    formats: { big: { label: "BIG", price: 480 }, togo: { label: "TO GO", price: 180 } },
   },
   {
     id: "mixed",
